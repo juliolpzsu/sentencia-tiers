@@ -23,6 +23,9 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 - Dos variantes conmutables: **Por defecto** (habilidad 1, naturaleza neutra, ataques naturales) y **Tienda Kecleon** (mejor habilidad con Cápsula, mejor naturaleza con Menta y las MT que le sirven).
 - **Ficha por Pokémon**: veredicto, estrategia generada a partir de sus datos, desglose de la puntuación, estadísticas, daño recibido por cada tipo frente al pool real de legendarios, sus tres habilidades con el efecto exacto en el juego, y la build de cada variante: cuatro movimientos con el porqué, movimiento inicial, vetos, objeto, prioridad de cartas y condiciones de evolución.
 - **Mi partida** (opcional): pegas el guardado de tu cuenta y la web marca los Pokémon que tienes, sus mejoras compradas, la habilidad y naturaleza que te tocaron y tu puesto aproximado con esa habilidad. Se queda en tu navegador; no se envía a ningún sitio.
+- **MT a la venta hoy**: la web calcula las 8 MT diarias de la Tienda Kecleon con la misma fórmula que el juego (verificado contra la tienda real), marca cuántas builds usan cada una y filtra los Pokémon a los que su build les pide una de hoy.
+- El buscador encuentra también por **ataque** (de la build o aprendible por MT) y por **habilidad**.
+- Página **Cambios** con el historial de las actualizaciones automáticas.
 - Los filtros, el orden y la variante viajan en la **URL**, así que cualquier vista se puede compartir con un enlace; cada página lleva su tarjeta de vista previa para Discord, WhatsApp o X.
 - Páginas **La Sentencia** (la mecánica completa, con números) y **Método** (pesos, supuestos, pool de legendarios y créditos).
 - Estética *Night City*, legible en móvil e iPad, sin dependencias ni rastreadores.

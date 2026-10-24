@@ -253,5 +253,14 @@ dialog::backdrop { background: rgba(0,0,0,.72); }
 dialog textarea { width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line2); font-family: var(--font-mono); font-size: .82rem; padding: 8px; margin-top: 8px; }
 dialog .row { margin-top: 8px; }
 .snippet { background: var(--bg); border: 1px solid var(--line2); padding: 8px 10px; font-size: .78rem; overflow-x: auto; margin: 6px 0; color: var(--cyan); }
-.me { border-left: 3px solid var(--red); box-shadow: var(--sh-r); }
-.me h3 { color: var(--red); }
+section.me { border-left: 3px solid var(--red); box-shadow: var(--sh-r); }
+section.me h3 { color: var(--red); }
+
+/* ---- MT de hoy ---- */
+.tmday { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: var(--font-mono); font-size: .76rem; }
+.tmday .lbl { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: 4px; }
+.tmday .tm { border: 1px solid var(--line2); padding: 2px 7px; color: var(--muted); }
+.tmday .tm b { color: var(--yellow); font-weight: 400; }
+.tmday .tm.hot { color: var(--ink); border-color: var(--red); }
+.tmday .tm i { font-style: normal; color: #fff; background: var(--red); padding: 0 4px; margin-left: 2px; }
+.tmday .note8 { color: var(--dim); font-size: .7rem; flex-basis: 100%; }

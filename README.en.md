@@ -23,6 +23,9 @@ Everything is computed from the **game's source code**, not from anyone's impres
 - Two switchable variants: **Default** (ability 1, neutral nature, natural moves) and **Kecleon Shop** (best ability via Capsule, best nature via Mint and the TMs that help).
 - **Per-Pokémon page**: verdict, data-driven strategy, score breakdown, stats, damage taken by type against the real legendary pool, its three abilities with their exact in-game effect, and the build for each variant: four moves with the reasoning, starting move, bans, item, card priority and evolution conditions.
 - **My save** (optional): paste your account's save and the site marks the Pokémon you own, their bought upgrades, the ability and nature you rolled, and your approximate rank with that ability. It stays in your browser; nothing is sent anywhere.
+- **TMs on sale today**: the site computes the Kecleon Shop's 8 daily TMs with the game's own formula (checked against the real shop), shows how many builds use each and filters the Pokémon whose build asks for one of today's.
+- Search also matches **moves** (from the build or learnable by TM) and **abilities**.
+- A **Changes** page with the history of automatic updates.
 - Filters, sorting and variant live in the **URL**, so any view can be shared as a link; every page carries a preview card for Discord, WhatsApp or X.
 - **The Judgment** (the full mechanics, with numbers) and **Method** (weights, assumptions, legendary pool and credits) pages.
 - *Night City* look, readable on phones and tablets, no dependencies or trackers.

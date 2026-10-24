@@ -1,9 +1,9 @@
 /* Índice: filtros, orden y agrupación. Estado en la URL (compartible). Partida opcional del jugador (ver save.js). */
 (() => {
   const DATA = JSON.parse(document.getElementById('data').textContent);
-  const T = DATA.t, L = DATA.list, TYPES = DATA.types, TC = DATA.typeColors, AN = DATA.an, NAT = DATA.natures;
+  const T = DATA.t, L = DATA.list, TYPES = DATA.types, TC = DATA.typeColors, AN = DATA.an, NAT = DATA.natures, MV = DATA.mv;
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-  const state = { q: '', mode: 'base', sort: 'pos', dir: 1, group: 'tier', types: new Set(), tiers: new Set(), leg: false, slow: false, stun: false, regen: false, mine: false };
+  const state = { q: '', mode: 'base', sort: 'pos', dir: 1, group: 'tier', types: new Set(), tiers: new Set(), leg: false, slow: false, stun: false, regen: false, mine: false, tmday: false };
   let save = ST.load();
   const byDex = new Map(L.map(p => [p.dex, p]));
 
@@ -29,7 +29,7 @@
     if (state.group !== 'tier') u.set('g', state.group);
     if (state.types.size) u.set('t', [...state.types].join(','));
     if (state.tiers.size) u.set('tier', [...state.tiers].join(','));
-    const f = ['leg', 'slow', 'stun', 'regen', 'mine'].filter(k => state[k]); if (f.length) u.set('f', f.join(','));
+    const f = ['leg', 'slow', 'stun', 'regen', 'mine', 'tmday'].filter(k => state[k]); if (f.length) u.set('f', f.join(','));
     const qs = u.toString();
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
     try { localStorage.setItem('st.state', JSON.stringify({ mode: state.mode, group: state.group, sort: state.sort })); } catch (e) {}
@@ -74,6 +74,23 @@
   $('#me-clear').onclick = () => { save = null; ST.clear(); meStatus(); render(); dlg.close(); };
   meStatus();
 
+  // ---- MT a la venta hoy ----
+  let today = null;
+  function computeToday() {
+    const learn = dex => { const p = byDex.get(dex); if (!p) return []; const taught = (save && save.ptm && save.ptm[dex]) || [];
+      return DATA.tmAll.filter(id => p.tm.includes(DATA.tmIdx[id]) && !taught.includes(id)); };
+    today = ST.dailyTms(DATA.tmAll, save && save.partner, learn);
+    today.idx = new Set(today.list.map(id => DATA.tmIdx[id]));
+    const use = id => L.filter(p => p.st.includes(DATA.tmIdx[id])).length;
+    const d = today.date, date = d.slice(6) + '/' + d.slice(4, 6);
+    $('#tmday').innerHTML = `<span class="lbl">${T.tmToday.replace('{d}', date)}</span>` + today.list.map(id => {
+      const n = use(id), nm = DATA.tmIdx[id] >= 0 ? MV[DATA.tmIdx[id]] : id;
+      return `<span class="tm${n ? ' hot' : ''}" title="${T.tmFor.replace('{n}', n)}">${nm} <b>${DATA.tmPrice[id]}</b>${n ? ` <i>${n}</i>` : ''}</span>`;
+    }).join('') + (save && save.partner ? '' : `<span class="note8" title="${T.tm8}">* ${T.tm8}</span>`);
+  }
+  computeToday();
+  $('#me-load').addEventListener('click', () => { computeToday(); render(); }); $('#me-clear').addEventListener('click', () => { computeToday(); render(); });
+
   // ---- orden y filtros ----
   const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const v = p => p[state.mode];
@@ -91,7 +108,13 @@
   };
   function filtered() {
     let out = L.filter(p => {
-      if (state.q && !(norm(p.name).includes(norm(state.q)) || String(p.dex).includes(state.q) || norm(p.alt || '').includes(norm(state.q)))) return false;
+      if (state.q) {
+        const q = norm(state.q);
+        const hit = norm(p.name).includes(q) || String(p.dex).includes(state.q) || norm(p.alt || '').includes(q)
+          || (q.length >= 3 && (p.ab.some(a => a && norm(AN[a] || '').includes(q)) || p.bm.some(i => norm(MV[i]).includes(q)) || p.tm.some(i => norm(MV[i]).includes(q))));
+        if (!hit) return false;
+      }
+      if (state.tmday && !(today && p.st.some(i => today.idx.has(i)))) return false;
       if (state.types.size && !p.types.some(t => state.types.has(t))) return false;
       if (state.tiers.size && !state.tiers.has(v(p).tier)) return false;
       if (state.leg && !p.leg) return false;
@@ -137,7 +160,7 @@
       const g = groups.get(k); if (!g) continue;
       html += `<section class="group"><div class="group-h"><h2>${title(k)}</h2><span class="n">${g.length}</span></div><div class="grid">${g.map(card).join('')}</div></section>`;
     }
-    $('#out').innerHTML = html || `<div class="empty">${T.none}</div>`;
+    $('#out').innerHTML = html || `<div class="empty">${state.tmday && list.length === 0 ? T.tmNone : T.none}</div>`;
     writeUrl();
   }
   render();

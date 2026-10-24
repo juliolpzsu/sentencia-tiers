@@ -15,7 +15,7 @@ window.ST = (() => {
     const o = JSON.parse(text.trim());
     if (!o || typeof o !== 'object' || !o.owned || !o.created) throw new Error('formato');
     return { created: o.created, owned: Object.keys(o.owned).map(Number), pupg: o.pupg || {}, pabil: o.pabil || {}, pnat: o.pnat || {},
-             partner: o.partner || null, name: o.name || '', shiny: Object.keys(o.shiny || {}).map(Number) };
+             partner: o.partner || null, name: o.name || '', shiny: Object.keys(o.shiny || {}).map(Number), ptm: o.ptm || {} };
   }
   const UPG_MAX = 92;
   function upg(s, dex) { const u = s.pupg[dex]; return u ? Object.values(u).reduce((a, b) => a + (+b || 0), 0) : 0; }
@@ -37,6 +37,28 @@ window.ST = (() => {
     if (slot === 1 && abils[1] === abils[0]) slot = 0;
     return { slot, sc: abs[slot] != null ? abs[slot] : base };
   }
-  return { hash, load, store, clear, parse, upg, abilSlot, natureIdx, score, UPG_MAX,
+  /* MT a la venta hoy: réplica de G.Shop.dailyTms (js/data/shop.js). Semilla = fecha en España. */
+  function today() {
+    const p = {};
+    for (const x of new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date())) p[x.type] = x.value;
+    return p.year + p.month + p.day;
+  }
+  function rng(seed) {
+    let h = 2166136261;
+    for (let i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  /** all: ids de G.TM_MOVES ordenados; learnable(dex): MT que puede aprender (o null si no hay compañero). */
+  function dailyTms(all, partner, learnable) {
+    all = all.slice(); const d = today(), r = rng('kecleon:' + d);
+    for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+    const list = all.slice(0, 8);
+    if (partner) {
+      const mine = learnable(partner).slice().sort();
+      if (!list.some(id => mine.includes(id)) && mine.length) list[7] = mine[Math.floor(rng('kecleon:' + d + ':' + partner)() * mine.length)];
+    }
+    return { date: d, list };
+  }
+  return { today, dailyTms, hash, load, store, clear, parse, upg, abilSlot, natureIdx, score, UPG_MAX,
            SNIPPET: "copy(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('ps.cloud.'))))" };
 })();
