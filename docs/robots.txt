@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://juliolpzsu.github.io/sentencia-tiers/sitemap.xml

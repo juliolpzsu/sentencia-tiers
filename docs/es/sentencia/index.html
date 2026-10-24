@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Sentencia · Sentencia Tiers</title><meta name="description" content="Tier list de PokéSurvivor para la Sentencia de Arceus">
+<meta name="theme-color" content="#07070a"><link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head><body>
+<header class="top"><div class="wrap"><a class="logo" href="../../es/">SENTENCIA<b>//</b>TIERS</a><nav class="nav"><a href="../../es/" class="">Tiers</a><a href="../../es/sentencia/" class="on">La Sentencia</a><a href="../../es/metodo/" class="">Método</a><a href="https://github.com/juliolpzsu/sentencia-tiers" rel="noopener">Código</a></nav>
+<div class="lang"><a href="../../es/" class="on" data-l="es">ES</a><a href="../../en/" class="" data-l="en">EN</a></div></div></header>
+<main class="wrap"><article class="prose"><h1>Cómo funciona la Sentencia de Arceus</h1><p class="muted">Todo lo de aquí sale del código del juego (systems/judgment.js y compañía), no de la experiencia de nadie.</p>
+<h2>Qué pasa en el minuto 30</h2><p>Se acaba la partida normal. Arceus te lleva a las Ruinas del Juicio, una arena redonda de 768 px de radio (24 casillas) de la que nadie sale. Arceus es invencible, lleva una Tabla al azar que le da su tipo, y cada 5 segundos acude un legendario. El ranking tiene dos mitades: el tiempo que aguantas y el daño que le haces a Arceus.</p>
+<h2>Arceus</h2><ul>
+<li><b>No se le puede dejar atrás.</b> Su velocidad es relativa a la tuya: empieza al 74 % y a los 37 s ya va a 1,22 veces tu velocidad. A los 5 min de Sentencia acelera sin tope.</li>
+<li><b>Tope suave de velocidad:</b> lo que pase de 130 cuenta solo un 25 %. Corriendo al máximo te quedas en ~170 en vez de ~290.</li>
+<li><b>Sus pausas son tu distancia.</b> Cada ataque lo deja parado entre 1,05 y 1,45 s, y entre ataques solo anda 1,4 s. Si te mueves siempre alejándote, ganas unos 100 px por ciclo hasta el minuto 35.</li>
+<li><b>Su daño es porcentaje de vida y puro:</b> ignora tipos, defensa, Coraza y habilidades. Pilares 30 %, rayos en cruz 35 %, onda 40 %, toque 40 % (sube al 100 % entre los minutos 37 y 40). Solo lo contrarrestan la regeneración, esquivar y la Banda Focus.</li>
+<li><b>Pilares (la Sentencia):</b> de 4 a 10, radio 44 px, aviso de 1,25 s; el primero cae exactamente donde estás. Tras el primer impacto tienes 0,45 s de invulnerabilidad que absorbe el resto de la salva.</li>
+<li><b>Rayos en cruz:</b> 4, y 8 a partir de los 30 s, de 34 px de ancho y 1,1 s de aviso, barriendo toda la arena. A 300 px de Arceus el hueco entre rayos es de unos 200 px; pegado a él no hay hueco.</li>
+<li><b>Onda:</b> solo si estás a menos de 210 px, radio 170, aviso de 0,85 s. No te acerques a esa distancia.</li>
+<li><b>Minuto 35:</b> Arceus rompe el objeto de todos (Banda Focus incluida).</li></ul>
+<h2>Los legendarios</h2><ul>
+<li>Uno cada 5 s, al azar entre los 86 del juego. Cada uno tiene un 25 % más de vida y un 15 % más de daño que el anterior.</li>
+<li><b>La vida del primero son 3 s de tu propio daño a un solo objetivo</b> (lo que hayas hecho antes del minuto 30). Por eso tu DPS casi no cambia nada: a partir del tercero se acumulan sí o sí.</li>
+<li>Corren como mínimo al 80 % de tu velocidad. Los de tipo Psíquico, Eléctrico, Fantasma, Hada, Fuego, Agua, Hielo o Dragón disparan desde 300 px; el resto embiste.</li>
+<li>Su daño sí pasa por tus tipos, tu defensa (física o especial según su lado fuerte), Coraza (tope 80 %) y tu habilidad. Contacto: 126 × 1,15ⁿ en el minuto 30.</li>
+<li>Dan experiencia (nada más): cada uno sube cartas, y la Baya Zidra cura el 45 %.</li></ul>
+<div class="callout"><b>Lo único que les funciona:</b> los <b>frenazos</b> entran al 100 % (Rayo Hielo los deja al 30 % de velocidad y con la recarga reducida es permanente; con Dicha, al 20 %) y los <b>aturdimientos</b> duran el 35 %, pero con Reflejos se encadenan, y un legendario aturdido ni ataca ni te daña al tocarte. El empuje no les afecta, los remolinos solo al 25 %, y veneno y quemadura hacen 1,5 fijo.</div>
+<h2>Daño a Arceus</h2><p>Solo cuenta un 5 % de lo que le haces, que baja al 1 % a los 10 minutos, y tus ataques solo le apuntan cuando no queda ningún legendario vivo. Es el segundo ranking; para aguantar más tiempo no cambia nada.</p>
+<h2>Qué hacer</h2><ol><li>Mantente a 250–400 px de Arceus y corre en círculos amplios por el borde. Gana distancia en sus pausas.</li><li>Cuando se agrupen los legendarios, aturde y frena al grupo; no intentes matarlos a partir del tercero.</li><li>Lleva Restos (o Banda Focus), sube Reflejos, Coraza y Síntesis, y Carrera solo hasta el tope de 130.</li><li>Antes de la partida: Veto a Placaje, Ataque Rápido y Golpe Cuerpo, y Movimiento inicial + Repertorio para empezar con tu frenazo y tu aturdimiento.</li></ol></article></main>
+<footer class="wrap"><div>Datos y reglas: código de PokéSurvivor (JPTER78) · Ranking en hordas: SurvivorTiers (@fildotai) · Retratos: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.</div><div>Proyecto de fans sin ánimo de lucro, sin relación con los autores del juego ni con Nintendo. · Generado el 2026-10-24 · Parche del juego: 5a23d49 (23-10-2026) · <a href="https://github.com/juliolpzsu/sentencia-tiers" rel="noopener">GitHub</a></div></footer>
+</body></html>
