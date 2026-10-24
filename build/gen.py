@@ -3,6 +3,7 @@ import json, os, re, sys, html, shutil, unicodedata, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gamedata import ROOT, MOVES, NAT_BY, ABIL_NAMES, TYPE_ES, TYPE_EN, TYPES, EVO, NEED_NAME, en, TM_PRICE, TM_MOVES
 from abilfx import describe
+import advisor
 
 R = json.load(open(os.path.join(ROOT, 'data', 'ranking.json'), encoding='utf-8'))
 P = R['pokemon']
@@ -536,6 +537,8 @@ def main():
             write(os.path.join(DOCS, lang, 'pokemon', slug(p), 'index.html'), pokemon_page(p, lang, prev, nxt)); urls.append(f'{SITE}/{lang}/pokemon/{slug(p)}/')
     # puntuaciones compactas para el bloque "Tu partida" de las fichas: dex -> [base, hab1, hab2, oculta]
     write(os.path.join(DOCS, 'assets', 'scores.json'), json.dumps({p['dex']: [p['base']['score']] + [p['abil_scores'].get(str(i), None) for i in range(3)] for p in P}, separators=(',', ':')))
+    # datos del Consejero (extensión del navegador): docs/assets/advisor.json y extension/data.js
+    advisor.write_all(R, slug, DOCS, os.path.join(ROOT, 'extension'))
     write(os.path.join(DOCS, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n')
     print(f'{len(urls)} páginas en {time.time() - t0:.1f}s')
 

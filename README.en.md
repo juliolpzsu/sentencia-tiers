@@ -29,6 +29,7 @@ Everything is computed from the **game's source code**, not from anyone's impres
 - Filters, sorting and variant live in the **URL**, so any view can be shared as a link; every page carries a preview card for Discord, WhatsApp or X.
 - **The Judgment** (the full mechanics, with numbers) and **Method** (weights, assumptions, legendary pool and credits) pages.
 - *Night City* look, readable on phones and tablets, no dependencies or trackers.
+- **Advisor** ([extension/](extension/README.md)): a browser extension that, in game, marks which level-up card to take according to the build on the Pokémon's page. Works alongside PokeSurvivor Plus.
 
 ![Pokémon page](assets/readme/readme-ficha.png)
 

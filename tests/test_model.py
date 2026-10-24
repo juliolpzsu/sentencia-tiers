@@ -61,6 +61,18 @@ class TestRanking(unittest.TestCase):
             # la build por defecto solo usa movimientos naturales
             nat = G.natural_pool(p['dex'])
             for m in p['base']['build']['moves']: self.assertIn(m['id'], nat, p['name'])
+    def test_advisor_data(self):
+        """Los datos de la extensión (Consejero) cubren a los 966 y usan papeles y stats que conoce."""
+        import advisor
+        d = advisor.advisor_data(self.R, lambda p: str(p['dex']))
+        self.assertEqual(len(d['mons']), 966)
+        roles = {'slow', 'stun', 'primary', 'second', 'buff', 'aquaring', 'agility'}
+        stats = {'hp', 'atk', 'spd', 'cd', 'def', 'rgn', 'mag', 'xp'}
+        for e in d['mons'].values():
+            for b in filter(None, (e['b'], e.get('k'))):
+                self.assertTrue(b['m'] and all(r in roles for _, r in b['m']))
+                self.assertTrue(set(b.get('e', {}).values()) <= stats)
+        self.assertEqual(d['mons']['91']['b']['m'][0], ['ice-beam', 'slow'])
     def test_shop_never_worse(self):
         for p in self.P: self.assertGreaterEqual(p['shop']['score'], p['base']['score'] - 1e-9, p['name'])
     def test_known_facts(self):

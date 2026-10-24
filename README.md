@@ -29,6 +29,7 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 - Los filtros, el orden y la variante viajan en la **URL**, así que cualquier vista se puede compartir con un enlace; cada página lleva su tarjeta de vista previa para Discord, WhatsApp o X.
 - Páginas **La Sentencia** (la mecánica completa, con números) y **Método** (pesos, supuestos, pool de legendarios y créditos).
 - Estética *Night City*, legible en móvil e iPad, sin dependencias ni rastreadores.
+- **Consejero** ([extension/](extension/README.md)): extensión de navegador que, dentro del juego, marca en cada subida de nivel qué carta coger según la build de la ficha. Compatible con PokeSurvivor Plus.
 
 ![Ficha de un Pokémon](assets/readme/readme-ficha.png)
 
@@ -56,6 +57,7 @@ Llegar al minuto 30 **no puntúa**: lo bueno o malo que sea limpiando hordas se 
 │   ├── abilfx.py          Descripción de cada habilidad tal como la enseña el juego
 │   ├── rank.py            El modelo: calcula data/ranking.json (la guía)
 │   ├── gen.py             Genera la web estática (docs/) en ES y EN
+│   ├── advisor.py         Datos del Consejero (docs/assets/advisor.json y extension/data.js)
 │   ├── fetch_portraits.py Descarga los retratos (PMD SpriteCollab)
 │   └── update.py          Comprueba si el juego cambió y, si afecta al ranking, lo actualiza
 ├── data/
@@ -66,6 +68,7 @@ Llegar al minuto 30 **no puntúa**: lo bueno o malo que sea limpiando hordas se 
 │   ├── es/ · en/          Índice, fichas y páginas de cada idioma
 │   ├── assets/            style.css, app.js (índice), page.js (fichas), save.js (partida del jugador), scores.json
 │   └── img/p/             Retratos
+├── extension/             Consejero: extensión del navegador para las cartas de subida de nivel
 ├── tests/                 Pruebas del modelo (unittest, sin dependencias)
 ├── assets/readme/         Capturas para este README
 └── .github/workflows/     update.yml: actualización automática diaria · tests.yml: pruebas en cada push
