@@ -1,0 +1,41 @@
+name: Actualizar ranking si cambia el juego
+
+on:
+  schedule:
+    - cron: '30 6 * * *'   # todos los días a las 06:30 UTC (07:30/08:30 en España)
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Recalcular y publicar aunque el juego no haya cambiado'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-ranking
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Comprobar el juego y recalcular el ranking
+        id: upd
+        run: python -I build/update.py ${{ inputs.force && '--force' || '' }}
+      - name: Regenerar la web
+        if: steps.upd.outputs.changed == 'true'
+        run: python -I build/gen.py
+      - name: Publicar
+        if: steps.upd.outputs.changed == 'true'
+        run: |
+          git config user.name "sentencia-tiers[bot]"
+          git config user.email "sentencia-tiers[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Actualización automática: ${{ steps.upd.outputs.summary }}"
+          git push

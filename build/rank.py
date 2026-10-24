@@ -146,9 +146,12 @@ for t in TYPES:
     for cat in ('physical', 'special'):
         LEG_TK[(t, cat)] = sum(tmult(t, L['types']) * guard(L['df'] if cat == 'physical' else L['sd']) for L in LEGS) / len(LEGS)
 
-def raw_components(dex, ab, nat, pool):
-    """Componentes en bruto (sin normalizar) para una configuración."""
+def raw_components(dex, ab, nat, pool, natural=None):
+    """Componentes en bruto (sin normalizar) para una configuración.
+    Los empates se deshacen a favor del movimiento natural (sin MT) y, después, por nombre: resultado determinista."""
     b = DEX[dex]; mon = mon_with_nature(dex, nat); types = b['types']
+    natural = natural if natural is not None else pool
+    pool = sorted(pool, key=lambda m: (m not in natural, m))
     tot = 0.0; by_type = defaultdict(float)
     for L in LEGS:
         at = L['types'][0]; cls = 'p' if L['pa'] >= L['sa'] else 's'
@@ -282,7 +285,7 @@ def evaluate(dex, norm=None):
         ab_opts.append((slot, ab))
     for slot, ab in ab_opts:
         for nat in nature_candidates(mon_with_nature(dex, None)):
-            r2 = raw_components(dex, ab, nat, pool_shop)
+            r2 = raw_components(dex, ab, nat, pool_shop, natural=pool_nat)
             s2, c2 = norm.score(r2)
             if best is None or s2 > best[0]: best = (s2, c2, slot, ab, nat, r2)
     s2, c2, slot, ab, nat, r2 = best
@@ -309,7 +312,9 @@ def main():
         for i, r in enumerate(order):
             r[key]['pos'] = i + 1; r[key]['tier'] = tier_of(i + 1)
     rows.sort(key=lambda r: r['base']['pos'])
-    doc = dict(generated=time.strftime('%Y-%m-%d'), game_commit='5a23d49 (23-10-2026)', weights=W, tiers=[[lim, t] for lim, t in TIERS[:-1]] + [[966, 'D']],
+    vfile = os.path.join(GAME, 'VERSION')
+    game_commit = open(vfile, encoding='utf-8').read().strip() if os.path.exists(vfile) else '5a23d49 (2026-10-23)'
+    doc = dict(generated=time.strftime('%Y-%m-%d'), game_commit=game_commit, weights=W, tiers=[[lim, t] for lim, t in TIERS[:-1]] + [[966, 'D']],
                legendary_pool=[dict(dex=L['dex'], name=L['name'], types=L['types'], side='physical' if L['pa'] >= L['sa'] else 'special') for L in LEGS],
                model=dict(upgrades='Vitalidad +80, Zancada ×1,24, Reflejos ×0,76, Golpe Crítico 30 %', cards='15 Vigor, 8 Carrera, 10 Reflejos', spd_cap=130),
                pokemon=rows)

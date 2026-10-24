@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-24",
- "game_commit": "5a23d49 (23-10-2026)",
+ "game_commit": "a45019a (2026-10-23)",
  "weights": {
   "V": 0.0,
   "T": 0.36,
@@ -20059,7 +20059,7 @@
     "S": 165,
     "slow": "dragon-breath",
     "slow_v": 0.15,
-    "stun": "rock-tomb",
+    "stun": "thunder-wave",
     "stun_v": 1.0,
     "heal": 0.0,
     "dmv": "shadow-ball",
@@ -20073,9 +20073,9 @@
        "kind": "cone"
       },
       {
-       "id": "rock-tomb",
+       "id": "thunder-wave",
        "code": "stun",
-       "secs": 0.66
+       "secs": 0.73
       },
       {
        "id": "thunder-shock",
@@ -20092,7 +20092,7 @@
      ],
      "side": "physical",
      "start": "dragon-breath",
-     "start2": "rock-tomb",
+     "start2": "thunder-wave",
      "bans": [
       "tackle",
       "quick-attack",
@@ -20105,9 +20105,9 @@
        "needName": "Potencia"
       },
       {
-       "move": "rock-tomb",
-       "need": "hp",
-       "needName": "Vigor"
+       "move": "thunder-wave",
+       "need": "atk",
+       "needName": "Potencia"
       },
       {
        "move": "thunder-shock",
@@ -20122,12 +20122,7 @@
       "assaultvest"
      ]
     },
-    "tms": [
-     {
-      "id": "rock-tomb",
-      "price": 660
-     }
-    ],
+    "tms": [],
     "pos": 321,
     "tier": "C"
    }
@@ -40762,7 +40757,7 @@
     "S": 162,
     "slow": "dragon-breath",
     "slow_v": 0.15,
-    "stun": "rock-tomb",
+    "stun": "thunder-wave",
     "stun_v": 1.0,
     "heal": 0.0,
     "dmv": "thunder-shock",
@@ -40776,9 +40771,9 @@
        "kind": "cone"
       },
       {
-       "id": "rock-tomb",
+       "id": "thunder-wave",
        "code": "stun",
-       "secs": 0.66
+       "secs": 0.73
       },
       {
        "id": "thunder-shock",
@@ -40795,7 +40790,7 @@
      ],
      "side": "physical",
      "start": "dragon-breath",
-     "start2": "rock-tomb",
+     "start2": "thunder-wave",
      "bans": [
       "tackle",
       "quick-attack",
@@ -40808,9 +40803,9 @@
        "needName": "Potencia"
       },
       {
-       "move": "rock-tomb",
-       "need": "hp",
-       "needName": "Vigor"
+       "move": "thunder-wave",
+       "need": "atk",
+       "needName": "Potencia"
       },
       {
        "move": "thunder-shock",
@@ -40825,12 +40820,7 @@
       "assaultvest"
      ]
     },
-    "tms": [
-     {
-      "id": "rock-tomb",
-      "price": 660
-     }
-    ],
+    "tms": [],
     "pos": 445,
     "tier": "C"
    }
@@ -55237,16 +55227,16 @@
     "S": 167,
     "slow": null,
     "slow_v": 0.0,
-    "stun": "rock-tomb",
+    "stun": "thunder-wave",
     "stun_v": 1.0,
     "heal": 0.0,
     "dmv": "thunder-shock",
     "build": {
      "moves": [
       {
-       "id": "rock-tomb",
+       "id": "thunder-wave",
        "code": "stun",
-       "secs": 0.66
+       "secs": 0.73
       },
       {
        "id": "thunder-shock",
@@ -55268,7 +55258,7 @@
      ],
      "side": "physical",
      "start": "thunder-shock",
-     "start2": "rock-tomb",
+     "start2": "thunder-wave",
      "bans": [
       "tackle",
       "quick-attack",
@@ -55276,9 +55266,9 @@
      ],
      "evos": [
       {
-       "move": "rock-tomb",
-       "need": "hp",
-       "needName": "Vigor"
+       "move": "thunder-wave",
+       "need": "atk",
+       "needName": "Potencia"
       },
       {
        "move": "thunder-shock",
@@ -55298,12 +55288,7 @@
       "assaultvest"
      ]
     },
-    "tms": [
-     {
-      "id": "rock-tomb",
-      "price": 660
-     }
-    ],
+    "tms": [],
     "pos": 511,
     "tier": "C"
    }
@@ -56320,16 +56305,16 @@
     "S": 150,
     "slow": null,
     "slow_v": 0.0,
-    "stun": "rock-tomb",
+    "stun": "thunder-wave",
     "stun_v": 1.0,
     "heal": 0.0,
     "dmv": "thunder-shock",
     "build": {
      "moves": [
       {
-       "id": "rock-tomb",
+       "id": "thunder-wave",
        "code": "stun",
-       "secs": 0.66
+       "secs": 0.73
       },
       {
        "id": "thunder-shock",
@@ -56351,7 +56336,7 @@
      ],
      "side": "physical",
      "start": "thunder-shock",
-     "start2": "rock-tomb",
+     "start2": "thunder-wave",
      "bans": [
       "tackle",
       "quick-attack",
@@ -56359,9 +56344,9 @@
      ],
      "evos": [
       {
-       "move": "rock-tomb",
-       "need": "hp",
-       "needName": "Vigor"
+       "move": "thunder-wave",
+       "need": "atk",
+       "needName": "Potencia"
       },
       {
        "move": "thunder-shock",
@@ -56381,12 +56366,7 @@
       "assaultvest"
      ]
     },
-    "tms": [
-     {
-      "id": "rock-tomb",
-      "price": 660
-     }
-    ],
+    "tms": [],
     "pos": 516,
     "tier": "C"
    }
@@ -67848,16 +67828,16 @@
     "S": 170,
     "slow": null,
     "slow_v": 0.0,
-    "stun": "rock-tomb",
+    "stun": "thunder-wave",
     "stun_v": 1.0,
     "heal": 0.0,
     "dmv": "thunder-shock",
     "build": {
      "moves": [
       {
-       "id": "rock-tomb",
+       "id": "thunder-wave",
        "code": "stun",
-       "secs": 0.66
+       "secs": 0.73
       },
       {
        "id": "thunder-shock",
@@ -67879,7 +67859,7 @@
      ],
      "side": "special",
      "start": "thunder-shock",
-     "start2": "rock-tomb",
+     "start2": "thunder-wave",
      "bans": [
       "tackle",
       "quick-attack",
@@ -67887,9 +67867,9 @@
      ],
      "evos": [
       {
-       "move": "rock-tomb",
-       "need": "hp",
-       "needName": "Vigor"
+       "move": "thunder-wave",
+       "need": "atk",
+       "needName": "Potencia"
       },
       {
        "move": "thunder-shock",
@@ -67909,12 +67889,7 @@
       "assaultvest"
      ]
     },
-    "tms": [
-     {
-      "id": "rock-tomb",
-      "price": 660
-     }
-    ],
+    "tms": [],
     "pos": 545,
     "tier": "C"
    }
@@ -100234,16 +100209,16 @@
     "S": 160,
     "slow": null,
     "slow_v": 0.0,
-    "stun": "rock-tomb",
+    "stun": "thunder-wave",
     "stun_v": 1.0,
     "heal": 0.0,
     "dmv": "thunder-shock",
     "build": {
      "moves": [
       {
-       "id": "rock-tomb",
+       "id": "thunder-wave",
        "code": "stun",
-       "secs": 0.66
+       "secs": 0.73
       },
       {
        "id": "thunder-shock",
@@ -100265,7 +100240,7 @@
      ],
      "side": "special",
      "start": "thunder-shock",
-     "start2": "rock-tomb",
+     "start2": "thunder-wave",
      "bans": [
       "tackle",
       "quick-attack",
@@ -100273,9 +100248,9 @@
      ],
      "evos": [
       {
-       "move": "rock-tomb",
-       "need": "hp",
-       "needName": "Vigor"
+       "move": "thunder-wave",
+       "need": "atk",
+       "needName": "Potencia"
       },
       {
        "move": "thunder-shock",
@@ -100295,12 +100270,7 @@
       "assaultvest"
      ]
     },
-    "tms": [
-     {
-      "id": "rock-tomb",
-      "price": 660
-     }
-    ],
+    "tms": [],
     "pos": 659,
     "tier": "D"
    }
@@ -157768,7 +157738,7 @@
     "S": 172,
     "slow": "ice-beam",
     "slow_v": 0.7,
-    "stun": "thunder-wave",
+    "stun": "rock-tomb",
     "stun_v": 1.0,
     "heal": 0.0,
     "dmv": "energy-ball",
@@ -157782,9 +157752,9 @@
        "kind": "beam"
       },
       {
-       "id": "thunder-wave",
+       "id": "rock-tomb",
        "code": "stun",
-       "secs": 0.73
+       "secs": 0.66
       },
       {
        "id": "energy-ball",
@@ -157801,7 +157771,7 @@
      ],
      "side": "physical",
      "start": "ice-beam",
-     "start2": "thunder-wave",
+     "start2": "rock-tomb",
      "bans": [
       "tackle",
       "quick-attack",
@@ -157814,9 +157784,9 @@
        "needName": "Potencia"
       },
       {
-       "move": "thunder-wave",
-       "need": "atk",
-       "needName": "Potencia"
+       "move": "rock-tomb",
+       "need": "hp",
+       "needName": "Vigor"
       },
       {
        "move": "energy-ball",
@@ -157845,8 +157815,8 @@
       "price": 840
      },
      {
-      "id": "thunder-wave",
-      "price": 400
+      "id": "rock-tomb",
+      "price": 660
      }
     ],
     "pos": 76,
