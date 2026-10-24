@@ -34,10 +34,10 @@ COMP = {'es': dict(V=('Llegar al minuto 30', 'ranking en hordas de SurvivorTiers
 
 UI = {
  'es': dict(title='Sentencia Tiers', tagline='Tier list de PokéSurvivor para la Sentencia de Arceus', nav_tiers='Tiers', nav_judg='La Sentencia', nav_method='Método', nav_repo='Código',
-            intro='Los 966 Pokémon ordenados por lo que aguantan en la Sentencia de Arceus (minuto 30), no por las hordas. Calculado a partir del código del juego: frenazos, aturdimientos, defensas frente a los 86 legendarios que acuden, regeneración, velocidad con tope y tamaño.',
+            intro='Los 966 Pokémon ordenados solo por lo que aguantan en la Sentencia de Arceus (minuto 30). Calculado a partir del código del juego: frenazos, aturdimientos, defensas frente a los 86 legendarios que acuden, regeneración, velocidad con tope y tamaño. Lo que limpian antes del minuto 30 se indica en cada ficha, no puntúa.',
             updated='Parche del juego', pokemon='Pokémon', legs='Legendarios', nonlegs='No legendarios', all='Todos', tier='Tier', search='Buscar por nombre o número', sort='Ordenar por', group='Agrupar por',
             mode_base='Por defecto', mode_shop='Tienda Kecleon', count='{n} de {m} Pokémon', none='Ningún Pokémon cumple los filtros.', shuffle='Al azar', filters='Filtros', types='Tipos',
-            sort_opts=[('pos', 'Puesto'), ('name', 'Nombre'), ('dex', 'Nº Pokédex'), ('hordes', 'Ranking en hordas'), ('T', 'Aguante'), ('U', 'Control'), ('V', 'Llegar al minuto 30'), ('A', 'Regeneración'), ('D', 'Daño'), ('S', 'Velocidad'), ('Z', 'Tamaño'), ('hp', 'Vida'), ('spd', 'Velocidad base'), ('rnd', 'Al azar')],
+            sort_opts=[('pos', 'Puesto'), ('name', 'Nombre'), ('dex', 'Nº Pokédex'), ('hordes', 'Ranking en hordas'), ('T', 'Aguante'), ('U', 'Control'), ('A', 'Regeneración'), ('D', 'Daño'), ('S', 'Velocidad'), ('Z', 'Tamaño'), ('hp', 'Vida'), ('spd', 'Velocidad base'), ('rnd', 'Al azar')],
             group_opts=[('tier', 'Tier'), ('type', 'Tipo'), ('leg', 'Legendarios'), ('none', 'Sin agrupar')],
             flag_leg='Solo legendarios', flag_slow='Con frenazo', flag_stun='Con aturdimiento', flag_regen='Con regeneración', slow='Frenazo', stun='Aturdimiento', regen='Regeneración', slowS='SLOW', stunS='STUN', regenS='REGEN',
             mode_help='Por defecto: habilidad 1, naturaleza neutra y solo sus ataques naturales. Tienda Kecleon: la mejor habilidad (Cápsula), la mejor naturaleza (Menta) y las MT que le sirven.',
@@ -51,10 +51,10 @@ UI = {
             strategy='Estrategia', verdict='Veredicto', footer_data='Datos y reglas: código de PokéSurvivor (JPTER78) · Ranking en hordas: SurvivorTiers (@fildotai) · Retratos: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.',
             footer_fan='Proyecto de fans sin ánimo de lucro, sin relación con los autores del juego ni con Nintendo.', generated='Generado el', not_available='—'),
  'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source',
-            intro='All 966 Pokémon ranked by how long they last in Arceus’ Judgment (minute 30), not in the hordes. Computed from the game’s code: slows, stuns, defenses against the 86 legendaries that show up, regeneration, capped speed and size.',
+            intro='All 966 Pokémon ranked only by how long they last in Arceus’ Judgment (minute 30). Computed from the game’s code: slows, stuns, defenses against the 86 legendaries that show up, regeneration, capped speed and size. How well they clear before minute 30 is shown on each page; it does not score.',
             updated='Game patch', pokemon='Pokémon', legs='Legendaries', nonlegs='Non-legendaries', all='All', tier='Tier', search='Search by name or number', sort='Sort by', group='Group by',
             mode_base='Default', mode_shop='Kecleon Shop', count='{n} of {m} Pokémon', none='No Pokémon matches the filters.', shuffle='Shuffle', filters='Filters', types='Types',
-            sort_opts=[('pos', 'Rank'), ('name', 'Name'), ('dex', 'Dex number'), ('hordes', 'Horde ranking'), ('T', 'Toughness'), ('U', 'Control'), ('V', 'Reaching minute 30'), ('A', 'Regeneration'), ('D', 'Damage'), ('S', 'Speed'), ('Z', 'Size'), ('hp', 'HP'), ('spd', 'Base speed'), ('rnd', 'Random')],
+            sort_opts=[('pos', 'Rank'), ('name', 'Name'), ('dex', 'Dex number'), ('hordes', 'Horde ranking'), ('T', 'Toughness'), ('U', 'Control'), ('A', 'Regeneration'), ('D', 'Damage'), ('S', 'Speed'), ('Z', 'Size'), ('hp', 'HP'), ('spd', 'Base speed'), ('rnd', 'Random')],
             group_opts=[('tier', 'Tier'), ('type', 'Type'), ('leg', 'Legendaries'), ('none', 'No grouping')],
             flag_leg='Legendaries only', flag_slow='Has a slow', flag_stun='Has a stun', flag_regen='Has regeneration', slow='Slow', stun='Stun', regen='Regeneration', slowS='SLOW', stunS='STUN', regenS='REGEN',
             mode_help='Default: ability 1, neutral nature and natural moves only. Kecleon Shop: best ability (Capsule), best nature (Mint) and the TMs that help.',
@@ -174,17 +174,21 @@ def strategy(p, lang):
         r = f" Lo que mejor aguanta: {', '.join(f'{tn(t)} (×{es_num(v)})' for t, v in reversed(best))}." if best else ''
         paras.append(f"{N} es tier {b['tier']} de la Sentencia (puesto {b['pos']} de 966) y tier {ht} en las hordas: {via}. Frente al pool de legendarios {tough}.{w}{r}")
         tools = []
-        if b['slow']: tools.append(f"{mname(b['slow'], lang)} frena un {round(b['slow_v'] / 0.8 * 80) if False else round(min(0.8, MOVES[b['slow']]['slow'] * (2 if b['ability'] == 'serene-grace' else 1)) * 100)} % a los legendarios")
+        sp_pct = slow_pct(b)
+        if b['slow']: tools.append(f"{mname(b['slow'], lang)} frena un {sp_pct} % a los legendarios" + (' (van al 80 % de tu velocidad: con eso ya no te alcanzan)' if sp_pct < 50 else ' (se quedan casi parados)'))
         if b['stun']: tools.append(f"{mname(b['stun'], lang)} los aturde por zonas")
-        if b['heal']: tools.append("Acua Aro le da regeneración contra los pilares")
-        if tools: paras.append("Sus herramientas naturales para la Sentencia: " + '; '.join(tools) + ". Los jefes ignoran el empuje y resisten los remolinos, pero los frenazos entran al 100 % y los aturdimientos se encadenan con Reflejos: con eso los legendarios dejan de ser una amenaza y solo queda esquivar a Arceus.")
-        else: paras.append("No tiene ni frenazo ni aturdimiento naturales: contra los legendarios solo puede correr y aguantar, así que la Sentencia depende de esquivar y de la regeneración. Con la Tienda Kecleon cambia la cosa (ver la pestaña).")
+        if b['heal'] >= 0.6: tools.append("Acua Aro le da regeneración contra los pilares")
+        if tools:
+            fin = ("con eso los legendarios dejan de ser una amenaza y solo queda esquivar a Arceus." if (b['stun'] or sp_pct >= 60) else "con eso puedes mantener a los legendarios a raya mientras esquivas a Arceus.")
+            paras.append("Sus herramientas naturales para la Sentencia: " + '; '.join(tools) + ". Los jefes ignoran el empuje y resisten los remolinos, pero los frenazos entran al 100 % y los aturdimientos se encadenan con Reflejos: " + fin + (" Si consigues un vínculo en una grieta, fusiona el frenazo y el aturdimiento en un mismo hueco para tenerlos activos a la vez." if (b['slow'] and b['stun']) else ''))
+        else: paras.append("No tiene ni frenazo ni aturdimiento naturales a distancia: contra los legendarios solo puede correr y aguantar, así que la Sentencia depende de esquivar y de la regeneración. Con la Tienda Kecleon cambia la cosa (ver la pestaña).")
         sp = b['build']['spd_cards']
         size = 'pequeño, así que los pilares (44 px de radio) y los rayos tienen menos margen para pillarle' if p['r'] <= 11 else 'de tamaño medio' if p['r'] < 17 else 'grande: cuenta como el radio máximo (18 px) y le cuesta un poco más salir de los pilares'
         paras.append(f"Velocidad: {'con Zancada al máximo ya roza el tope suave de 130' if sp == 0 else ('necesita una carta de Carrera' if sp == 1 else f'necesita unas {sp} cartas de Carrera') + ' para llegar al tope suave de 130'}; Arceus corre siempre a 1,22 veces la tuya, así que la velocidad sirve para esquivar y para que los legendarios (al 80 % de tu velocidad) no te alcancen, no para huir de Arceus. Es {size}.")
         paras.append(f"Plan: mantente a 250–400 px de Arceus (su onda solo sale si estás a menos de 210), muévete en círculos amplios por el borde de la arena y gana distancia en sus pausas de ataque (1,1–1,5 s cada vez que lanza). Cuando los legendarios se agrupen, {'lánzales ' + mname(b['stun'], lang) + ' y ' if b['stun'] else ''}{'mantén ' + mname(b['slow'], lang) + ' activo sobre el grupo' if b['slow'] else 'sigue corriendo: no intentes matarlos a partir del tercero'}. Desde el minuto 35 Arceus rompe tu objeto y acelera; desde el 37 su toque quita cada vez más. El récord realista está entre los 5 y los 8 minutos de Sentencia.")
-        if s['pos'] < b['pos'] - 50 or s['tms']:
-            paras.append(f"Con la Tienda Kecleon sube al puesto {s['pos']}: " + ', '.join(filter(None, [f"{mname(t['id'], lang)} por MT" for t in s['tms']] + ([f"naturaleza {nname(s['nature'], lang)}"] if s['nature'] else []) + ([f"habilidad {aname(s['ability'], lang)}"] if s['ability'] != b['ability'] else []))) + '.')
+        changes = ', '.join(filter(None, [f"{mname(t['id'], lang)} por MT" for t in s['tms']] + ([f"naturaleza {nname(s['nature'], lang)}"] if s['nature'] else []) + ([f"habilidad {aname(s['ability'], lang)}"] if s['ability'] != b['ability'] else [])))
+        if changes:
+            paras.append((f"Con la Tienda Kecleon sube al puesto {s['pos']}: " if s['pos'] < b['pos'] else f"Con la Tienda Kecleon queda en el puesto {s['pos']} (mejora, pero otros mejoran más): ") + changes + '.')
     else:
         via = {'S': 'reaches minute 30 comfortably', 'A': 'reaches minute 30 without trouble with a normal build', 'B': 'reaches minute 30 if the run goes cleanly', 'C': 'struggles to reach minute 30: it needs a good item and no risks', 'D': 'reaching minute 30 is already a challenge; the Judgment is almost a bonus'}[ht]
         tough = ('shrugs off the legendaries’ hits' if T < 0.75 else 'takes the legendaries’ hits about as well as average' if T < 0.95 else 'is frail against the legendaries') + f" (it takes ×{T:.2f} of the reference damage)"
@@ -192,33 +196,45 @@ def strategy(p, lang):
         r = f" What it resists best: {', '.join(f'{tn(t)} (×{v:.2f})' for t, v in reversed(best))}." if best else ''
         paras.append(f"{N} is Judgment tier {b['tier']} (rank {b['pos']} of 966) and horde tier {ht}: it {via}. Against the legendary pool it {tough}.{w}{r}")
         tools = []
-        if b['slow']: tools.append(f"{mname(b['slow'], lang)} slows the legendaries by {round(min(0.8, MOVES[b['slow']]['slow'] * (2 if b['ability'] == 'serene-grace' else 1)) * 100)}%")
+        sp_pct = slow_pct(b)
+        if b['slow']: tools.append(f"{mname(b['slow'], lang)} slows the legendaries by {sp_pct}%" + (' (they run at 80% of your speed: that is enough to keep them off you)' if sp_pct < 50 else ' (they are left almost standing)'))
         if b['stun']: tools.append(f"{mname(b['stun'], lang)} stuns them in zones")
-        if b['heal']: tools.append("Aqua Ring gives it regeneration against the pillars")
-        if tools: paras.append("Its natural Judgment tools: " + '; '.join(tools) + ". Bosses ignore knockback and resist whirlpools, but slows land at 100% and stuns chain with Reflexes: with those the legendaries stop being a threat and all that is left is dodging Arceus.")
-        else: paras.append("It has neither a natural slow nor a stun: against the legendaries it can only run and endure, so the Judgment comes down to dodging and regeneration. The Kecleon Shop changes that (see the tab).")
+        if b['heal'] >= 0.6: tools.append("Aqua Ring gives it regeneration against the pillars")
+        if tools:
+            fin = ("with those the legendaries stop being a threat and all that is left is dodging Arceus." if (b['stun'] or sp_pct >= 60) else "with that you can keep the legendaries at bay while you dodge Arceus.")
+            paras.append("Its natural Judgment tools: " + '; '.join(tools) + ". Bosses ignore knockback and resist whirlpools, but slows land at 100% and stuns chain with Reflexes: " + fin + (" If you earn a bond in a rift, fuse the slow and the stun into one slot so both stay active at once." if (b['slow'] and b['stun']) else ''))
+        else: paras.append("It has neither a natural ranged slow nor a stun: against the legendaries it can only run and endure, so the Judgment comes down to dodging and regeneration. The Kecleon Shop changes that (see the tab).")
         sp = b['build']['spd_cards']
         size = 'small, so pillars (44 px radius) and beams have less margin to catch it' if p['r'] <= 11 else 'medium-sized' if p['r'] < 17 else 'big: it counts as the maximum radius (18 px) and takes slightly longer to leave a pillar'
         paras.append(f"Speed: {'with Stride maxed it already touches the soft cap of 130' if sp == 0 else ('it needs one Sprint card' if sp == 1 else f'it needs about {sp} Sprint cards') + ' to reach the soft cap of 130'}; Arceus always runs at 1.22× your speed, so speed is for dodging and for keeping the legendaries (at 80% of your speed) off you, not for outrunning Arceus. It is {size}.")
         paras.append(f"Plan: stay 250–400 px from Arceus (its shockwave only fires if you are closer than 210), run wide circles along the arena edge and gain distance during its casting pauses (1.1–1.5 s every cast). When the legendaries bunch up, {'drop ' + mname(b['stun'], lang) + ' on them and ' if b['stun'] else ''}{'keep ' + mname(b['slow'], lang) + ' active on the group' if b['slow'] else 'keep running: do not try to kill them after the third'}. From minute 35 Arceus breaks your item and speeds up; from minute 37 its touch hurts more and more. A realistic record sits between 5 and 8 minutes of Judgment.")
-        if s['pos'] < b['pos'] - 50 or s['tms']:
-            paras.append(f"With the Kecleon Shop it climbs to rank {s['pos']}: " + ', '.join(filter(None, [f"{mname(t['id'], lang)} via TM" for t in s['tms']] + ([f"{nname(s['nature'], lang)} nature"] if s['nature'] else []) + ([f"{aname(s['ability'], lang)} ability"] if s['ability'] != b['ability'] else []))) + '.')
+        changes = ', '.join(filter(None, [f"{mname(t['id'], lang)} via TM" for t in s['tms']] + ([f"{nname(s['nature'], lang)} nature"] if s['nature'] else []) + ([f"{aname(s['ability'], lang)} ability"] if s['ability'] != b['ability'] else [])))
+        if changes:
+            paras.append((f"With the Kecleon Shop it climbs to rank {s['pos']}: " if s['pos'] < b['pos'] else f"With the Kecleon Shop it lands at rank {s['pos']} (it improves, but others improve more): ") + changes + '.')
     return paras
 
+def slow_pct(b):
+    if not b['slow']: return 0
+    return round(min(0.8, MOVES[b['slow']]['slow'] * (2 if b['ability'] == 'serene-grace' else 1)) * 100)
+
 def verdict(p, lang):
-    b = p['base']
+    b = p['base']; ht = p['hordes']['tier']
     tools = (b['slow'] is not None) + (b['stun'] is not None) + (b['heal'] > 0)
     if lang == 'es':
-        if b['tier'] == 'S': return 'De los mejores para la Sentencia: control, aguante y lo necesario para llegar al minuto 30.'
-        if b['tier'] == 'A': return 'Muy buena elección para la Sentencia' + (': tiene las herramientas de control que importan.' if tools >= 2 else ', aunque le falta alguna herramienta de control.')
-        if b['tier'] == 'B': return 'Opción correcta: aguanta la Sentencia un rato, pero hay quien lo hace mejor con menos esfuerzo.'
-        if b['tier'] == 'C': return 'Justo para la Sentencia: le falta control o aguante, y necesita una partida limpia.'
-        return 'No es para la Sentencia: le faltan herramientas y aguante. Juégalo por gusto, no por el ranking.'
-    if b['tier'] == 'S': return 'Among the best for the Judgment: control, toughness and what it takes to reach minute 30.'
-    if b['tier'] == 'A': return 'A very good Judgment pick' + (': it has the control tools that matter.' if tools >= 2 else ', though it lacks a control tool.')
-    if b['tier'] == 'B': return 'A fair option: it lasts a while in the Judgment, but others do it better with less effort.'
-    if b['tier'] == 'C': return 'Marginal for the Judgment: it lacks control or toughness and needs a clean run.'
-    return 'Not a Judgment pick: it lacks the tools and the toughness. Play it for fun, not for the ranking.'
+        h = {'S': ' Además es de los mejores limpiando hordas: llega al minuto 30 sobrado.', 'A': ' Limpia hordas muy bien: llega al minuto 30 sin problema.', 'B': ' Limpiando hordas es del montón: llega al minuto 30 con una partida normal.',
+             'C': ' Limpiando hordas flojea: llegar al minuto 30 cuesta.', 'D': ' Limpiando hordas es de los peores: llegar al minuto 30 es lo difícil.'}[ht]
+        if b['tier'] == 'S': return 'De los que más aguantan en la Sentencia: control y resistencia frente a los legendarios.' + h
+        if b['tier'] == 'A': return 'Aguanta muy bien la Sentencia' + (': tiene las herramientas de control que importan.' if tools >= 2 else ', aunque le falta alguna herramienta de control.') + h
+        if b['tier'] == 'B': return 'Aguanta la Sentencia un rato, pero hay quien lo hace mejor con menos esfuerzo.' + h
+        if b['tier'] == 'C': return 'Justo en la Sentencia: le falta control o aguante.' + h
+        return 'No aguanta la Sentencia: le faltan herramientas y resistencia. Juégalo por gusto, no por el ranking.' + h
+    h = {'S': ' It is also among the best at clearing hordes: reaches minute 30 with ease.', 'A': ' Clears hordes very well: reaches minute 30 without trouble.', 'B': ' Average at clearing hordes: reaches minute 30 with a normal run.',
+         'C': ' Weak at clearing hordes: reaching minute 30 is hard.', 'D': ' Among the worst at clearing hordes: reaching minute 30 is the real challenge.'}[ht]
+    if b['tier'] == 'S': return 'Among the longest-lasting in the Judgment: control and resistance against the legendaries.' + h
+    if b['tier'] == 'A': return 'Lasts very well in the Judgment' + (': it has the control tools that matter.' if tools >= 2 else ', though it lacks a control tool.') + h
+    if b['tier'] == 'B': return 'Lasts a while in the Judgment, but others do it better with less effort.' + h
+    if b['tier'] == 'C': return 'Marginal in the Judgment: it lacks control or toughness.' + h
+    return 'Does not last in the Judgment: it lacks the tools and the resistance. Play it for fun, not for the ranking.' + h
 
 # ---------------- plantillas ----------------
 def layout(lang, title, body, active, depth, desc='', extra_head=''):
@@ -269,7 +285,8 @@ def index_page(lang):
 
 def bars(p, lang):
     U = UI[lang]; out = ['<div class="bars">']
-    for k in ('V', 'T', 'U', 'A', 'D', 'S', 'Z'):
+    for k in ('T', 'U', 'A', 'D', 'S', 'Z', 'V'):
+        if not R['weights'].get(k): continue
         b = p['base']['comp'][k]; s = p['shop']['comp'][k]; label, hint = COMP[lang][k]
         out.append(f'<div class="bar"><span class="l">{label} <small>{hint} · {"peso" if lang == "es" else "weight"} {round(R["weights"][k] * 100)} %</small></span><span class="track"><span class="fill base" style="width:{b * 100:.0f}%"></span><span class="fill shop" style="width:{s * 100:.0f}%"></span></span><span class="v">{b:.2f}</span></div>')
     out.append(f'</div><div class="legend"><span><i style="background:var(--yellow)"></i>{U["mode_base"]}</span><span><i style="background:var(--red)"></i>{U["mode_shop"]}</span></div>')
@@ -397,7 +414,7 @@ def judgment_text(lang):
 
 def method_text(lang):
     W = R['weights']; pool = R['legendary_pool']
-    rows = ''.join(f"<tr><td>{COMP[lang][k][0]}</td><td>{round(W[k] * 100)} %</td><td>{COMP[lang][k][1]}</td></tr>" for k in ('V', 'T', 'U', 'A', 'D', 'S', 'Z'))
+    rows = ''.join(f"<tr><td>{COMP[lang][k][0]}</td><td>{round(W[k] * 100)} %</td><td>{COMP[lang][k][1]}</td></tr>" for k in ('T', 'U', 'A', 'D', 'S', 'Z') if W.get(k))
     pool_html = ', '.join(f"{(BY[l['dex']]['name'] if lang == 'es' else BY[l['dex']]['nameEn']) if l['dex'] in BY else l['name']}" for l in pool)
     if lang == 'es':
         return f'''<h1>Método del ranking</h1>
@@ -409,7 +426,7 @@ def method_text(lang):
 <li>Aguante = vida efectiva dividida por el daño medio que recibe del pool de {len(pool)} legendarios: cada uno pega con su tipo principal y con su lado fuerte (físico o especial), y se aplican la tabla suavizada (×1,6 / ×0,6 / ×0,3), tu defensa correspondiente y tu habilidad.</li>
 <li>Control = 55 % el mejor frenazo (por su porcentaje y por lo que cubre: un rayo o un aura cubren más que un golpe cuerpo a cuerpo) y 45 % el mejor aturdimiento (duración ×0,35 en jefes frente a la recarga).</li>
 <li>Daño = mejor ataque a distancia de su lado bueno contra el pool, con su habilidad. Pesa poco a propósito: la vida de los legendarios se ajusta a tu propio daño.</li>
-<li>Llegar al minuto 30 = mediana de supervivencia de SurvivorTiers (441.000 partidas simuladas en hordas), porque la Sentencia solo existe para quien llega.</li></ul>
+<li>Llegar al minuto 30 <b>no puntúa</b>: el ranking mide solo lo que aguanta en la Sentencia. Lo bueno o malo que sea limpiando hordas se enseña en cada ficha (ranking y tier de SurvivorTiers, 441.000 partidas simuladas) y en el veredicto.</li></ul>
 <h2>El pool de legendarios</h2><p class="small">{pool_html}.</p>
 <h2>Lo que no se modela</h2><p>Los objetos (se recomiendan aparte), el clima de las habilidades que lo invocan, la habilidad del jugador al esquivar y los vínculos de las grietas. Los pesos son una decisión de criterio, no una medida: dos Pokémon separados por unos puestos son, en la práctica, iguales.</p>
 <h2>Créditos</h2><p>PokéSurvivor es de <a href="https://github.com/JPTER78/pokesurvivor" rel="noopener">JPTER78</a> (código bajo PolyForm Noncommercial). El ranking en hordas es de <a href="https://survivortiers.pages.dev/" rel="noopener">SurvivorTiers</a> (@fildotai). Retratos de <a href="https://github.com/PMDCollab/SpriteCollab" rel="noopener">PMD SpriteCollab</a> (CC BY-NC 4.0, ver sus créditos por artista). Pokémon © Nintendo/Creatures/GAME FREAK. Web hecha por Julio (<a href="{REPO}" rel="noopener">código y datos</a>), sin ánimo de lucro.</p>'''
@@ -422,7 +439,7 @@ def method_text(lang):
 <li>Toughness = effective HP divided by the average damage taken from the pool of {len(pool)} legendaries: each hits with its primary type and its strong side (physical or special), applying the softened chart (×1.6 / ×0.6 / ×0.3), your matching defense and your ability.</li>
 <li>Control = 55% the best slow (by percentage and coverage: a beam or an aura covers more than a melee hit) and 45% the best stun (duration ×0.35 on bosses against its cooldown).</li>
 <li>Damage = best ranged same-side attack against the pool, with its ability. Deliberately light: the legendaries’ HP scales with your own damage.</li>
-<li>Reaching minute 30 = SurvivorTiers’ median survival (441,000 simulated horde runs), because the Judgment only exists for those who get there.</li></ul>
+<li>Reaching minute 30 <b>does not score</b>: the ranking measures only how it lasts in the Judgment. How good or bad it is at clearing hordes is shown on each page (SurvivorTiers rank and tier, 441,000 simulated runs) and in the verdict.</li></ul>
 <h2>The legendary pool</h2><p class="small">{pool_html}.</p>
 <h2>What is not modelled</h2><p>Items (recommended separately), the weather summoned by abilities, the player’s dodging skill and rift bonds. The weights are a judgment call, not a measurement: two Pokémon a few ranks apart are, in practice, equal.</p>
 <h2>Credits</h2><p>PokéSurvivor is by <a href="https://github.com/JPTER78/pokesurvivor" rel="noopener">JPTER78</a> (code under PolyForm Noncommercial). The horde ranking is by <a href="https://survivortiers.pages.dev/" rel="noopener">SurvivorTiers</a> (@fildotai). Portraits from <a href="https://github.com/PMDCollab/SpriteCollab" rel="noopener">PMD SpriteCollab</a> (CC BY-NC 4.0, see their per-artist credits). Pokémon © Nintendo/Creatures/GAME FREAK. Site by Julio (<a href="{REPO}" rel="noopener">code and data</a>), non-profit.</p>'''

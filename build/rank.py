@@ -129,7 +129,8 @@ def move_dps(s):
     if k == 'orbit': return s['dmg'] * s['count'] * 0.6 / 0.3 * 0.5
     if k == 'aura': return s['dmg'] / s['cd']
     return s['dmg'] * single_hits(s) / s['cd']
-W = dict(V=0.22, T=0.28, U=0.25, A=0.08, D=0.08, S=0.06, Z=0.03)
+# Sólo lo que aguanta en la Sentencia: el ranking en hordas (llegar al minuto 30) se enseña en la ficha, pero no puntúa (decisión del 24-10-2026).
+W = dict(V=0.0, T=0.36, U=0.32, A=0.10, D=0.10, S=0.08, Z=0.04)
 TIERS = [(30, 'S'), (120, 'A'), (320, 'B'), (620, 'C'), (10 ** 6, 'D')]
 def tier_of(pos): return next(t for lim, t in TIERS if pos <= lim)
 
@@ -161,14 +162,15 @@ def raw_components(dex, ab, nat, pool):
     best_slow, slow_mv = 0.0, None; stun_sc, stun_mv = 0.0, None; heal = 0.0
     for mid in pool:
         d = MOVES[mid]
-        if d.get('slow'):
+        # Frenazos: sólo a distancia (Lengüetazo obliga a estar pegado a los legendarios, justo lo que no se quiere).
+        if d.get('slow') and d['kind'] not in CLOSE:
             v = min(0.8, d['slow'] * serene) * SLOW_COVER.get(d['kind'], 0.6)
             if v > best_slow: best_slow, slow_mv = v, mid
         if d['kind'] == 'stun':
             s = maxed(mid); v = min(1.0, (s['stun'] * 0.35) / (s['cd'] * CD_MUL))
             if v > stun_sc: stun_sc, stun_mv = v, mid
         if mid == 'aqua-ring': heal = max(heal, 0.6)
-        if mid == 'draining-kiss': heal = max(heal, 0.1)
+        # (Beso Drenaje cura 1 PS por golpe: no cuenta.)
     U = 0.55 * (best_slow / 0.8) + 0.45 * stun_sc
     best_d, best_dmv = 0.0, None
     dps = {}
