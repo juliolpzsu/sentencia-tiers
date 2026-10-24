@@ -1,1 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#07070a"/><path d="M4 6h24v4H10v4h14v4H10v4h18v4H4z" fill="#fcee0a"/><rect x="24" y="22" width="4" height="4" fill="#ff003c"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Sentencia Tiers: Poké Ball dentro de la rueda de Arceus -->
+  <rect width="64" height="64" rx="12" fill="#07070a"/>
+  <!-- rueda de Arceus -->
+  <circle cx="32" cy="32" r="27" fill="none" stroke="#fcee0a" stroke-width="3"/>
+  <circle cx="32" cy="32" r="22.5" fill="none" stroke="#fcee0a" stroke-width="1" opacity=".7"/>
+  <g fill="#fcee0a">
+    <polygon points="32,0.5 36.5,5 32,9.5 27.5,5"/>
+    <polygon points="63.5,32 59,36.5 54.5,32 59,27.5"/>
+    <polygon points="32,63.5 27.5,59 32,54.5 36.5,59"/>
+    <polygon points="0.5,32 5,27.5 9.5,32 5,36.5"/>
+  </g>
+  <g fill="#ff003c">
+    <polygon points="51.1,12.9 54.3,15.9 51.1,19.1 47.9,15.9"/>
+    <polygon points="12.9,51.1 16.1,48 19.1,51.1 15.9,54.3"/>
+  </g>
+  <g fill="#00e5ff">
+    <polygon points="51.1,51.1 47.9,48 51.1,44.9 54.3,48"/>
+    <polygon points="12.9,12.9 16.1,9.7 19.1,12.9 15.9,16.1"/>
+  </g>
+  <!-- Poké Ball -->
+  <circle cx="32" cy="32" r="16" fill="#f1efe4"/>
+  <path d="M16 32 A16 16 0 0 1 48 32 Z" fill="#ff003c"/>
+  <rect x="16" y="30" width="32" height="4" fill="#07070a"/>
+  <circle cx="32" cy="32" r="6.5" fill="#07070a"/>
+  <circle cx="32" cy="32" r="4" fill="#f1efe4"/>
+  <circle cx="32" cy="32" r="2.2" fill="#fcee0a"/>
+</svg>

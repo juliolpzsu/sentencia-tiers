@@ -245,7 +245,7 @@ def layout(lang, title, body, active, depth, desc='', extra_head=''):
     return f'''<!doctype html>
 <html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title><meta name="description" content="{esc(desc or U['tagline'])}">
-<meta name="theme-color" content="#07070a"><link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#07070a"><link rel="icon" href="{root}favicon.svg" type="image/svg+xml"><link rel="icon" href="{root}favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="{root}apple-touch-icon.png"><link rel="manifest" href="{root}site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{root}assets/style.css">{extra_head}
@@ -440,11 +440,11 @@ def method_text(lang):
 <h2>Credits</h2><p>PokéSurvivor is by <a href="https://github.com/JPTER78/pokesurvivor" rel="noopener">JPTER78</a> (code under PolyForm Noncommercial). The horde ranking is by <a href="https://survivortiers.pages.dev/" rel="noopener">SurvivorTiers</a> (@fildotai). Portraits from <a href="https://github.com/PMDCollab/SpriteCollab" rel="noopener">PMD SpriteCollab</a> (CC BY-NC 4.0, see their per-artist credits). Pokémon © Nintendo/Creatures/GAME FREAK. Site by Julio (<a href="{REPO}" rel="noopener">code and data</a>), non-profit.</p>'''
 
 ROOT_INDEX = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sentencia Tiers</title>
-<meta name="description" content="Tier list de PokéSurvivor para la Sentencia de Arceus · PokéSurvivor tier list for Arceus' Judgment"><link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="description" content="Tier list de PokéSurvivor para la Sentencia de Arceus · PokéSurvivor tier list for Arceus' Judgment"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest">
 <link rel="alternate" hreflang="es" href="{SITE}/es/"><link rel="alternate" hreflang="en" href="{SITE}/en/"><link rel="alternate" hreflang="x-default" href="{SITE}/es/">
 <link rel="stylesheet" href="assets/style.css"><script>var l=(navigator.language||'es').slice(0,2);location.replace((l==='es'?'es':'en')+'/'+location.hash);</script></head>
 <body><main class="wrap" style="padding-top:60px"><h1 style="color:var(--yellow)">SENTENCIA//TIERS</h1><p><a href="es/">Español</a> · <a href="en/">English</a></p></main></body></html>'''
-FAVICON = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#07070a"/><path d="M4 6h24v4H10v4h14v4H10v4h18v4H4z" fill="#fcee0a"/><rect x="24" y="22" width="4" height="4" fill="#ff003c"/></svg>'''
+FAVICON = None   # docs/favicon.svg (Poké Ball en la rueda de Arceus) y sus PNG se mantienen a mano; gen.py no los toca.
 
 def write(path, text):
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -455,7 +455,6 @@ def main():
     for lang in LANGS:
         shutil.rmtree(os.path.join(DOCS, lang), ignore_errors=True)
     write(os.path.join(DOCS, 'index.html'), ROOT_INDEX)
-    write(os.path.join(DOCS, 'favicon.svg'), FAVICON)
     write(os.path.join(DOCS, '.nojekyll'), '')
     write(os.path.join(DOCS, 'robots.txt'), f'User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n')
     write(os.path.join(DOCS, '404.html'), ROOT_INDEX.replace('location.replace(', 'location.replace("/sentencia-tiers/"+').replace("+'/'+location.hash", "+'/'"))
