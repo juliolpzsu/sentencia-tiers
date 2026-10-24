@@ -22,6 +22,8 @@ Everything is computed from the **game's source code**, not from anyone's impres
 - **Tier list** of all 966 with search, sorting (rank, components, HP, speed…), grouping (tier, type, legendaries) and filters (type, tier, legendaries, has slow, has stun, has regeneration).
 - Two switchable variants: **Default** (ability 1, neutral nature, natural moves) and **Kecleon Shop** (best ability via Capsule, best nature via Mint and the TMs that help).
 - **Per-Pokémon page**: verdict, data-driven strategy, score breakdown, stats, damage taken by type against the real legendary pool, its three abilities with their exact in-game effect, and the build for each variant: four moves with the reasoning, starting move, bans, item, card priority and evolution conditions.
+- **My save** (optional): paste your account's save and the site marks the Pokémon you own, their bought upgrades, the ability and nature you rolled, and your approximate rank with that ability. It stays in your browser; nothing is sent anywhere.
+- Filters, sorting and variant live in the **URL**, so any view can be shared as a link; every page carries a preview card for Discord, WhatsApp or X.
 - **The Judgment** (the full mechanics, with numbers) and **Method** (weights, assumptions, legendary pool and credits) pages.
 - *Night City* look, readable on phones and tablets, no dependencies or trackers.
 
@@ -74,6 +76,8 @@ python -I build/update.py           # fetch game data and update if the ranking 
 ```
 
 To preview locally: `python -m http.server 8000 -d docs` and open `http://localhost:8000/en/`.
+
+Tests (data, ranking, builds and determinism): `python -I -m unittest discover -s tests -v`. They run on every push (`tests.yml`) and before an automatic update is published.
 
 Weights live in `W` inside `build/rank.py`; build logic in `choose_build`; site texts in the `UI` and `ITEMS` dictionaries and the `reason`, `cards_text`, `strategy` and `verdict` functions of `build/gen.py`.
 

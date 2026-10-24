@@ -283,6 +283,9 @@ def evaluate(dex, norm=None):
     for slot, ab in enumerate(abils):
         if not ab or (slot == 1 and ab == abils[0]): continue
         ab_opts.append((slot, ab))
+    # Puntuación base con cada una de sus habilidades (naturaleza neutra, pool natural): para personalizar en la web
+    # con la habilidad que le tocó a cada cuenta sin portar el modelo a JavaScript.
+    out['abil_scores'] = {str(slot): round(norm.score(raw_components(dex, ab, None, pool_nat))[0], 4) for slot, ab in ab_opts}
     for slot, ab in ab_opts:
         for nat in nature_candidates(mon_with_nature(dex, None)):
             r2 = raw_components(dex, ab, nat, pool_shop, natural=pool_nat)

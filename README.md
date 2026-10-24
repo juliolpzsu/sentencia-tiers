@@ -22,6 +22,8 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 - **Tier list** de los 966 con buscador, orden (puesto, componentes, vida, velocidad…), agrupación (tier, tipo, legendarios) y filtros (tipo, tier, legendarios, con frenazo, con aturdimiento, con regeneración).
 - Dos variantes conmutables: **Por defecto** (habilidad 1, naturaleza neutra, ataques naturales) y **Tienda Kecleon** (mejor habilidad con Cápsula, mejor naturaleza con Menta y las MT que le sirven).
 - **Ficha por Pokémon**: veredicto, estrategia generada a partir de sus datos, desglose de la puntuación, estadísticas, daño recibido por cada tipo frente al pool real de legendarios, sus tres habilidades con el efecto exacto en el juego, y la build de cada variante: cuatro movimientos con el porqué, movimiento inicial, vetos, objeto, prioridad de cartas y condiciones de evolución.
+- **Mi partida** (opcional): pegas el guardado de tu cuenta y la web marca los Pokémon que tienes, sus mejoras compradas, la habilidad y naturaleza que te tocaron y tu puesto aproximado con esa habilidad. Se queda en tu navegador; no se envía a ningún sitio.
+- Los filtros, el orden y la variante viajan en la **URL**, así que cualquier vista se puede compartir con un enlace; cada página lleva su tarjeta de vista previa para Discord, WhatsApp o X.
 - Páginas **La Sentencia** (la mecánica completa, con números) y **Método** (pesos, supuestos, pool de legendarios y créditos).
 - Estética *Night City*, legible en móvil e iPad, sin dependencias ni rastreadores.
 
@@ -59,10 +61,11 @@ Llegar al minuto 30 **no puntúa**: lo bueno o malo que sea limpiando hordas se 
 │   └── CHANGELOG.md       Historial de las actualizaciones automáticas
 ├── docs/                  La web publicada con GitHub Pages (generada, no editar a mano)
 │   ├── es/ · en/          Índice, fichas y páginas de cada idioma
-│   ├── assets/            style.css, app.js (índice), page.js (fichas)
+│   ├── assets/            style.css, app.js (índice), page.js (fichas), save.js (partida del jugador), scores.json
 │   └── img/p/             Retratos
+├── tests/                 Pruebas del modelo (unittest, sin dependencias)
 ├── assets/readme/         Capturas para este README
-└── .github/workflows/     update.yml: actualización automática diaria
+└── .github/workflows/     update.yml: actualización automática diaria · tests.yml: pruebas en cada push
 ```
 
 ## Reproducir o modificar
@@ -77,6 +80,8 @@ python -I build/update.py           # baja los datos del juego y actualiza si el
 ```
 
 Para probar la web en local: `python -m http.server 8000 -d docs` y abrir `http://localhost:8000/es/`.
+
+Pruebas (datos, ranking, builds y determinismo): `python -I -m unittest discover -s tests -v`. Corren en cada push (`tests.yml`) y antes de publicar una actualización automática.
 
 Los pesos están en `W` dentro de `build/rank.py`; la lógica de la build, en `choose_build`; los textos de la web, en los diccionarios `UI`, `ITEMS` y las funciones `reason`, `cards_text`, `strategy` y `verdict` de `build/gen.py`.
 

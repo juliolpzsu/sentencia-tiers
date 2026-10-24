@@ -49,7 +49,13 @@ UI = {
             nature='Naturaleza (Menta, 1.500)', ability='Habilidad (Cápsula)', tms='MT a comprar', tm_note='La Tienda Kecleon vende 8 MT al día entre unas 100; si ninguna le sirve a tu compañero, la última se cambia por una que sí aprenda.', total='Total', none_tm='No necesita ninguna MT: su pool natural ya tiene lo importante.',
             nat_none='Ninguna Menta mejora claramente su puntuación: mejor dejar la naturaleza que le tocó.', ab_same='Su habilidad 1 ya es la mejor de las suyas para la Sentencia.', prev='Anterior', next='Siguiente', hordes_link='Ver su ficha en SurvivorTiers',
             strategy='Estrategia', verdict='Veredicto', footer_data='Datos y reglas: código de PokéSurvivor (JPTER78) · Ranking en hordas: SurvivorTiers (@fildotai) · Retratos: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.',
-            footer_fan='Proyecto de fans sin ánimo de lucro, sin relación con los autores del juego ni con Nintendo.', generated='Generado el', not_available='—'),
+            footer_fan='Proyecto de fans sin ánimo de lucro, sin relación con los autores del juego ni con Nintendo.', generated='Generado el', not_available='—',
+            me='Mi partida', meTitle='Cargar tu partida', meIntro='Con tu partida la web marca los Pokémon que tienes, sus mejoras y la habilidad y naturaleza que te tocaron, y calcula tu puesto aproximado con ellas. Todo se queda en este navegador: no se envía a ningún sitio.',
+            meHow='1. Abre pokesurvivor.com con tu cuenta. 2. Pulsa F12 y entra en la pestaña «Console». 3. Pega esta línea y pulsa Intro: copia tu partida al portapapeles. 4. Vuelve aquí y pégala en el cuadro.',
+            copy='Copiar la línea', copied='Copiada', meLoad='Cargar', meClear='Quitar partida', close='Cerrar', mePaste='Pega aquí tu partida (empieza por {"stats":…)', meError='No parece una partida de PokéSurvivor: tiene que ser el JSON entero de la clave ps.cloud.',
+            meLoaded='Partida de {name}: {n} Pokémon.', mine='Mis Pokémon', owned='Lo tienes', notOwned='No lo tienes', ownedS='TUYO', upgrades='Mejoras compradas', yourRank='Tu puesto aproximado con tu habilidad', you='tú',
+            sort_you='Tu puesto', meBlock='Tu partida ({name})', meAbility='Tu habilidad', meNature='Tu naturaleza', loading='Calculando tu puesto…',
+            meRank='Con tu habilidad quedaría en el puesto <b>{n}</b> de 966 (puesto general: {base}). La naturaleza no se tiene en cuenta; las mejoras y cartas se suponen al máximo.'),
  'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source',
             intro='All 966 Pokémon ranked only by how long they last in Arceus’ Judgment (minute 30). Computed from the game’s code: slows, stuns, defenses against the 86 legendaries that show up, regeneration, capped speed and size. How well they clear before minute 30 is shown on each page; it does not score.',
             updated='Game patch', pokemon='Pokémon', legs='Legendaries', nonlegs='Non-legendaries', all='All', tier='Tier', search='Search by name or number', sort='Sort by', group='Group by',
@@ -66,7 +72,13 @@ UI = {
             nature='Nature (Mint, 1,500)', ability='Ability (Capsule)', tms='TMs to buy', tm_note='The Kecleon Shop sells 8 TMs a day out of about 100; if none fits your partner, the last one is swapped for one it can learn.', total='Total', none_tm='No TM needed: its natural pool already has what matters.',
             nat_none='No Mint clearly improves its score: keep the nature it rolled.', ab_same='Its ability 1 is already the best of its abilities for the Judgment.', prev='Previous', next='Next', hordes_link='See its SurvivorTiers page',
             strategy='Strategy', verdict='Verdict', footer_data='Data and rules: PokéSurvivor source code (JPTER78) · Horde ranking: SurvivorTiers (@fildotai) · Portraits: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.',
-            footer_fan='Non-profit fan project, unaffiliated with the game’s authors or Nintendo.', generated='Generated on', not_available='—'),
+            footer_fan='Non-profit fan project, unaffiliated with the game’s authors or Nintendo.', generated='Generated on', not_available='—',
+            me='My save', meTitle='Load your save', meIntro='With your save the site marks the Pokémon you own, their upgrades and the ability and nature you rolled, and estimates your rank with them. Everything stays in this browser: nothing is sent anywhere.',
+            meHow='1. Open pokesurvivor.com with your account. 2. Press F12 and open the “Console” tab. 3. Paste this line and press Enter: it copies your save to the clipboard. 4. Come back here and paste it in the box.',
+            copy='Copy the line', copied='Copied', meLoad='Load', meClear='Remove save', close='Close', mePaste='Paste your save here (it starts with {"stats":…)', meError='That does not look like a PokéSurvivor save: it must be the whole JSON of the ps.cloud key.',
+            meLoaded='Save of {name}: {n} Pokémon.', mine='My Pokémon', owned='Owned', notOwned='Not owned', ownedS='MINE', upgrades='Upgrades bought', yourRank='Your approximate rank with your ability', you='you',
+            sort_you='Your rank', meBlock='Your save ({name})', meAbility='Your ability', meNature='Your nature', loading='Computing your rank…',
+            meRank='With your ability it would rank <b>{n}</b> of 966 (general rank: {base}). Nature is not considered; upgrades and cards are assumed maxed.'),
 }
 ITEMS = {'es': dict(leftovers=('Restos', 'Recuperas un 1,5 % de tu vida por segundo. El daño de Arceus es porcentual y puro: la regeneración porcentual es lo único que lo contrarresta.'),
                     focussash=('Banda Focus', 'Un golpe mortal te deja con 1 de vida (cada 60 s). Salva de un pilar o de un toque de Arceus hasta el minuto 35, cuando Arceus rompe tu objeto.'),
@@ -237,9 +249,14 @@ def verdict(p, lang):
     return 'Does not last in the Judgment: it lacks the tools and the resistance. Play it for fun, not for the ranking.' + h
 
 # ---------------- plantillas ----------------
-def layout(lang, title, body, active, depth, desc='', extra_head=''):
+def layout(lang, title, body, active, depth, desc='', extra_head='', path=''):
     U = UI[lang]; root = '../' * depth
     other = 'en' if lang == 'es' else 'es'
+    url = f'{SITE}/{path}'
+    extra_head += (f'<meta property="og:type" content="website"><meta property="og:site_name" content="Sentencia Tiers"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc or U["tagline"])}">'
+                   f'<meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="{"es_ES" if lang == "es" else "en_US"}">'
+                   f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc or U["tagline"])}"><meta name="twitter:image" content="{SITE}/og.png">'
+                   f'<link rel="canonical" href="{url}"><link rel="alternate" hreflang="{lang}" href="{url}"><link rel="alternate" hreflang="{other}" href="{SITE}/{path.replace(lang + "/", other + "/", 1)}">')
     nav = ''.join(f'<a href="{root}{lang}/{h}" class="{"on" if k == active else ""}">{U[k]}</a>' for k, h in (('nav_tiers', ''), ('nav_judg', 'sentencia/'), ('nav_method', 'metodo/')))
     nav += f'<a href="{REPO}" rel="noopener">{U["nav_repo"]}</a>'
     return f'''<!doctype html>
@@ -261,27 +278,37 @@ def index_page(lang):
     data = dict(t=dict(types=TYPE_NAME[lang], slow=U['slow'], stun=U['stun'], regen=U['regen'], slowS=U['slowS'], stunS=U['stunS'], regenS=U['regenS'], count=U['count'], none=U['none'], tier=U['tier'], legs=U['legs'], nonlegs=U['nonlegs'], all=U['all']),
                 types=TYPES, typeColors=TC, list=[])
     for p in P:
-        row = dict(dex=p['dex'], slug=slug(p), name=name(p, lang), alt=p['nameEn'] if lang == 'es' else p['name'], types=p['types'], leg=p['leg'], hp=p['stats']['hp'], spd=p['stats']['spd'], hordes=p['hordes']['rank'])
+        row = dict(dex=p['dex'], slug=slug(p), name=name(p, lang), alt=p['nameEn'] if lang == 'es' else p['name'], types=p['types'], leg=p['leg'], hp=p['stats']['hp'], spd=p['stats']['spd'], hordes=p['hordes']['rank'],
+                   sc=p['base']['score'], abs={int(k): v for k, v in p['abil_scores'].items()}, ab=p['abils'])
         for k in ('base', 'shop'):
             v = p[k]; row[k] = dict(pos=v['pos'], tier=v['tier'], c=v['comp'], slow=v['slow'], stun=v['stun'], regen=bool(v['heal']) or v['ability'] in ('regenerator', 'natural-cure', 'healer', 'shed-skin'))
         data['list'].append(row)
+    data['an'] = {a: aname(a, lang) for p in P for a in p['abils'] if a}
+    data['natures'] = [dict(id=n['id'], n=nname(n['id'], lang)) for n in NAT_BY.values()]
+    for k in ('owned', 'ownedS', 'upgrades', 'yourRank', 'you', 'meLoaded', 'meError', 'copied'): data['t'][k] = U[k]
     n_leg = sum(1 for p in P if p['leg'])
     body = f'''<section class="hero"><div><span class="tag">// {U['tagline']}</span><h1>{U['title']}</h1><p>{U['intro']}</p></div>
 <div class="kpis"><div class="kpi"><b>966</b>{U['pokemon']}</div><div class="kpi"><b>{len(R['legendary_pool'])}</b>{U['legs']} {'en el pool' if lang == 'es' else 'in the pool'}</div><div class="kpi"><b>{R['game_commit'].split(' ')[0]}</b>{U['updated']}</div></div></section>
 <section class="controls cut">
 <div class="row"><input id="q" type="search" placeholder="{U['search']}" aria-label="{U['search']}">
-<div class="seg" id="mode" title="{esc(U['mode_help'])}"><button data-m="base" class="on">{U['mode_base']}</button><button data-m="shop" class="red">{U['mode_shop']}</button></div>
-<label>{U['sort']}<span style="display:flex;gap:4px"><select id="sort">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['sort_opts'])}</select><button class="chip" id="dir" title="asc/desc">↓</button><button class="chip" id="shuffle">{U['shuffle']}</button></span></label>
+<div class="seg" id="mode" title="{esc(U['mode_help'])}"><button type="button" data-m="base" class="on">{U['mode_base']}</button><button type="button" data-m="shop" class="red">{U['mode_shop']}</button></div>
+<label>{U['sort']}<span style="display:flex;gap:4px"><select id="sort">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['sort_opts'])}<option value="you">{U['sort_you']}</option></select><button type="button" class="chip" id="dir" title="asc/desc">↓</button><button type="button" class="chip" id="shuffle">{U['shuffle']}</button></span></label>
 <label>{U['group']}<select id="group">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['group_opts'])}</select></label><span class="count" id="count"></span></div>
-<div class="row"><label>{U['tier']}<span class="chips" id="tiers">{''.join(f'<button class="chip" data-tier="{t}">{t}</button>' for t in 'SABCD')}</span></label>
-<label>{U['filters']}<span class="chips" id="flags"><button class="chip" data-f="leg">{U['flag_leg']}</button><button class="chip" data-f="slow">{U['flag_slow']}</button><button class="chip" data-f="stun">{U['flag_stun']}</button><button class="chip" data-f="regen">{U['flag_regen']}</button></span></label>
-<label>{U['types']}<span class="chips" id="types"></span></label></div>
+<div class="row"><label>{U['tier']}<span class="chips" id="tiers">{''.join(f'<button type="button" class="chip" data-tier="{t}">{t}</button>' for t in 'SABCD')}</span></label>
+<label>{U['filters']}<span class="chips" id="flags"><button type="button" class="chip" data-f="leg">{U['flag_leg']}</button><button type="button" class="chip" data-f="slow">{U['flag_slow']}</button><button type="button" class="chip" data-f="stun">{U['flag_stun']}</button><button type="button" class="chip" data-f="regen">{U['flag_regen']}</button><button type="button" class="chip" data-f="mine" id="flag-mine" hidden>{U['mine']}</button></span></label>
+<label>{U['types']}<span class="chips" id="types"></span></label>
+<label>{U['me']}<span class="chips"><button type="button" class="chip me" id="me-btn">{U['me']}</button></span></label></div>
 <p class="small muted" style="margin:0">{U['mode_help']}</p>
 </section>
+<dialog id="me-dlg" class="panel"><h3>{U['meTitle']}</h3><p class="small">{U['meIntro']}</p><p class="small">{U['meHow']}</p>
+<pre class="snippet"><code>{esc("copy(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('ps.cloud.'))))")}</code></pre>
+<div class="row"><button type="button" class="chip" id="me-copy">{U['copy']}</button></div>
+<textarea id="me-text" rows="4" placeholder="{esc(U['mePaste'])}"></textarea><p class="small" id="me-err" style="color:var(--red);margin:4px 0"></p>
+<div class="row"><button type="button" class="chip on" id="me-load">{U['meLoad']}</button><button type="button" class="chip" id="me-clear">{U['meClear']}</button><button type="button" class="chip" id="me-close">{U['close']}</button><span class="small muted" id="me-status"></span></div></dialog>
 <div id="out"></div>
 <script id="data" type="application/json">{json.dumps(data, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')}</script>
-<script src="../assets/app.js"></script>'''
-    return layout(lang, f"{U['title']} · {U['tagline']}", body, 'nav_tiers', 1, U['intro'])
+<script src="../assets/save.js"></script><script src="../assets/app.js"></script>'''
+    return layout(lang, f"{U['title']} · {U['tagline']}", body, 'nav_tiers', 1, U['intro'], path=f'{lang}/')
 
 def bars(p, lang):
     U = UI[lang]; out = ['<div class="bars">']
@@ -345,7 +372,8 @@ def pokemon_page(p, lang, prev, nxt):
 <div class="ranks"><div class="rank"><span class="l">{U['rank_base']}</span><span class="v">{b['pos']} <span class="small muted">/ 966</span></span></div>
 <div class="rank shop"><span class="l">{U['rank_shop']}</span><span class="v">{s['pos']} <span class="small muted">/ 966 · {U['tier']} {s['tier']}</span></span></div>
 <div class="rank ext"><span class="l">{U['rank_hordes']}</span><span class="v">{hordes['rank'] or '—'} <span class="small muted">/ 966 · {U['tier']} {hordes['tier']}</span></span></div></div>
-<div class="verdict"><b class="up" style="color:var(--yellow)">{U['verdict']}:</b> {verdict(p, lang)}</div></div></section>
+<div class="verdict"><b class="up" style="color:var(--yellow)">{U['verdict']}:</b> {verdict(p, lang)}</div>
+<section id="me" class="panel me" hidden data-dex="{p['dex']}" data-pos="{b['pos']}" data-sc="{b['score']}" data-scores="../../../assets/scores.json" data-abils="{esc(json.dumps(p['abils']))}" data-names="{esc(json.dumps([aname(a, lang) if a else '' for a in p['abils']], ensure_ascii=False))}" data-abs="{esc(json.dumps({int(k): v for k, v in p['abil_scores'].items()}))}" data-natures="{esc(json.dumps([dict(id=n['id'], n=nname(n['id'], lang)) for n in NAT_BY.values()], ensure_ascii=False))}" data-t="{esc(json.dumps(dict(title=U['meBlock'], owned=U['owned'], notOwned=U['notOwned'], upgrades=U['upgrades'], ability=U['meAbility'], hidden=U['hidden_ab'].lower(), nature=U['meNature'], loading=U['loading'], rank=U['meRank']), ensure_ascii=False))}"></section></div></section>
 <h2>{U['strategy']}</h2><div class="strat">{''.join(f'<p>{x}</p>' for x in strategy(p, lang))}</div>
 <div class="g2">
 <div class="panel"><h3>{U['components']}</h3>{bars(p, lang)}</div>
@@ -356,13 +384,13 @@ def pokemon_page(p, lang, prev, nxt):
 <div class="tabs"><h2 style="margin:0;align-self:end;padding-right:14px">{U['build']}</h2><button data-tab="base">{U['tab_base']}</button><button data-tab="shop" class="red">{U['tab_shop']}</button></div>
 {build_panel(p, b, 'base', lang)}{build_panel(p, s, 'shop', lang)}
 <nav class="pager">{f'<a href="../{slug(prev)}/">← #{prev["base"]["pos"]} {esc(name(prev, lang))}</a>' if prev else '<span></span>'}<a href="../../">{U['back']}</a>{f'<a href="../{slug(nxt)}/">#{nxt["base"]["pos"]} {esc(name(nxt, lang))} →</a>' if nxt else '<span></span>'}</nav>
-<script src="../../../assets/page.js"></script>'''
+<script src="../../../assets/save.js"></script><script src="../../../assets/page.js"></script>'''
     title = f"{N} · {U['title']}: tier {b['tier']}, {'puesto' if lang == 'es' else 'rank'} {b['pos']}"
     desc = (f"{N} en la Sentencia de Arceus: tier {b['tier']} (puesto {b['pos']} de 966), build, habilidades, objetos y estrategia." if lang == 'es' else f"{N} in Arceus’ Judgment: tier {b['tier']} (rank {b['pos']} of 966), build, abilities, items and strategy.")
-    return layout(lang, title, body, None, 3, desc)
+    return layout(lang, title, body, None, 3, desc, path=f'{lang}/pokemon/{slug(p)}/')
 
-def prose_page(lang, key, title, html_body):
-    return layout(lang, f"{title} · {UI[lang]['title']}", f'<article class="prose">{html_body}</article>', key, 2)
+def prose_page(lang, key, title, html_body, path):
+    return layout(lang, f"{title} · {UI[lang]['title']}", f'<article class="prose">{html_body}</article>', key, 2, path=path)
 
 def judgment_text(lang):
     if lang == 'es':
@@ -462,11 +490,13 @@ def main():
     order = sorted(P, key=lambda p: p['base']['pos'])
     for lang in LANGS:
         write(os.path.join(DOCS, lang, 'index.html'), index_page(lang)); urls.append(f'{SITE}/{lang}/')
-        write(os.path.join(DOCS, lang, 'sentencia', 'index.html'), prose_page(lang, 'nav_judg', UI[lang]['nav_judg'], judgment_text(lang))); urls.append(f'{SITE}/{lang}/sentencia/')
-        write(os.path.join(DOCS, lang, 'metodo', 'index.html'), prose_page(lang, 'nav_method', UI[lang]['nav_method'], method_text(lang))); urls.append(f'{SITE}/{lang}/metodo/')
+        write(os.path.join(DOCS, lang, 'sentencia', 'index.html'), prose_page(lang, 'nav_judg', UI[lang]['nav_judg'], judgment_text(lang), f'{lang}/sentencia/')); urls.append(f'{SITE}/{lang}/sentencia/')
+        write(os.path.join(DOCS, lang, 'metodo', 'index.html'), prose_page(lang, 'nav_method', UI[lang]['nav_method'], method_text(lang), f'{lang}/metodo/')); urls.append(f'{SITE}/{lang}/metodo/')
         for i, p in enumerate(order):
             prev = order[i - 1] if i > 0 else None; nxt = order[i + 1] if i + 1 < len(order) else None
             write(os.path.join(DOCS, lang, 'pokemon', slug(p), 'index.html'), pokemon_page(p, lang, prev, nxt)); urls.append(f'{SITE}/{lang}/pokemon/{slug(p)}/')
+    # puntuaciones compactas para el bloque "Tu partida" de las fichas: dex -> [base, hab1, hab2, oculta]
+    write(os.path.join(DOCS, 'assets', 'scores.json'), json.dumps({p['dex']: [p['base']['score']] + [p['abil_scores'].get(str(i), None) for i in range(3)] for p in P}, separators=(',', ':')))
     write(os.path.join(DOCS, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n')
     print(f'{len(urls)} páginas en {time.time() - t0:.1f}s')
 

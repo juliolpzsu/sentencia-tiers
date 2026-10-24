@@ -28,6 +28,9 @@ jobs:
       - name: Comprobar el juego y recalcular el ranking
         id: upd
         run: python -I build/update.py ${{ inputs.force && '--force' || '' }}
+      - name: Pruebas del modelo (no se publica si fallan)
+        if: steps.upd.outputs.changed == 'true'
+        run: python -I -m unittest discover -s tests
       - name: Regenerar la web
         if: steps.upd.outputs.changed == 'true'
         run: python -I build/gen.py
