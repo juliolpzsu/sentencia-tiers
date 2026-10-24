@@ -266,16 +266,16 @@ def index_page(lang):
             v = p[k]; row[k] = dict(pos=v['pos'], tier=v['tier'], c=v['comp'], slow=v['slow'], stun=v['stun'], regen=bool(v['heal']) or v['ability'] in ('regenerator', 'natural-cure', 'healer', 'shed-skin'))
         data['list'].append(row)
     n_leg = sum(1 for p in P if p['leg'])
-    body = f'''<section class="hero"><span class="tag">// {U['tagline']}</span><h1>{U['title']}</h1><p>{U['intro']}</p>
+    body = f'''<section class="hero"><div><span class="tag">// {U['tagline']}</span><h1>{U['title']}</h1><p>{U['intro']}</p></div>
 <div class="kpis"><div class="kpi"><b>966</b>{U['pokemon']}</div><div class="kpi"><b>{len(R['legendary_pool'])}</b>{U['legs']} {'en el pool' if lang == 'es' else 'in the pool'}</div><div class="kpi"><b>{R['game_commit'].split(' ')[0]}</b>{U['updated']}</div></div></section>
 <section class="controls cut">
 <div class="row"><input id="q" type="search" placeholder="{U['search']}" aria-label="{U['search']}">
-<div class="seg" id="mode" title="{esc(U['mode_help'])}"><button data-m="base" class="on">{U['mode_base']}</button><button data-m="shop" class="red">{U['mode_shop']}</button></div><span class="count" id="count"></span></div>
-<div class="row"><label>{U['sort']}<span style="display:flex;gap:4px"><select id="sort">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['sort_opts'])}</select><button class="chip" id="dir" title="asc/desc">↓</button><button class="chip" id="shuffle">{U['shuffle']}</button></span></label>
-<label>{U['group']}<select id="group">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['group_opts'])}</select></label>
-<label>{U['tier']}<span class="chips" id="tiers">{''.join(f'<button class="chip" data-tier="{t}">{t}</button>' for t in 'SABCD')}</span></label>
-<label>{U['filters']}<span class="chips" id="flags"><button class="chip" data-f="leg">{U['flag_leg']}</button><button class="chip" data-f="slow">{U['flag_slow']}</button><button class="chip" data-f="stun">{U['flag_stun']}</button><button class="chip" data-f="regen">{U['flag_regen']}</button></span></label></div>
-<div class="row"><label>{U['types']}<span class="chips" id="types"></span></label></div>
+<div class="seg" id="mode" title="{esc(U['mode_help'])}"><button data-m="base" class="on">{U['mode_base']}</button><button data-m="shop" class="red">{U['mode_shop']}</button></div>
+<label>{U['sort']}<span style="display:flex;gap:4px"><select id="sort">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['sort_opts'])}</select><button class="chip" id="dir" title="asc/desc">↓</button><button class="chip" id="shuffle">{U['shuffle']}</button></span></label>
+<label>{U['group']}<select id="group">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['group_opts'])}</select></label><span class="count" id="count"></span></div>
+<div class="row"><label>{U['tier']}<span class="chips" id="tiers">{''.join(f'<button class="chip" data-tier="{t}">{t}</button>' for t in 'SABCD')}</span></label>
+<label>{U['filters']}<span class="chips" id="flags"><button class="chip" data-f="leg">{U['flag_leg']}</button><button class="chip" data-f="slow">{U['flag_slow']}</button><button class="chip" data-f="stun">{U['flag_stun']}</button><button class="chip" data-f="regen">{U['flag_regen']}</button></span></label>
+<label>{U['types']}<span class="chips" id="types"></span></label></div>
 <p class="small muted" style="margin:0">{U['mode_help']}</p>
 </section>
 <div id="out"></div>
@@ -288,8 +288,8 @@ def bars(p, lang):
     for k in ('T', 'U', 'A', 'D', 'S', 'Z', 'V'):
         if not R['weights'].get(k): continue
         b = p['base']['comp'][k]; s = p['shop']['comp'][k]; label, hint = COMP[lang][k]
-        out.append(f'<div class="bar"><span class="l">{label} <small>{hint} · {"peso" if lang == "es" else "weight"} {round(R["weights"][k] * 100)} %</small></span><span class="track"><span class="fill base" style="width:{b * 100:.0f}%"></span><span class="fill shop" style="width:{s * 100:.0f}%"></span></span><span class="v">{b:.2f}</span></div>')
-    out.append(f'</div><div class="legend"><span><i style="background:var(--yellow)"></i>{U["mode_base"]}</span><span><i style="background:var(--red)"></i>{U["mode_shop"]}</span></div>')
+        out.append(f'<div class="bar" title="{esc(hint)}"><span class="l">{label} <small>{round(R["weights"][k] * 100)} %</small></span><span class="track"><span class="fill base" style="width:{b * 100:.0f}%"></span><span class="fill shop" style="width:{s * 100:.0f}%"></span></span><span class="v">{b:.2f} <em>{s:.2f}</em></span></div>')
+    out.append(f'</div><div class="legend"><span><i style="background:var(--yellow)"></i>{U["mode_base"]}</span><span><i style="background:var(--red)"></i>{U["mode_shop"]}</span><span class="muted">{"% = peso en la puntuación · pasa el ratón para ver qué mide" if lang == "es" else "% = weight in the score · hover to see what it measures"}</span></div>')
     return ''.join(out)
 
 def build_panel(p, var, key, lang):
@@ -316,17 +316,16 @@ def build_panel(p, var, key, lang):
             tot = sum(t['price'] for t in var['tms'])
             tms = '<ul class="plain">' + ''.join(f'<li>{esc(mname(t["id"], lang))} · <span class="price">{fmt(t["price"], lang)}</span></li>' for t in var['tms']) + f'</ul><div class="small">{U["total"]}: <span class="price">{fmt(tot, lang)}</span> · {U["tm_note"]}</div>'
         else: tms = U['none_tm']
-        shop_html = f'<div class="cols" style="margin-top:18px"><div class="panel"><h3>{U["nature"]}</h3><p>{nat}</p></div><div class="panel"><h3>{U["ability"]}</h3><p>{ab}</p></div><div class="panel"><h3>{U["tms"]}</h3>{tms}</div></div>'
+        shop_html = f'<div class="g3 shop"><div class="panel"><h3>{U["nature"]}</h3><p class="small">{nat}</p></div><div class="panel"><h3>{U["ability"]}</h3><p class="small">{ab}</p></div><div class="panel"><h3>{U["tms"]}</h3>{tms}</div></div>'
     evos = ''.join(f'<li>{U["evo_text"].format(move=esc(mname(e["move"], lang)), need=NEED[lang][e["need"]])}</li>' for e in b['evos'])
     return f'''<div class="tab-panel" data-tab="{key}">
-<h3>{U['moves']}</h3><div class="moves">{''.join(cards)}</div>
-<div class="cols" style="margin-top:18px">
-<div class="panel"><dl class="kv">{''.join(f'<dt>{k}</dt><dd>{v}</dd>' for k, v in kv)}</dl></div>
-<div class="panel"><h3>{U['items']}</h3><div class="items">{items}</div><p class="small muted" style="margin:8px 0 0">{U['items_note']}</p></div>
-</div>
+<div class="moves">{''.join(cards)}</div>
 {shop_html}
-<div class="cols" style="margin-top:18px"><div class="panel"><h3>{U['cards']}</h3><ol class="cards">{''.join(f'<li>{x}</li>' for x in cards_text(p, var, lang))}</ol></div>
-{f'<div class="panel"><h3>{U["evos"]}</h3><ul class="plain">{evos}</ul></div>' if evos else ''}</div>
+<div class="g3">
+<div class="panel"><dl class="kv">{''.join(f'<dt>{k}</dt><dd>{v}</dd>' for k, v in kv)}</dl>{f'<h3 style="margin-top:10px">{U["evos"]}</h3><ul class="plain small">{evos}</ul>' if evos else ''}</div>
+<div class="panel"><h3>{U['items']}</h3><div class="items">{items}</div><p class="small muted" style="margin:6px 0 0">{U['items_note']}</p></div>
+<div class="panel"><h3>{U['cards']}</h3><ol class="cards">{''.join(f'<li>{x}</li>' for x in cards_text(p, var, lang))}</ol></div>
+</div>
 </div>'''
 
 def pokemon_page(p, lang, prev, nxt):
@@ -338,29 +337,25 @@ def pokemon_page(p, lang, prev, nxt):
         abil_html.append(f'<div class="a {"rec" if aid == s["ability"] else ""}"><span class="n">{esc(aname(aid, lang))} {tags}</span><span class="small muted">{esc(adesc(aid, p["types"], lang))}</span></div>')
     inc = ''.join(f'<div class="r"><span class="type" style="--tc:{TC[t]}">{tn[t]}</span><span class="track"><span class="fill" style="--tc:{TC[t]};width:{min(100, v / 2.4 * 100):.0f}%"></span></span><span class="v {"bad" if v > 1.05 else "good" if v < 0.75 else ""}">×{v:.2f}</span></div>' for t, v in p['incoming'].items())
     hordes = p['hordes']
-    st_url = f"https://survivortiers.pages.dev/{'en/' if lang == 'en' else ''}pokemon/{p['dex']}-{slugify(p['nameEn'])}/"
+    stats = [(STAT[lang]['hp'], f"{st['hp']}"), (STAT[lang]['spd'], f"{st['spd']} <span class=muted>→ {b['S']}</span>"), (STAT[lang]['pa'], f"×{st['pa']:.2f}"), (STAT[lang]['sa'], f"×{st['sa']:.2f}"),
+             (STAT[lang]['df'], f"{st['df']} <span class=muted>(×{p['guard']['p']:.2f})</span>"), (STAT[lang]['sd'], f"{st['sd']} <span class=muted>(×{p['guard']['s']:.2f})</span>"), (U['radius'], f"{p['r']} {U['px']}")]
     body = f'''<nav class="crumbs"><a href="../../">{U['back']}</a><span>/</span><span>Nº {p['dex']:03d}</span></nav>
-<section class="head"><div class="pic cut"><img class="px" src="../../../img/p/{p['dex']}.png" alt="{esc(N)}" width="160" height="160"></div>
-<div><h1>{esc(N)}</h1><div class="sub"><span>Nº {p['dex']:03d}</span>{''.join(typechip(t, lang) for t in p['types'])}{'<span class="pill c">' + ('Legendario' if lang == 'es' else 'Legendary') + '</span>' if p['leg'] else ''}<span class="tier {b['tier']}">TIER {b['tier']}</span></div>
+<section class="head"><div class="pic cut"><img class="px" src="../../../img/p/{p['dex']}.png" alt="{esc(N)}" width="120" height="120"></div>
+<div class="hd"><div class="sub"><h1>{esc(N)}</h1><span>Nº {p['dex']:03d}</span>{''.join(typechip(t, lang) for t in p['types'])}{'<span class="pill c">' + ('Legendario' if lang == 'es' else 'Legendary') + '</span>' if p['leg'] else ''}<span class="tier {b['tier']}">TIER {b['tier']}</span></div>
 <div class="ranks"><div class="rank"><span class="l">{U['rank_base']}</span><span class="v">{b['pos']} <span class="small muted">/ 966</span></span></div>
 <div class="rank shop"><span class="l">{U['rank_shop']}</span><span class="v">{s['pos']} <span class="small muted">/ 966 · {U['tier']} {s['tier']}</span></span></div>
-<div class="rank ext"><span class="l">{U['rank_hordes']}</span><span class="v">{hordes['rank'] or '—'} <span class="small muted">/ 966 · {U['tier']} {hordes['tier']}</span></span></div></div></div></section>
-<div class="verdict cut"><b class="up" style="color:var(--yellow)">{U['verdict']}:</b> {verdict(p, lang)}</div>
-<h2>{U['strategy']}</h2>{''.join(f'<p>{x}</p>' for x in strategy(p, lang))}
-<h2>{U['components']}</h2><div class="panel">{bars(p, lang)}</div>
-<div class="cols" style="margin-top:18px">
-<div class="panel"><h3>{U['stats']}</h3><table class="stats">
-<tr><td>{STAT[lang]['hp']}</td><td>{st['hp']}</td></tr><tr><td>{STAT[lang]['spd']}</td><td>{st['spd']}</td></tr>
-<tr><td>{STAT[lang]['pa']}</td><td>×{st['pa']:.2f}</td></tr><tr><td>{STAT[lang]['sa']}</td><td>×{st['sa']:.2f}</td></tr>
-<tr><td>{STAT[lang]['df']}</td><td>{st['df']} <span class="muted">(×{p['guard']['p']:.2f})</span></td></tr><tr><td>{STAT[lang]['sd']}</td><td>{st['sd']} <span class="muted">(×{p['guard']['s']:.2f})</span></td></tr>
-<tr><td>{U['radius']}</td><td>{p['r']} {U['px']}</td></tr><tr><td>{U['speed_eff']}</td><td>{b['S']}</td></tr></table>
-<p class="small muted" style="margin:8px 0 0">{'Las defensas se aplican suavizadas: ×0,78 con mucha, ×1,25 con poca.' if lang == 'es' else 'Defenses are softened: ×0.78 with a lot, ×1.25 with little.'}</p></div>
+<div class="rank ext"><span class="l">{U['rank_hordes']}</span><span class="v">{hordes['rank'] or '—'} <span class="small muted">/ 966 · {U['tier']} {hordes['tier']}</span></span></div></div>
+<div class="verdict"><b class="up" style="color:var(--yellow)">{U['verdict']}:</b> {verdict(p, lang)}</div></div></section>
+<h2>{U['strategy']}</h2><div class="strat">{''.join(f'<p>{x}</p>' for x in strategy(p, lang))}</div>
+<div class="g2">
+<div class="panel"><h3>{U['components']}</h3>{bars(p, lang)}</div>
+<div class="panel"><h3>{U['stats']}</h3><dl class="kv2">{''.join(f'<dt>{k}</dt><dd>{v}</dd>' for k, v in stats)}</dl>
+<p class="small muted" style="margin:6px 0 0">{'Velocidad: base → efectiva en la Sentencia (tope suave 130). Defensas suavizadas: ×0,78 con mucha, ×1,25 con poca.' if lang == 'es' else 'Speed: base → effective in the Judgment (soft cap 130). Softened defenses: ×0.78 with a lot, ×1.25 with little.'}</p></div>
 <div class="panel"><h3>{U['incoming']}</h3><div class="inc">{inc}</div></div>
-<div class="panel"><h3>{U['abilities']}</h3><div class="abil">{''.join(abil_html)}</div><p class="small muted" style="margin:8px 0 0">{U['ab_note']}</p></div></div>
-<h2>{U['build']}</h2>
-<div class="tabs"><button data-tab="base">{U['tab_base']}</button><button data-tab="shop" class="red">{U['tab_shop']}</button></div>
+<div class="panel"><h3>{U['abilities']}</h3><div class="abil">{''.join(abil_html)}</div><p class="small muted" style="margin:6px 0 0">{U['ab_note']}</p></div></div>
+<div class="tabs"><h2 style="margin:0;align-self:end;padding-right:14px">{U['build']}</h2><button data-tab="base">{U['tab_base']}</button><button data-tab="shop" class="red">{U['tab_shop']}</button></div>
 {build_panel(p, b, 'base', lang)}{build_panel(p, s, 'shop', lang)}
-<nav class="pager">{f'<a href="../{slug(prev)}/">← #{prev["base"]["pos"]} {esc(name(prev, lang))}</a>' if prev else '<span></span>'}<a href="{st_url}" rel="noopener">{U['hordes_link']} →</a>{f'<a href="../{slug(nxt)}/">#{nxt["base"]["pos"]} {esc(name(nxt, lang))} →</a>' if nxt else '<span></span>'}</nav>
+<nav class="pager">{f'<a href="../{slug(prev)}/">← #{prev["base"]["pos"]} {esc(name(prev, lang))}</a>' if prev else '<span></span>'}<a href="../../">{U['back']}</a>{f'<a href="../{slug(nxt)}/">#{nxt["base"]["pos"]} {esc(name(nxt, lang))} →</a>' if nxt else '<span></span>'}</nav>
 <script src="../../../assets/page.js"></script>'''
     title = f"{N} · {U['title']}: tier {b['tier']}, {'puesto' if lang == 'es' else 'rank'} {b['pos']}"
     desc = (f"{N} en la Sentencia de Arceus: tier {b['tier']} (puesto {b['pos']} de 966), build, habilidades, objetos y estrategia." if lang == 'es' else f"{N} in Arceus’ Judgment: tier {b['tier']} (rank {b['pos']} of 966), build, abilities, items and strategy.")
