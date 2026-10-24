@@ -59,9 +59,9 @@ UI = {
             me='Mi partida', meTitle='Cargar tu partida', meIntro='Con tu partida la web marca los Pokémon que tienes, sus mejoras y la habilidad y naturaleza que te tocaron, y calcula tu puesto aproximado con ellas. Todo se queda en este navegador: no se envía a ningún sitio.',
             meHow='1. Abre pokesurvivor.com con tu cuenta. 2. Pulsa F12 y entra en la pestaña «Console». 3. Pega esta línea y pulsa Intro: copia tu partida al portapapeles. 4. Vuelve aquí y pégala en el cuadro.',
             copy='Copiar la línea', copied='Copiada', meLoad='Cargar', meClear='Quitar partida', close='Cerrar', mePaste='Pega aquí tu partida (empieza por {"stats":…)', meError='No parece una partida de PokéSurvivor: tiene que ser el JSON entero de la clave ps.cloud.',
-            meLoaded='Partida de {name}: {n} Pokémon.', mine='Mis Pokémon', owned='Lo tienes', notOwned='No lo tienes', ownedS='TUYO', upgrades='Mejoras compradas', yourRank='Tu puesto aproximado con tu habilidad', you='tú',
+            meLoaded='Partida de {name}: {n} Pokémon.', mine='Mis Pokémon', owned='Lo tienes', notOwned='No lo tienes', ownedS='TUYO', upgrades='Mejoras compradas', yourRank='Tu puesto con tu habilidad y tu naturaleza', you='tú',
             sort_you='Tu puesto', meBlock='Tu partida ({name})', meAbility='Tu habilidad', meNature='Tu naturaleza', loading='Calculando tu puesto…',
-            meRank='Con tu habilidad quedaría en el puesto <b>{n}</b> de 966 (puesto general: {base}). La naturaleza no se tiene en cuenta; las mejoras y cartas se suponen al máximo.'),
+            meRank='Con tu habilidad y tu naturaleza quedaría en el puesto <b>{n}</b> de 966 (puesto general: {base}). Las mejoras y cartas se suponen al máximo; las MT que ya le enseñaste no se cuentan.'),
  'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source',
             intro='All 966 Pokémon ranked only by how long they last in Arceus’ Judgment (minute 30). Computed from the game’s code: slows, stuns, defenses against the 86 legendaries that show up, regeneration, capped speed and size. How well they clear before minute 30 is shown on each page; it does not score.',
             updated='Game patch', pokemon='Pokémon', legs='Legendaries', nonlegs='Non-legendaries', all='All', tier='Tier', sort='Sort by', group='Group by',
@@ -84,9 +84,9 @@ UI = {
             me='My save', meTitle='Load your save', meIntro='With your save the site marks the Pokémon you own, their upgrades and the ability and nature you rolled, and estimates your rank with them. Everything stays in this browser: nothing is sent anywhere.',
             meHow='1. Open pokesurvivor.com with your account. 2. Press F12 and open the “Console” tab. 3. Paste this line and press Enter: it copies your save to the clipboard. 4. Come back here and paste it in the box.',
             copy='Copy the line', copied='Copied', meLoad='Load', meClear='Remove save', close='Close', mePaste='Paste your save here (it starts with {"stats":…)', meError='That does not look like a PokéSurvivor save: it must be the whole JSON of the ps.cloud key.',
-            meLoaded='Save of {name}: {n} Pokémon.', mine='My Pokémon', owned='Owned', notOwned='Not owned', ownedS='MINE', upgrades='Upgrades bought', yourRank='Your approximate rank with your ability', you='you',
+            meLoaded='Save of {name}: {n} Pokémon.', mine='My Pokémon', owned='Owned', notOwned='Not owned', ownedS='MINE', upgrades='Upgrades bought', yourRank='Your rank with your ability and nature', you='you',
             sort_you='Your rank', meBlock='Your save ({name})', meAbility='Your ability', meNature='Your nature', loading='Computing your rank…',
-            meRank='With your ability it would rank <b>{n}</b> of 966 (general rank: {base}). Nature is not considered; upgrades and cards are assumed maxed.'),
+            meRank='With your ability and nature it would rank <b>{n}</b> of 966 (general rank: {base}). Upgrades and cards are assumed maxed; TMs you already taught are not counted.'),
 }
 ITEMS = {'es': dict(leftovers=('Restos', 'Recuperas un 1,5 % de tu vida por segundo. El daño de Arceus es porcentual y puro: la regeneración porcentual es lo único que lo contrarresta.'),
                     focussash=('Banda Focus', 'Un golpe mortal te deja con 1 de vida (cada 60 s). Salva de un pilar o de un toque de Arceus hasta el minuto 35, cuando Arceus rompe tu objeto.'),
@@ -454,6 +454,31 @@ def judgment_text(lang):
 <h2>Damage to Arceus</h2><p>Only 5% of what you deal counts, decaying to 1% after 10 minutes, and your attacks only target it when no legendary is alive. It is the second ranking; it does nothing for lasting longer.</p>
 <h2>What to do</h2><ol><li>Stay 250–400 px from Arceus and run wide circles along the edge. Gain distance during its pauses.</li><li>When the legendaries bunch up, stun and slow the group; do not try to kill them after the third.</li><li>Hold Leftovers (or a Focus Sash), stack Reflexes, Armor and Synthesis, and Sprint only up to the 130 cap.</li><li>Before the run: Ban Tackle, Quick Attack and Body Slam, and use Starting Move + Repertoire to open with your slow and your stun.</li></ol>'''
 
+def validation_html(lang):
+    path = os.path.join(ROOT, 'data', 'records', 'validation.json')
+    if not os.path.exists(path): return ''
+    V = json.load(open(path, encoding='utf-8')); s = V['spearman']; c = V['componentes']
+    f = lambda x: (f'{x:.2f}'.replace('.', ',') if lang == 'es' else f'{x:.2f}')
+    names = lambda L: ', '.join(f"{esc(x['name'])} ({'puesto' if lang == 'es' else 'rank'} {x['pos']}, {x['med']} s)" for x in L[:5])
+    comp = ''.join(f"<tr><td>{COMP[lang][k][0]}</td><td>{f(c[k])}</td></tr>" for k in ('T', 'U', 'A', 'D', 'S', 'Z', 'V'))
+    if lang == 'es':
+        return f"""<h2>Contraste con récords reales</h2>
+<p>El {V['records_source'].split('leído el ')[-1].split('.')[0]} se leyeron las tablas públicas del juego con las 50 mejores partidas en solitario de cada Pokémon y se calculó, para los {V['n']} Pokémon con al menos {V['min_marcas']} partidas que pasaron del minuto 30, la mediana de segundos aguantados en la Sentencia. Se descartaron las marcas de más de 20 minutos de Sentencia, imposibles con las reglas actuales. Solo se guardan agregados, ningún dato de jugadores.</p>
+<table><tr><th>Predicción</th><th>Correlación con la mediana real (Spearman)</th></tr>
+<tr><td>Este ranking</td><td>{f(s['modelo'])} (IC 95 %: {f(s['modelo_ic95'][0])} a {f(s['modelo_ic95'][1])})</td></tr>
+<tr><td>Ranking en hordas (SurvivorTiers)</td><td>{f(s['hordas'])} (IC 95 %: {f(s['hordas_ic95'][0])} a {f(s['hordas_ic95'][1])})</td></tr></table>
+<div class="callout"><b>Qué significa.</b> Ninguna de las dos listas predice bien los récords reales: en la Sentencia manda la pericia del jugador. Por componentes, lo que más se asocia a aguantar es el <b>daño</b> y el <b>tamaño pequeño</b>; el aguante ante los golpes de los legendarios, que es lo que más pesa aquí, apenas se nota. Una explicación compatible con el código: tumbar legendarios da experiencia, y subir de nivel da cartas de Vigor y Baya Zidra que curan. El modelo se revisará con estos datos.</div>
+<table><tr><th>Componente</th><th>Correlación</th></tr>{comp}</table>
+<p class="small">Más arriba aquí que en la realidad: {names(V['sobrevalorados'])}. Más abajo: {names(V['infravalorados'])}.</p>"""
+    return f"""<h2>Check against real records</h2>
+<p>On {V['records_source'].split('leído el ')[-1].split('.')[0]} the game's public tables with the 50 best solo runs of each Pokémon were read, and for the {V['n']} Pokémon with at least {V['min_marcas']} runs past minute 30 the median seconds survived in the Judgment was computed. Runs above 20 minutes of Judgment, impossible under the current rules, were discarded. Only aggregates are kept, no player data.</p>
+<table><tr><th>Prediction</th><th>Correlation with the real median (Spearman)</th></tr>
+<tr><td>This ranking</td><td>{f(s['modelo'])} (95% CI: {f(s['modelo_ic95'][0])} to {f(s['modelo_ic95'][1])})</td></tr>
+<tr><td>Horde ranking (SurvivorTiers)</td><td>{f(s['hordas'])} (95% CI: {f(s['hordas_ic95'][0])} to {f(s['hordas_ic95'][1])})</td></tr></table>
+<div class="callout"><b>What it means.</b> Neither list predicts real records well: player skill dominates the Judgment. By component, what goes most with lasting is <b>damage</b> and <b>small size</b>; toughness against the legendaries' hits, the heaviest weight here, barely shows. One explanation consistent with the code: downing legendaries gives experience, and levelling up gives Vigor and Zidra Berry cards that heal. The model will be revised with this data.</div>
+<table><tr><th>Component</th><th>Correlation</th></tr>{comp}</table>
+<p class="small">Higher here than in reality: {names(V['sobrevalorados'])}. Lower: {names(V['infravalorados'])}.</p>"""
+
 def method_text(lang):
     W = R['weights']; pool = R['legendary_pool']
     rows = ''.join(f"<tr><td>{COMP[lang][k][0]}</td><td>{round(W[k] * 100)} %</td><td>{COMP[lang][k][1]}</td></tr>" for k in ('T', 'U', 'A', 'D', 'S', 'Z') if W.get(k))
@@ -470,6 +495,7 @@ def method_text(lang):
 <li>Daño = mejor ataque a distancia de su lado bueno contra el pool, con su habilidad. Pesa poco a propósito: la vida de los legendarios se ajusta a tu propio daño.</li>
 <li>Llegar al minuto 30 <b>no puntúa</b>: el ranking mide solo lo que aguanta en la Sentencia. Lo bueno o malo que sea limpiando hordas se enseña en cada ficha (ranking y tier de SurvivorTiers, 441.000 partidas simuladas) y en el veredicto.</li></ul>
 <h2>El pool de legendarios</h2><p class="small">{pool_html}.</p>
+{validation_html(lang)}
 <h2>Lo que no se modela</h2><p>Los objetos (se recomiendan aparte), el clima de las habilidades que lo invocan, la habilidad del jugador al esquivar y los vínculos de las grietas. Los pesos son una decisión de criterio, no una medida: dos Pokémon separados por unos puestos son, en la práctica, iguales.</p>
 <h2>Créditos</h2><p>PokéSurvivor es de <a href="https://github.com/JPTER78/pokesurvivor" rel="noopener">JPTER78</a> (código bajo PolyForm Noncommercial). El ranking en hordas es de <a href="https://survivortiers.pages.dev/" rel="noopener">SurvivorTiers</a> (@fildotai). Retratos de <a href="https://github.com/PMDCollab/SpriteCollab" rel="noopener">PMD SpriteCollab</a> (CC BY-NC 4.0, ver sus créditos por artista). Pokémon © Nintendo/Creatures/GAME FREAK. Web hecha por Julio (<a href="{REPO}" rel="noopener">código y datos</a>), sin ánimo de lucro.</p>'''
     return f'''<h1>Ranking method</h1>
@@ -483,6 +509,7 @@ def method_text(lang):
 <li>Damage = best ranged same-side attack against the pool, with its ability. Deliberately light: the legendaries’ HP scales with your own damage.</li>
 <li>Reaching minute 30 <b>does not score</b>: the ranking measures only how it lasts in the Judgment. How good or bad it is at clearing hordes is shown on each page (SurvivorTiers rank and tier, 441,000 simulated runs) and in the verdict.</li></ul>
 <h2>The legendary pool</h2><p class="small">{pool_html}.</p>
+{validation_html(lang)}
 <h2>What is not modelled</h2><p>Items (recommended separately), the weather summoned by abilities, the player’s dodging skill and rift bonds. The weights are a judgment call, not a measurement: two Pokémon a few ranks apart are, in practice, equal.</p>
 <h2>Credits</h2><p>PokéSurvivor is by <a href="https://github.com/JPTER78/pokesurvivor" rel="noopener">JPTER78</a> (code under PolyForm Noncommercial). The horde ranking is by <a href="https://survivortiers.pages.dev/" rel="noopener">SurvivorTiers</a> (@fildotai). Portraits from <a href="https://github.com/PMDCollab/SpriteCollab" rel="noopener">PMD SpriteCollab</a> (CC BY-NC 4.0, see their per-artist credits). Pokémon © Nintendo/Creatures/GAME FREAK. Site by Julio (<a href="{REPO}" rel="noopener">code and data</a>), non-profit.</p>'''
 
@@ -553,8 +580,8 @@ def main():
         for i, p in enumerate(order):
             prev = order[i - 1] if i > 0 else None; nxt = order[i + 1] if i + 1 < len(order) else None
             write(os.path.join(DOCS, lang, 'pokemon', slug(p), 'index.html'), pokemon_page(p, lang, prev, nxt)); urls.append(f'{SITE}/{lang}/pokemon/{slug(p)}/')
-    # puntuaciones compactas para el bloque "Tu partida" de las fichas: dex -> [base, hab1, hab2, oculta]
-    write(os.path.join(DOCS, 'assets', 'scores.json'), json.dumps({p['dex']: [p['base']['score']] + [p['abil_scores'].get(str(i), None) for i in range(3)] for p in P}, separators=(',', ':')))
+    # puntuaciones para "Tu partida": dex -> {b: general, a: {hueco de habilidad: [25 naturalezas ×10000]}}
+    write(os.path.join(DOCS, 'assets', 'scores.json'), json.dumps({p['dex']: {'b': p['base']['score'], 'a': p['an_scores']} for p in P}, separators=(',', ':')))
     # datos del Consejero (extensión del navegador): docs/assets/advisor.json y extension/data.js
     advisor.write_all(R, slug, DOCS, os.path.join(ROOT, 'extension'))
     write(os.path.join(DOCS, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n')

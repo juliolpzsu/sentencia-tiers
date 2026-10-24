@@ -82,6 +82,14 @@ class TestRanking(unittest.TestCase):
         self.assertIsNone(by['Kartana']['base']['slow']); self.assertIsNone(by['Kartana']['base']['stun'])
         self.assertIn('ice-beam', [t['id'] for t in by['Melmetal']['shop']['tms']])
         self.assertIn('0', by['Cloyster']['abil_scores'])
+    def test_nature_scores(self):
+        """an_scores: 25 naturalezas por habilidad; las neutras coinciden con abil_scores y la mejor no baja de la neutra."""
+        import gamedata as G2
+        neutral = [i for i, n in enumerate(G2.NATURES) if not n['up']]
+        for p in self.P:
+            for slot, row in p['an_scores'].items():
+                self.assertEqual(len(row), 25, p['name'])
+                for i in neutral: self.assertAlmostEqual(row[i] / 10000, p['abil_scores'][slot], places=3)
     def test_deterministic(self):
         """rank.py produce el mismo fichero dos veces (con semillas de hash distintas)."""
         tmp = os.path.join(ROOT, 'data', 'ranking.json')

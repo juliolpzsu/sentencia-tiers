@@ -1,0 +1,116 @@
+{
+ "min_marcas": 10,
+ "n": 195,
+ "records_source": "Firestore lbs/s_all4_p<dex>: top 50 en solitario de cada Pokémon, histórico all4 (desde el 23-10-2026), leído el 2026-10-24. Solo agregados, sin datos de jugadores.",
+ "spearman": {
+  "modelo": 0.084,
+  "modelo_ic95": [
+   -0.06,
+   0.218
+  ],
+  "tienda": 0.113,
+  "hordas": 0.118,
+  "hordas_ic95": [
+   -0.02,
+   0.254
+  ],
+  "popularidad": -0.048
+ },
+ "parcial_popularidad": {
+  "modelo": 0.095,
+  "hordas": 0.126
+ },
+ "componentes": {
+  "T": -0.07,
+  "U": 0.071,
+  "A": 0.076,
+  "D": 0.178,
+  "S": 0.07,
+  "Z": 0.151,
+  "V": 0.118
+ },
+ "sobrevalorados": [
+  {
+   "name": "Baxcalibur",
+   "pos": 31,
+   "med": 51
+  },
+  {
+   "name": "Gyarados",
+   "pos": 111,
+   "med": 33
+  },
+  {
+   "name": "Aggron",
+   "pos": 16,
+   "med": 82
+  },
+  {
+   "name": "Gallade",
+   "pos": 93,
+   "med": 57
+  },
+  {
+   "name": "Phione",
+   "pos": 134,
+   "med": 45
+  },
+  {
+   "name": "Empoleon",
+   "pos": 38,
+   "med": 79
+  },
+  {
+   "name": "Buzzwole",
+   "pos": 179,
+   "med": 35
+  },
+  {
+   "name": "Swampert",
+   "pos": 92,
+   "med": 64
+  }
+ ],
+ "infravalorados": [
+  {
+   "name": "Gengar",
+   "pos": 721,
+   "med": 289
+  },
+  {
+   "name": "Dunsparce",
+   "pos": 890,
+   "med": 184
+  },
+  {
+   "name": "Porygon-Z",
+   "pos": 760,
+   "med": 183
+  },
+  {
+   "name": "Spectrier",
+   "pos": 557,
+   "med": 248
+  },
+  {
+   "name": "Naganadel",
+   "pos": 668,
+   "med": 179
+  },
+  {
+   "name": "Slaking",
+   "pos": 727,
+   "med": 172
+  },
+  {
+   "name": "Arceus",
+   "pos": 630,
+   "med": 179
+  },
+  {
+   "name": "Ferropolilla",
+   "pos": 770,
+   "med": 159
+  }
+ ]
+}

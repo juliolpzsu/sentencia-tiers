@@ -37,6 +37,23 @@ window.ST = (() => {
     if (slot === 1 && abils[1] === abils[0]) slot = 0;
     return { slot, sc: abs[slot] != null ? abs[slot] : base };
   }
+  /** Puntuación con la habilidad y la naturaleza que le tocaron a la cuenta (S = scores.json). */
+  function fullScore(s, dex, abils, S) {
+    const e = S[dex]; if (!e) return null;
+    let slot = abilSlot(s, dex, abils); if (slot === 1 && abils[1] === abils[0]) slot = 0;
+    const row = e.a[slot] || e.a[0]; if (!row) return { slot, nat: null, sc: e.b };
+    const nat = natureIdxN(s, dex, row.length);
+    return { slot, nat, sc: row[nat] / 10000 };
+  }
+  function natureIdxN(s, dex, n) {
+    const p = s.pnat[dex];
+    if (p && NAT_IDS.length) { const i = NAT_IDS.indexOf(p[0]); if (i >= 0) return i; }
+    return Math.floor(hash(s.created + ':' + dex + ':nat') * n);
+  }
+  let NAT_IDS = [];
+  function setNatures(ids) { NAT_IDS = ids; }
+  /** Puesto que tendría esa puntuación en el ranking general (1 + cuántos Pokémon puntúan más). */
+  function rankOf(sc, S, dex) { let n = 0; for (const k in S) if (+k !== dex && S[k].b > sc) n++; return n + 1; }
   /* MT a la venta hoy: réplica de G.Shop.dailyTms (js/data/shop.js). Semilla = fecha en España. */
   function today() {
     const p = {};
@@ -59,6 +76,6 @@ window.ST = (() => {
     }
     return { date: d, list };
   }
-  return { today, dailyTms, hash, load, store, clear, parse, upg, abilSlot, natureIdx, score, UPG_MAX,
+  return { fullScore, setNatures, rankOf, today, dailyTms, hash, load, store, clear, parse, upg, abilSlot, natureIdx, score, UPG_MAX,
            SNIPPET: "copy(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('ps.cloud.'))))" };
 })();

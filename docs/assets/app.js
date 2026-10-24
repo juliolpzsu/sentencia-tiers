@@ -94,12 +94,13 @@
   // ---- orden y filtros ----
   const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const v = p => p[state.mode];
-  const youScore = p => save ? ST.score(save, p.dex, p.ab, p.abs, p.sc).sc : p.sc;
+  ST.setNatures(NAT.map(n => n.id));
+  let SC = null;
+  function loadScores() { if (!save || SC) return; fetch('../assets/scores.json').then(r => r.json()).then(S => { SC = S; render(); }).catch(() => {}); }
   let youRank = null;
   function computeYouRank() {
-    if (!save) { youRank = null; return; }
-    const scores = L.map(p => youScore(p)); const sorted = scores.slice().sort((a, b) => b - a);
-    youRank = new Map(L.map((p, i) => [p.dex, 1 + sorted.findIndex(x => x <= scores[i])]));
+    if (!save || !SC) { youRank = null; return; }
+    youRank = new Map(L.map(p => { const f = ST.fullScore(save, p.dex, p.ab, SC); return [p.dex, f ? ST.rankOf(f.sc, SC, p.dex) : p.base.pos]; }));
   }
   const SORTS = {
     pos: p => v(p).pos, name: p => norm(p.name), dex: p => p.dex, hordes: p => p.hordes || 9999, you: p => youRank ? youRank.get(p.dex) : v(p).pos,
@@ -164,4 +165,6 @@
     writeUrl();
   }
   render();
+  loadScores();
+  $('#me-load').addEventListener('click', loadScores);
 })();
