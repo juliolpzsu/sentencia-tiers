@@ -21,7 +21,8 @@ RULES = ['js/systems/judgment.js', 'js/systems/combat.js', 'js/entities/enemy.js
 def fetch(url):
     req = urllib.request.Request(url, headers={'User-Agent': 'sentencia-tiers-update/1.0'})
     with urllib.request.urlopen(req, timeout=60) as r: return r.read()
-def sha(b): return hashlib.sha256(b).hexdigest()[:12]
+def norm(b): return b.replace(b'\r\n', b'\n')                     # los finales de línea no son un cambio
+def sha(b): return hashlib.sha256(norm(b)).hexdigest()[:12]
 
 def game_commit():
     try:
@@ -47,7 +48,7 @@ def main():
             except Exception: print('aviso: índice de SurvivorTiers no es JSON válido; se ignora'); continue
         cur = os.path.join(GAME, local)
         old = open(cur, 'rb').read() if os.path.exists(cur) else b''
-        if sha(old) != sha(data): changed_files.append(local); new[local] = data
+        if sha(old) != sha(data): changed_files.append(local); new[local] = norm(data)
     if not changed_files and not force:
         print('Sin cambios en los datos del juego.'); out('changed', 'false'); return
     print('Ficheros cambiados:', changed_files or '(forzado)')
