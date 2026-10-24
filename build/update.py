@@ -107,6 +107,8 @@ def main():
     open(cl, 'w', encoding='utf-8', newline='\n').write(head + '\n\n' + '\n'.join(lines) + '\n' + rest)
     summary = f'Juego {commit} ({date}): {len(moved)} Pokémon cambian de puesto' + (' · REVISAR REGLAS' if rules_changed else '')
     print(summary); open(os.path.join(ROOT, 'data', 'update-summary.txt'), 'w', encoding='utf-8', newline='\n').write(summary + '\n')
+    sys.path.insert(0, os.path.join(ROOT, 'build')); import history
+    history.snapshot(new_rank)                         # foto para las flechas ▲▼ y la página Cambios
     out('changed', 'true'); out('summary', summary)
 
 if __name__ == '__main__':

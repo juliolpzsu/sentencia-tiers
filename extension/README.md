@@ -33,6 +33,12 @@ Está hecha para funcionar junto a PokeSurvivor Plus, en cualquier orden de carg
 2. **Cargar descomprimida** y elige esta carpeta (`extension/`).
 3. Recarga pokesurvivor.com.
 
+## Privacidad
+
+El Consejero no recoge, guarda en servidores ni envía ningún dato del jugador. Lee las cartas de subida de nivel dentro de la propia página del juego para marcarlas, y solo hace una petición de red: una vez al día descarga el fichero público `https://juliolpzsu.github.io/sentencia-tiers/assets/advisor.json` (sin cookies ni identificadores). En el `localStorage` del navegador guarda únicamente esa copia de los datos y si está encendido o apagado (claves `sta:`). No usa analítica ni publicidad.
+
+*Privacy: the Advisor collects, stores remotely or sends no player data. It reads the level-up cards inside the game page to mark them, and its only network request is a daily download of the public `advisor.json` file above (no cookies or identifiers). It keeps only that data copy and its on/off switch in the browser's `localStorage` (`sta:` keys). No analytics, no ads.*
+
 ## Limitaciones
 
 - Recomienda para la **Sentencia** (el criterio de la web), no para hordas: antes del minuto 30 da algo más de peso a Potencia y Aprendizaje, pero nada más.

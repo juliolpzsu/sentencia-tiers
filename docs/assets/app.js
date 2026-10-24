@@ -141,7 +141,7 @@
     }
     return `<a class="card" href="pokemon/${p.slug}/"><span class="pos">${m.pos}</span><span class="tier ${m.tier}">${m.tier}</span>
       <span class="pic"><img class="px" loading="${lazy}" src="../img/p/${p.dex}.png" alt="" width="64" height="64"></span>
-      <span class="name">${p.name}</span><span class="dex">Nº ${String(p.dex).padStart(3, '0')}</span>
+      <span class="name">${p.name}</span><span class="dex">Nº ${String(p.dex).padStart(3, '0')}${p.dl && p.dl[state.mode === 'shop' ? 1 : 0] ? `<span class="dl ${p.dl[state.mode === 'shop' ? 1 : 0] > 0 ? 'up' : 'down'}" title="${T.moved}">${p.dl[state.mode === 'shop' ? 1 : 0] > 0 ? '▲' : '▼'}${Math.abs(p.dl[state.mode === 'shop' ? 1 : 0])}</span>` : ''}</span>
       <span class="types">${p.types.map(t => `<span class="type" style="--tc:${TC[t]}">${T.types[t]}</span>`).join('')}</span>
       <span class="tools">${tools}</span>${you}</a>`;
   }

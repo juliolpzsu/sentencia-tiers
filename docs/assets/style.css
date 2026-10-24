@@ -264,3 +264,11 @@ section.me h3 { color: var(--red); }
 .tmday .tm.hot { color: var(--ink); border-color: var(--red); }
 .tmday .tm i { font-style: normal; color: #fff; background: var(--red); padding: 0 4px; margin-left: 2px; }
 .tmday .note8 { color: var(--dim); font-size: .7rem; flex-basis: 100%; }
+
+/* ---- novedades del parche ---- */
+.card .dl { margin-left: 6px; font-family: var(--font-mono); font-size: .7rem; padding: 0 4px; }
+.card .dl.up { color: #000; background: #58f08a; } .card .dl.down { color: #fff; background: var(--red); }
+.prose h3 { margin-top: 1rem; }
+table.moves-t { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: .85rem; }
+table.moves-t td, table.moves-t th { border: 1px solid var(--line); padding: 4px 8px; text-align: left; }
+table.moves-t td.up { color: #58f08a; } table.moves-t td.down { color: var(--red); }

@@ -3,11 +3,14 @@ import json, os, re, sys, html, shutil, unicodedata, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gamedata import ROOT, MOVES, NAT_BY, ABIL_NAMES, TYPE_ES, TYPE_EN, TYPES, EVO, NEED_NAME, en, TM_PRICE, TM_MOVES
 from abilfx import describe
+import history
+DELTA = history.deltas()                       # None si solo hay una foto
 import advisor
 
 R = json.load(open(os.path.join(ROOT, 'data', 'ranking.json'), encoding='utf-8'))
 P = R['pokemon']
 BY = {p['dex']: p for p in P}
+FRESH = bool(DELTA) and (time.mktime(time.strptime(R['generated'], '%Y-%m-%d')) - time.mktime(time.strptime(DELTA['cur']['date'], '%Y-%m-%d'))) <= 7 * 86400
 DOCS = os.path.join(ROOT, 'docs')
 SITE = 'https://juliolpzsu.github.io/sentencia-tiers'
 REPO = 'https://github.com/juliolpzsu/sentencia-tiers'
@@ -51,7 +54,7 @@ UI = {
             nat_none='Ninguna Menta mejora claramente su puntuación: mejor dejar la naturaleza que le tocó.', ab_same='Su habilidad 1 ya es la mejor de las suyas para la Sentencia.', prev='Anterior', next='Siguiente', hordes_link='Ver su ficha en SurvivorTiers',
             strategy='Estrategia', verdict='Veredicto', footer_data='Datos y reglas: código de PokéSurvivor (JPTER78) · Ranking en hordas: SurvivorTiers (@fildotai) · Retratos: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.',
             footer_fan='Proyecto de fans sin ánimo de lucro, sin relación con los autores del juego ni con Nintendo.', generated='Generado el', not_available='—',
-            flag_tm='MT útil hoy', tmToday='MT a la venta hoy en la Tienda Kecleon ({d})', tmHint='Pokémon a los que su build con Tienda Kecleon les pide una MT que se vende hoy', tmFor='{n} Pokémon la usan en su build', tmNone='Hoy ninguna de las MT a la venta aparece en las builds recomendadas: no merece la pena comprar ninguna para la Sentencia. Mañana habrá otras 8.', tm8='la octava puede ser otra: si ninguna le sirve a tu compañero, el juego la cambia (carga tu partida para verla exacta)',
+            flag_tm='MT útil hoy', tmToday='MT a la venta hoy en la Tienda Kecleon ({d})', tmHint='Pokémon a los que su build con Tienda Kecleon les pide una MT que se vende hoy', tmFor='{n} Pokémon la usan en su build', moved='Puestos que ha subido o bajado con la última actualización del juego', tmNone='Hoy ninguna de las MT a la venta aparece en las builds recomendadas: no merece la pena comprar ninguna para la Sentencia. Mañana habrá otras 8.', tm8='la octava puede ser otra: si ninguna le sirve a tu compañero, el juego la cambia (carga tu partida para verla exacta)',
             changes='Cambios', search='Nombre, nº, ataque o habilidad',
             me='Mi partida', meTitle='Cargar tu partida', meIntro='Con tu partida la web marca los Pokémon que tienes, sus mejoras y la habilidad y naturaleza que te tocaron, y calcula tu puesto aproximado con ellas. Todo se queda en este navegador: no se envía a ningún sitio.',
             meHow='1. Abre pokesurvivor.com con tu cuenta. 2. Pulsa F12 y entra en la pestaña «Console». 3. Pega esta línea y pulsa Intro: copia tu partida al portapapeles. 4. Vuelve aquí y pégala en el cuadro.',
@@ -76,7 +79,7 @@ UI = {
             nat_none='No Mint clearly improves its score: keep the nature it rolled.', ab_same='Its ability 1 is already the best of its abilities for the Judgment.', prev='Previous', next='Next', hordes_link='See its SurvivorTiers page',
             strategy='Strategy', verdict='Verdict', footer_data='Data and rules: PokéSurvivor source code (JPTER78) · Horde ranking: SurvivorTiers (@fildotai) · Portraits: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.',
             footer_fan='Non-profit fan project, unaffiliated with the game’s authors or Nintendo.', generated='Generated on', not_available='—',
-            flag_tm='TM useful today', tmToday='TMs on sale today at the Kecleon Shop ({d})', tmHint='Pokémon whose Kecleon Shop build asks for a TM on sale today', tmFor='{n} Pokémon use it in their build', tmNone='None of today’s TMs appears in the recommended builds: none is worth buying for the Judgment today. There will be 8 new ones tomorrow.', tm8='the eighth may differ: if none fits your partner, the game swaps it (load your save to see it exactly)',
+            flag_tm='TM useful today', tmToday='TMs on sale today at the Kecleon Shop ({d})', tmHint='Pokémon whose Kecleon Shop build asks for a TM on sale today', tmFor='{n} Pokémon use it in their build', moved='Ranks gained or lost with the latest game update', tmNone='None of today’s TMs appears in the recommended builds: none is worth buying for the Judgment today. There will be 8 new ones tomorrow.', tm8='the eighth may differ: if none fits your partner, the game swaps it (load your save to see it exactly)',
             changes='Changes', search='Name, no., move or ability',
             me='My save', meTitle='Load your save', meIntro='With your save the site marks the Pokémon you own, their upgrades and the ability and nature you rolled, and estimates your rank with them. Everything stays in this browser: nothing is sent anywhere.',
             meHow='1. Open pokesurvivor.com with your account. 2. Press F12 and open the “Console” tab. 3. Paste this line and press Enter: it copies your save to the clipboard. 4. Come back here and paste it in the box.',
@@ -299,8 +302,9 @@ def index_page(lang):
         row['bm'] = sorted({MI[m['id']] for k in ('base', 'shop') for m in p[k]['build']['moves']})
         row['tm'] = [MI[t['id']] for t in p['tm']]
         row['st'] = [MI[t['id']] for t in p['shop']['tms']]
+        if FRESH and p['dex'] in DELTA['d']: row['dl'] = DELTA['d'][p['dex']]
     data['natures'] = [dict(id=n['id'], n=nname(n['id'], lang)) for n in NAT_BY.values()]
-    for k in ('owned', 'ownedS', 'upgrades', 'yourRank', 'you', 'meLoaded', 'meError', 'copied', 'tmToday', 'tmHint', 'tmFor', 'tm8', 'tmNone'): data['t'][k] = U[k]
+    for k in ('owned', 'ownedS', 'upgrades', 'yourRank', 'you', 'meLoaded', 'meError', 'copied', 'tmToday', 'tmHint', 'tmFor', 'tm8', 'tmNone', 'moved'): data['t'][k] = U[k]
     n_leg = sum(1 for p in P if p['leg'])
     body = f'''<section class="hero"><div><span class="tag">// {U['tagline']}</span><h1>{U['title']}</h1><p>{U['intro']}</p></div>
 <div class="kpis"><div class="kpi"><b>966</b>{U['pokemon']}</div><div class="kpi"><b>{len(R['legendary_pool'])}</b>{U['legs']} {'en el pool' if lang == 'es' else 'in the pool'}</div><div class="kpi"><b>{R['game_commit'].split(' ')[0]}</b>{U['updated']}</div></div></section>
@@ -496,6 +500,20 @@ def changes_text(lang):
     out = ['<h1>' + ('Cambios del ranking' if lang == 'es' else 'Ranking changes') + '</h1>',
            '<p class="muted">' + ('Cada día se comprueba si PokéSurvivor ha cambiado; si el cambio mueve el ranking, la web se actualiza sola y queda apuntado aquí.' if lang == 'es'
             else 'Every day the site checks whether PokéSurvivor changed; if the change moves the ranking, the site updates itself and it is logged here (entries are in Spanish).') + '</p>']
+    if DELTA:
+        d = DELTA['d']; name_ = lambda dex: name(BY[dex], lang)
+        def tbl(i, title):
+            ups = sorted(((v[i], k) for k, v in d.items() if v[i] > 0), reverse=True)[:12]
+            downs = sorted(((v[i], k) for k, v in d.items() if v[i] < 0))[:12]
+            if not ups and not downs: return ''
+            row = lambda v, k: f'<tr><td><a href="../pokemon/{slug(BY[k])}/">{esc(name_(k))}</a></td><td>{BY[k][("base", "shop")[i]]["pos"]}</td><td class="{"up" if v > 0 else "down"}">{"▲" if v > 0 else "▼"} {abs(v)}</td></tr>'
+            hd = '<tr><th>Pokémon</th><th>' + ('Puesto' if lang == 'es' else 'Rank') + '</th><th>Δ</th></tr>'
+            return (f'<h3>{title}</h3><div class="g2"><div><table class="moves-t">{hd}{"".join(row(v, k) for v, k in ups) or '<tr><td colspan="3" class="muted">—</td></tr>'}</table></div>'
+                    f'<div><table class="moves-t">{hd}{"".join(row(v, k) for v, k in downs) or '<tr><td colspan="3" class="muted">—</td></tr>'}</table></div></div>')
+        out.append('<h2>' + ('Novedades del último parche' if lang == 'es' else 'Latest patch movers') + '</h2>')
+        out.append('<p class="muted">' + (f"Comparado con el ranking del {DELTA['prev']['date']} (juego {esc(DELTA['prev']['game'])}): {len(d)} Pokémon cambian de puesto. En la tier list salen con flecha durante 7 días." if lang == 'es'
+                   else f"Compared with the ranking of {DELTA['prev']['date']} (game {esc(DELTA['prev']['game'])}): {len(d)} Pokémon change rank. They carry an arrow in the tier list for 7 days.") + '</p>')
+        out.append(tbl(0, UI[lang]['mode_base']) + tbl(1, UI[lang]['mode_shop']))
     ul = 0
     for line in md.splitlines():
         if line.startswith('# '): continue

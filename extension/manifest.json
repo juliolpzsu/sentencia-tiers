@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Sentencia Tiers · Consejero",
   "version": "1.0.0",
-  "description": "PokéSurvivor: al subir de nivel marca qué carta coger según la build de la Sentencia de Arceus del Pokémon que juegas. Compatible con PokeSurvivor Plus.",
+  "description": "PokéSurvivor: marca qué carta coger al subir de nivel según la build de la Sentencia de Arceus. Compatible con PokeSurvivor Plus.",
   "icons": { "128": "icon-128.png" },
   "background": { "service_worker": "background.js" },
   "host_permissions": ["https://juliolpzsu.github.io/sentencia-tiers/*"],

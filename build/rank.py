@@ -286,6 +286,8 @@ def evaluate(dex, norm=None):
     # Puntuación base con cada una de sus habilidades (naturaleza neutra, pool natural): para personalizar en la web
     # con la habilidad que le tocó a cada cuenta sin portar el modelo a JavaScript.
     out['abil_scores'] = {str(slot): round(norm.score(raw_components(dex, ab, None, pool_nat))[0], 4) for slot, ab in ab_opts}
+    # y con cada naturaleza (orden de G.NATURES), en enteros ×10000: "Tu puesto" con la habilidad y la naturaleza de cada cuenta
+    out['an_scores'] = {str(slot): [round(norm.score(raw_components(dex, ab, n if (n['up'] or n['down']) else None, pool_nat))[0] * 10000) for n in NATURES] for slot, ab in ab_opts}
     for slot, ab in ab_opts:
         for nat in nature_candidates(mon_with_nature(dex, None)):
             r2 = raw_components(dex, ab, nat, pool_shop, natural=pool_nat)
