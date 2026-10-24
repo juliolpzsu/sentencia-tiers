@@ -195,6 +195,14 @@ footer { margin: 50px 0 30px; padding-top: 16px; border-top: 1px solid var(--lin
 footer a { color: var(--muted); }
 
 @media (max-width: 720px) {
+  .top { position: static; }
+  .top .wrap { gap: 6px 10px; padding-top: 8px; padding-bottom: 8px; }
+  .logo { font-size: 1.15rem; }
+  .nav a, .lang a { padding: 4px 7px; font-size: .78rem; }
+  .lang { margin-left: auto; }
+  .controls .row:first-child { flex-direction: column; align-items: stretch; }
+  .controls .row:first-child .seg { display: flex; } .controls .row:first-child .seg button { flex: 1; }
+  .count { margin-left: 0; text-align: right; }
   .head { grid-template-columns: 1fr; }
   .head .pic { height: 150px; } .head .pic img { width: 128px; height: 128px; }
   .bar { grid-template-columns: 120px 1fr 44px; }

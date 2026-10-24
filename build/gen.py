@@ -137,7 +137,7 @@ def cards_text(p, var, lang):
     b = var['build']; n = b['spd_cards']
     if lang == 'es':
         out = ["<b>Reflejos</b> (−8 % de recarga, hasta 10): con la recarga baja los frenazos y aturdimientos se encadenan sin huecos.",
-               (f"<b>Carrera</b>: unas {n} cartas para llegar al tope suave de 130 con Zancada al máximo." if n else "<b>Carrera</b>: con Zancada al máximo ya está en el tope suave de 130; una o dos no sobran para esquivar."),
+               (f"<b>Carrera</b>: {'una carta' if n == 1 else f'unas {n} cartas'} para llegar al tope suave de 130 con Zancada al máximo." if n else "<b>Carrera</b>: con Zancada al máximo ya está en el tope suave de 130; una o dos no sobran para esquivar."),
                "<b>Coraza</b> (hasta 12): la reducción se acumula hasta el tope del 80 % y es lo que más vida te ahorra contra los legendarios.",
                "<b>Vigor</b> (+20 de vida): margen contra los golpes de los legendarios, que escalan un 15 % cada 5 s.",
                "<b>Síntesis</b> (+0,9 vida/s): recupera entre salvas de pilares (el daño de Arceus es porcentual, solo la regeneración lo compensa).",
@@ -146,7 +146,7 @@ def cards_text(p, var, lang):
         out.append("<b>Potencia</b> (hasta 40) después: el daño apenas cuenta en la Sentencia. Imán y Aprendizaje, solo si no hay nada mejor.")
     else:
         out = ["<b>Reflexes</b> (−8% cooldown, up to 10): with low cooldowns the slows and stuns chain without gaps.",
-               (f"<b>Sprint</b>: about {n} cards to reach the soft cap of 130 with Stride maxed." if n else "<b>Sprint</b>: with Stride maxed it already sits at the soft cap of 130; one or two more still help you dodge."),
+               (f"<b>Sprint</b>: {'one card' if n == 1 else f'about {n} cards'} to reach the soft cap of 130 with Stride maxed." if n else "<b>Sprint</b>: with Stride maxed it already sits at the soft cap of 130; one or two more still help you dodge."),
                "<b>Armor</b> (up to 12): the reduction stacks up to the 80% cap and saves the most HP against the legendaries.",
                "<b>Vigor</b> (+20 HP): margin against the legendaries’ hits, which scale 15% every 5 s.",
                "<b>Synthesis</b> (+0.9 HP/s): recover between pillar volleys (Arceus’ damage is percentage-based, only regeneration offsets it).",
@@ -164,10 +164,14 @@ def strategy(p, lang):
     tn = lambda t: TYPE_NAME[lang][t]
     paras = []
     if lang == 'es':
+        # decimales con coma en los textos españoles
+        _fmt = f'{T:.2f}'.replace('.', ',')
+        worst = [(t, float(f'{v:.2f}')) for t, v in worst]; best = [(t, float(f'{v:.2f}')) for t, v in best]
+        es_num = lambda v: f'{v:.2f}'.replace('.', ',')
         via = {'S': 'llega al minuto 30 con holgura', 'A': 'llega al minuto 30 sin problema con una build normal', 'B': 'llega al minuto 30 si la partida va limpia', 'C': 'le cuesta llegar al minuto 30: hace falta un buen objeto y evitar riesgos', 'D': 'llegar al minuto 30 ya es un reto; la Sentencia es casi un extra'}[ht]
-        tough = ('aguanta muy bien los golpes de los legendarios' if T < 0.75 else 'aguanta los golpes de los legendarios como la media' if T < 0.95 else 'es frágil ante los legendarios') + f" (recibe ×{T:.2f} del daño de referencia)"
-        w = f" Lo que más le castiga: {', '.join(f'{tn(t)} (×{v:.2f})' for t, v in worst)}." if worst else ' No tiene ningún tipo que le castigue de verdad.'
-        r = f" Lo que mejor aguanta: {', '.join(f'{tn(t)} (×{v:.2f})' for t, v in reversed(best))}." if best else ''
+        tough = ('aguanta muy bien los golpes de los legendarios' if T < 0.75 else 'aguanta los golpes de los legendarios como la media' if T < 0.95 else 'es frágil ante los legendarios') + f" (recibe ×{_fmt} del daño de referencia)"
+        w = f" Lo que más le castiga: {', '.join(f'{tn(t)} (×{es_num(v)})' for t, v in worst)}." if worst else ' No tiene ningún tipo que le castigue de verdad.'
+        r = f" Lo que mejor aguanta: {', '.join(f'{tn(t)} (×{es_num(v)})' for t, v in reversed(best))}." if best else ''
         paras.append(f"{N} es tier {b['tier']} de la Sentencia (puesto {b['pos']} de 966) y tier {ht} en las hordas: {via}. Frente al pool de legendarios {tough}.{w}{r}")
         tools = []
         if b['slow']: tools.append(f"{mname(b['slow'], lang)} frena un {round(b['slow_v'] / 0.8 * 80) if False else round(min(0.8, MOVES[b['slow']]['slow'] * (2 if b['ability'] == 'serene-grace' else 1)) * 100)} % a los legendarios")
@@ -177,7 +181,7 @@ def strategy(p, lang):
         else: paras.append("No tiene ni frenazo ni aturdimiento naturales: contra los legendarios solo puede correr y aguantar, así que la Sentencia depende de esquivar y de la regeneración. Con la Tienda Kecleon cambia la cosa (ver la pestaña).")
         sp = b['build']['spd_cards']
         size = 'pequeño, así que los pilares (44 px de radio) y los rayos tienen menos margen para pillarle' if p['r'] <= 11 else 'de tamaño medio' if p['r'] < 17 else 'grande: cuenta como el radio máximo (18 px) y le cuesta un poco más salir de los pilares'
-        paras.append(f"Velocidad: {'con Zancada al máximo ya roza el tope suave de 130' if sp == 0 else f'necesita unas {sp} cartas de Carrera para llegar al tope suave de 130'}; Arceus corre siempre a 1,22 veces la tuya, así que la velocidad sirve para esquivar y para que los legendarios (al 80 % de tu velocidad) no te alcancen, no para huir de Arceus. Es {size}.")
+        paras.append(f"Velocidad: {'con Zancada al máximo ya roza el tope suave de 130' if sp == 0 else ('necesita una carta de Carrera' if sp == 1 else f'necesita unas {sp} cartas de Carrera') + ' para llegar al tope suave de 130'}; Arceus corre siempre a 1,22 veces la tuya, así que la velocidad sirve para esquivar y para que los legendarios (al 80 % de tu velocidad) no te alcancen, no para huir de Arceus. Es {size}.")
         paras.append(f"Plan: mantente a 250–400 px de Arceus (su onda solo sale si estás a menos de 210), muévete en círculos amplios por el borde de la arena y gana distancia en sus pausas de ataque (1,1–1,5 s cada vez que lanza). Cuando los legendarios se agrupen, {'lánzales ' + mname(b['stun'], lang) + ' y ' if b['stun'] else ''}{'mantén ' + mname(b['slow'], lang) + ' activo sobre el grupo' if b['slow'] else 'sigue corriendo: no intentes matarlos a partir del tercero'}. Desde el minuto 35 Arceus rompe tu objeto y acelera; desde el 37 su toque quita cada vez más. El récord realista está entre los 5 y los 8 minutos de Sentencia.")
         if s['pos'] < b['pos'] - 50 or s['tms']:
             paras.append(f"Con la Tienda Kecleon sube al puesto {s['pos']}: " + ', '.join(filter(None, [f"{mname(t['id'], lang)} por MT" for t in s['tms']] + ([f"naturaleza {nname(s['nature'], lang)}"] if s['nature'] else []) + ([f"habilidad {aname(s['ability'], lang)}"] if s['ability'] != b['ability'] else []))) + '.')
@@ -195,7 +199,7 @@ def strategy(p, lang):
         else: paras.append("It has neither a natural slow nor a stun: against the legendaries it can only run and endure, so the Judgment comes down to dodging and regeneration. The Kecleon Shop changes that (see the tab).")
         sp = b['build']['spd_cards']
         size = 'small, so pillars (44 px radius) and beams have less margin to catch it' if p['r'] <= 11 else 'medium-sized' if p['r'] < 17 else 'big: it counts as the maximum radius (18 px) and takes slightly longer to leave a pillar'
-        paras.append(f"Speed: {'with Stride maxed it already touches the soft cap of 130' if sp == 0 else f'it needs about {sp} Sprint cards to reach the soft cap of 130'}; Arceus always runs at 1.22× your speed, so speed is for dodging and for keeping the legendaries (at 80% of your speed) off you, not for outrunning Arceus. It is {size}.")
+        paras.append(f"Speed: {'with Stride maxed it already touches the soft cap of 130' if sp == 0 else ('it needs one Sprint card' if sp == 1 else f'it needs about {sp} Sprint cards') + ' to reach the soft cap of 130'}; Arceus always runs at 1.22× your speed, so speed is for dodging and for keeping the legendaries (at 80% of your speed) off you, not for outrunning Arceus. It is {size}.")
         paras.append(f"Plan: stay 250–400 px from Arceus (its shockwave only fires if you are closer than 210), run wide circles along the arena edge and gain distance during its casting pauses (1.1–1.5 s every cast). When the legendaries bunch up, {'drop ' + mname(b['stun'], lang) + ' on them and ' if b['stun'] else ''}{'keep ' + mname(b['slow'], lang) + ' active on the group' if b['slow'] else 'keep running: do not try to kill them after the third'}. From minute 35 Arceus breaks your item and speeds up; from minute 37 its touch hurts more and more. A realistic record sits between 5 and 8 minutes of Judgment.")
         if s['pos'] < b['pos'] - 50 or s['tms']:
             paras.append(f"With the Kecleon Shop it climbs to rank {s['pos']}: " + ', '.join(filter(None, [f"{mname(t['id'], lang)} via TM" for t in s['tms']] + ([f"{nname(s['nature'], lang)} nature"] if s['nature'] else []) + ([f"{aname(s['ability'], lang)} ability"] if s['ability'] != b['ability'] else []))) + '.')
