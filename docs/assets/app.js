@@ -46,17 +46,20 @@
     out.sort((a, b) => { const x = k(a), y = k(b); return (x < y ? -1 : x > y ? 1 : 0) * state.dir; });
     return out;
   }
+  let drawn = 0;
   function card(p) {
     const m = v(p);
+    const lazy = drawn++ < 32 ? 'eager' : 'lazy';   // las primeras cartas cargan ya; el resto, al acercarse
     const tools = [m.slow ? `<span class="tool slow" title="${T.slow}">${T.slowS}</span>` : '', m.stun ? `<span class="tool stun" title="${T.stun}">${T.stunS}</span>` : '', m.regen ? `<span class="tool regen" title="${T.regen}">${T.regenS}</span>` : ''].join('');
     return `<a class="card cut" href="pokemon/${p.slug}/"><span class="pos">${m.pos}</span><span class="tier ${m.tier}">${m.tier}</span>
-      <span class="pic"><img class="px" loading="lazy" src="../img/p/${p.dex}.png" alt="" width="80" height="80"></span>
+      <span class="pic"><img class="px" loading="${lazy}" src="../img/p/${p.dex}.png" alt="" width="64" height="64"></span>
       <span class="name">${p.name}</span><span class="dex">Nº ${String(p.dex).padStart(3, '0')}</span>
       <span class="types">${p.types.map(t => `<span class="type" style="--tc:${TC[t]}">${T.types[t]}</span>`).join('')}</span>
       <span class="tools">${tools}</span></a>`;
   }
   function render() {
     const list = filtered();
+    drawn = 0;
     $('#count').textContent = T.count.replace('{n}', list.length).replace('{m}', L.length);
     const groups = new Map();
     const keyOf = p => state.group === 'tier' ? v(p).tier : state.group === 'type' ? p.types[0] : state.group === 'leg' ? (p.leg ? 'leg' : 'nor') : 'all';

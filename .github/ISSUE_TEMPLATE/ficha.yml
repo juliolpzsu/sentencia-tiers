@@ -1,0 +1,39 @@
+name: Error en una ficha · Mistake on a Pokémon page
+description: Un dato, texto o build que no cuadra en la ficha de un Pokémon
+title: "[Ficha] "
+labels: [ficha]
+body:
+  - type: input
+    id: pokemon
+    attributes:
+      label: Pokémon
+      description: Nombre o número de la Pokédex · Name or dex number
+      placeholder: "Cloyster · 091"
+    validations:
+      required: true
+  - type: dropdown
+    id: idioma
+    attributes:
+      label: Idioma de la página · Page language
+      options: [Español, English]
+    validations:
+      required: true
+  - type: dropdown
+    id: parte
+    attributes:
+      label: Parte de la ficha · Part of the page
+      options: [Veredicto / estrategia, Puntuación / componentes, Estadísticas o daño por tipo, Habilidades, Build por defecto, Build con Tienda Kecleon, Otra]
+    validations:
+      required: true
+  - type: textarea
+    id: que
+    attributes:
+      label: Qué está mal · What is wrong
+      description: Lo que dice la ficha y lo que debería decir. Si es una regla del juego, cita el fichero del repositorio de PokéSurvivor.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Parche del juego que aparece en el pie de la página · Game patch shown in the footer
+      placeholder: "a45019a (2026-10-23)"
