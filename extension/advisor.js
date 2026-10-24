@@ -109,7 +109,10 @@
       stat: {
         cd: 'Reflejos: encadena frenazos y aturdimientos',
         spd: (n) => `Carrera: ${n === 1 ? 'falta 1' : 'faltan ' + n} para el tope suave de 130`,
-        spdDone: 'Carrera: ya está en el tope suave',
+        spdDone: 'Carrera: ya llegas al tope suave de 130',
+        cdFloor: 'Reflejos: tus ataques ya están en la recarga mínima (0,12 s)',
+        defCap: 'Coraza: ya estás en el tope del 70 %, no suma nada',
+        defPart: (g) => `Coraza: solo suma un ${g} % (tope del 70 %)`,
         def: 'Coraza: lo que más vida ahorra ante los legendarios',
         hp: 'Vigor: margen contra los golpes que escalan',
         rgn: 'Síntesis: lo único que compensa el daño % de Arceus',
@@ -141,7 +144,10 @@
       stat: {
         cd: 'Reflexes: chains slows and stuns',
         spd: (n) => `Sprint: ${n} more to the soft cap of 130`,
-        spdDone: 'Sprint: already at the soft cap',
+        spdDone: 'Sprint: you already reach the soft cap of 130',
+        cdFloor: 'Reflexes: your moves are already at the minimum cooldown (0.12 s)',
+        defCap: 'Armor: already at the 70% cap, adds nothing',
+        defPart: (g) => `Armor: only adds ${g}% (70% cap)`,
         def: 'Armor: saves the most HP against the legendaries',
         hp: 'Vigor: margin against the scaling hits',
         rgn: 'Synthesis: the only answer to Arceus’ % damage',
@@ -239,27 +245,55 @@
       if (ready) return { s: 90, why: S.evoNeed(statTitle(id), moveName(ready.id)) };
       if (needBy) return { s: 80, why: S.evoNeed(statTitle(id), moveName(needBy[0])) };
       const hp = pl.maxHp ? pl.hp / pl.maxHp : 1;
-      const r = statScore(id, S, taken, B, min, hp);
+      const r = statScore(id, S, taken, B, min, hp, pl);
       if (far) { r.s += 8; r.why += ' · ' + S.evoLater(moveName(far[0])); }
       return r;
     }
     return { s: 30, why: '' };
   }
 
-  function statScore(id, S, taken, B, min, hp) {
+  // Lo que de verdad suma cada mejora en esta partida. El juego deja de ofrecer una mejora al
+  // llegar a su tope de veces (Potencia 40, Carrera 8, Reflejos 10, Coraza 12, Imán 6,
+  // Aprendizaje 8), pero algunas dejan de servir antes:
+  //  - Coraza: cada carta hace min(70 %, actual + 6 %). Con reducción de Mejoras (2 % por nivel)
+  //    o el Chaleco Asalto (+20 %) se llega al 70 % antes de las 12 cartas y las demás no dan nada.
+  //  - Carrera: en la Sentencia la velocidad pasa de 130 solo al 25 % (tope suave).
+  //  - Reflejos: ningún ataque baja de 0,12 s de recarga.
+  const DEF_CAP = 0.7, SPD_SOFT = 130, CD_FLOOR = 0.12;
+  function statMax(id) {
+    const N = ns(), s = N && N.LevelUp && (N.LevelUp.STATS || []).find((x) => x.id === id);
+    return s && s.max ? s.max : 0;
+  }
+  function statScore(id, S, taken, B, min, hp, pl) {
+    const max = statMax(id), n = taken[id] || 0;
+    const count = (r) => { if (max && r.why) r.why += ` (${n}/${max})`; return r; };
     switch (id) {
       case 'heal': return hp < 0.4 ? { s: 92, why: S.heal(Math.round(hp * 100)) } : hp < 0.6 ? { s: 58, why: S.heal(Math.round(hp * 100)) } : { s: 12, why: S.healFull };
-      case 'cd': return { s: 64, why: S.cd };
-      case 'spd': {
-        const left = Math.max(0, (B.b.sp || 0) - (taken.spd || 0));
-        return left ? { s: 63, why: S.spd(left) } : { s: 36, why: S.spdDone };
+      case 'cd': {
+        const atk = (pl.moves || []).filter((m) => m.kind !== 'buff' && m.cd);
+        if (atk.length && pl.cdMul && atk.every((m) => m.cd * pl.cdMul * 0.92 <= CD_FLOOR + 1e-9)) return count({ s: 8, why: S.cdFloor });
+        return count({ s: 64, why: S.cd });
       }
-      case 'def': return { s: 61, why: S.def };
+      case 'spd': {
+        // Con tu velocidad real (Mejoras, objeto...); si no se puede leer, la cuenta de la web.
+        let left = Math.max(0, (B.b.sp || 0) - n);
+        if (pl.baseSpd && pl.spdMul) left = Math.max(0, Math.ceil(Math.log(SPD_SOFT / (pl.baseSpd * pl.spdMul)) / Math.log(1.07)));
+        if (max) left = Math.min(left, max - n);
+        return count(left ? { s: 63, why: S.spd(left) } : { s: min < 30 ? 36 : 26, why: S.spdDone });
+      }
+      case 'def': {
+        if (typeof pl.dmgReduce === 'number') {
+          const gain = Math.min(DEF_CAP, pl.dmgReduce + 0.06) - pl.dmgReduce;
+          if (gain < 0.005) return count({ s: 3, why: S.defCap });
+          if (gain < 0.0599) return count({ s: Math.round(20 + 41 * gain / 0.06), why: S.defPart(Math.round(gain * 100)) });
+        }
+        return count({ s: 61, why: S.def });
+      }
       case 'hp': return { s: 55, why: S.hp };
       case 'rgn': return { s: 53 + (min >= 25 ? 4 : 0), why: S.rgn };
-      case 'atk': return min < 20 ? { s: 46, why: S.atkEarly } : { s: 32, why: S.atk };
-      case 'xp': return min < 8 ? { s: 44, why: S.xp } : { s: 14, why: S.xpLate };
-      case 'mag': return { s: 16, why: S.mag };
+      case 'atk': return count(min < 20 ? { s: 46, why: S.atkEarly } : { s: 32, why: S.atk });
+      case 'xp': return count(min < 8 ? { s: 44, why: S.xp } : { s: 14, why: S.xpLate });
+      case 'mag': return count({ s: 16, why: S.mag });
     }
     return { s: 30, why: '' };
   }

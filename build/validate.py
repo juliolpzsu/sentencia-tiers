@@ -44,11 +44,15 @@ def main(min_n=10):
     y = [r['med'] for _, r in rows]
     pop = [r['n'] for _, r in rows]
     model = [p['base']['score'] for p, _ in rows]
+    lv = [r.get('lv') or 0 for _, r in rows]
+    simp = os.path.join(ROOT, 'data', 'sim.json'); SIM = json.load(open(simp, encoding='utf-8'))['pokemon'] if os.path.exists(simp) else {}
     shop = [p['shop']['score'] for p, _ in rows]
     hordes = [p['hordes']['surv'] for p, _ in rows]
     out = dict(min_marcas=min_n, n=len(rows), records_source=json.load(open(os.path.join(ROOT, 'data', 'records', 'records.json'), encoding='utf-8'))['source'],
                spearman=dict(modelo=round(spearman(model, y), 3), modelo_ic95=boot_ci(model, y), tienda=round(spearman(shop, y), 3),
-                             hordas=round(spearman(hordes, y), 3), hordas_ic95=boot_ci(hordes, y), popularidad=round(spearman(pop, y), 3)),
+                             hordas=round(spearman(hordes, y), 3), hordas_ic95=boot_ci(hordes, y), popularidad=round(spearman(pop, y), 3),
+                             nivel=round(spearman(lv, y), 3), ataque=round(spearman([p['stats']['atk'] for p, _ in rows], y), 3),
+                             simulador=round(spearman([SIM.get(str(p['dex']), {}).get('mean', 0) for p, _ in rows], y), 3) if SIM else None),
                parcial_popularidad=dict(modelo=round(partial(model, y, pop), 3), hordas=round(partial(hordes, y, pop), 3)),
                componentes={k: round(spearman([p['base']['comp'][k] for p, _ in rows], y), 3) for k in ('T', 'U', 'A', 'D', 'S', 'Z', 'V')})
     # mayores discrepancias (para revisar el modelo)

@@ -70,3 +70,21 @@ python -I build/update.py    # comprueba el juego y, si el ranking cambia, actua
 ```
 
 La Action `.github/workflows/update.yml` ejecuta `update.py` a diario. Si el juego cambia alguno de los ficheros de reglas de la tabla del apartado 2, la entrada de `data/CHANGELOG.md` lleva la marca **REVISAR REGLAS**: hay que leer el cambio y adaptar `rank.py` a mano, porque las reglas no se leen del juego, se replican.
+
+## 9. Contraste con récords reales y simulador (24-10-2026)
+
+**Datos.** Se leyeron una vez, desde una sesión iniciada en el juego, las tablas públicas `lbs/s_all4_p<dex>` (top 50 en solitario de cada Pokémon desde el parche del 23-10). Se guardan solo agregados por Pokémon en `data/records/records.json`: número de marcas, cuántas pasan del minuto 30, mediana/p75/p90 de segundos de Sentencia y nivel final mediano. Se descartan 23 marcas de más de 20 min de Sentencia (imposibles con las reglas). La mediana por Pokémon es muy fiable: entre dos mitades aleatorias de sus marcas, Spearman 0,86 (0,93 con todas).
+
+**Resultados** (`build/validate.py`, 195 Pokémon con ≥10 marcas en Sentencia, Spearman con la mediana real):
+
+| Predicción | Correlación |
+|---|---|
+| Este ranking | 0,08 |
+| Ranking en hordas (SurvivorTiers) | 0,12 |
+| Simulador (`build/sim.py`) | ≈0 |
+| Ataque base | 0,24 |
+| **Nivel final mediano** | **0,64** (0,73 con ≥20 marcas) |
+
+Dentro de cada Pokémon, más nivel también es más Sentencia (Spearman medio 0,22, positivo en 121 de 144). Explicación compatible con el código: con el nivel típico del minuto 30 las cartas con tope ya se han agotado y cada nivel extra da Vigor (+20 de vida) o Síntesis (+0,9 PS/s), sin tope. El nivel depende de lo bien que el Pokémon limpia hordas (el ataque explica el nivel con 0,39). Es decir: **lo de antes del minuto 30 sí importa para la Sentencia**, no por llegar, sino por el nivel con el que se llega.
+
+**Simulador** (`build/sim.py`). Reproduce la arena, el ciclo de Arceus, los legendarios con su vida mínima y crecimiento, el contacto y las zonas con aviso, la build por defecto y un bot que huye por la pared y esquiva lo que ve venir. Simula 966 × 16 partidas en ~70 s. Hoy no predice los récords: el bot muere casi siempre por los toques de Arceus, que quitan un porcentaje y no dependen de la vida, mientras que los buenos jugadores casi no los reciben. Para que sirva hace falta un bot que evite esos toques y modelar el nivel al minuto 30. Se publica como experimental y no entra en la puntuación.

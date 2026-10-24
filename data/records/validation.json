@@ -14,7 +14,10 @@
    -0.02,
    0.254
   ],
-  "popularidad": -0.048
+  "popularidad": -0.048,
+  "nivel": 0.638,
+  "ataque": 0.24,
+  "simulador": -0.02
  },
  "parcial_popularidad": {
   "modelo": 0.095,

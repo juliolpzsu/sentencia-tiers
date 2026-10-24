@@ -1,5 +1,6 @@
-__pycache__/
 *.pyc
 .DS_Store
-Thumbs.db
 CLAUDE.md
+Thumbs.db
+__pycache__/
+borradores/
