@@ -314,7 +314,7 @@ def main():
                model=dict(upgrades='Vitalidad +80, Zancada ×1,24, Reflejos ×0,76, Golpe Crítico 30 %', cards='15 Vigor, 8 Carrera, 10 Reflejos', spd_cap=130),
                pokemon=rows)
     out = os.path.join(ROOT, 'data', 'ranking.json')
-    json.dump(doc, open(out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    json.dump(doc, open(out, 'w', encoding='utf-8', newline='\n'), ensure_ascii=False, indent=1)
     print(f'escrito {out} ({os.path.getsize(out) // 1024} KB) en {time.time() - t0:.0f}s')
     print('\nTop 30 (base):')
     for r in rows[:30]:
