@@ -35,7 +35,7 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 
 ## Cómo se calcula
 
-Seis componentes normalizados entre los 966 y ponderados:
+El puesto lo dan los **segundos estimados** que aguanta un buen jugador en la Sentencia: la mediana de los récords reales de cada Pokémon, mezclada con una predicción para todos (acierta el orden fuera de muestra con 0,29, frente a 0,09 de la puntuación antigua). La predicción usa el ataque, el tamaño, el ranking en hordas y estos componentes calculados desde el código del juego:
 
 | Componente | Peso | Qué mide |
 |---|---|---|

@@ -38,7 +38,7 @@ COMP = {'es': dict(V=('Llegar al minuto 30', 'ranking en hordas de SurvivorTiers
 
 UI = {
  'es': dict(title='Sentencia Tiers', tagline='Tier list de PokéSurvivor para la Sentencia de Arceus', nav_tiers='Tiers', nav_judg='La Sentencia', nav_method='Método', nav_repo='Código',
-            intro='Los 966 Pokémon ordenados solo por lo que aguantan en la Sentencia de Arceus (minuto 30). Calculado a partir del código del juego: frenazos, aturdimientos, defensas frente a los 86 legendarios que acuden, regeneración, velocidad con tope y tamaño. Lo que limpian antes del minuto 30 se indica en cada ficha, no puntúa.',
+            intro='Los 966 Pokémon ordenados por los segundos que aguantan en la Sentencia de Arceus (minuto 30). La estimación combina los récords reales del juego (las mejores partidas de cada Pokémon) con un modelo hecho a partir de su código: frenazos, aturdimientos, defensas frente a los 86 legendarios, regeneración, ataque, velocidad y tamaño.',
             updated='Parche del juego', pokemon='Pokémon', legs='Legendarios', nonlegs='No legendarios', all='Todos', tier='Tier', sort='Ordenar por', group='Agrupar por',
             mode_base='Por defecto', mode_shop='Tienda Kecleon', count='{n} de {m} Pokémon', none='Ningún Pokémon cumple los filtros.', shuffle='Al azar', filters='Filtros', types='Tipos',
             sort_opts=[('pos', 'Puesto'), ('name', 'Nombre'), ('dex', 'Nº Pokédex'), ('hordes', 'Ranking en hordas'), ('T', 'Aguante'), ('U', 'Control'), ('A', 'Regeneración'), ('D', 'Daño'), ('S', 'Velocidad'), ('Z', 'Tamaño'), ('hp', 'Vida'), ('spd', 'Velocidad base'), ('rnd', 'Al azar')],
@@ -46,7 +46,7 @@ UI = {
             flag_leg='Solo legendarios', flag_slow='Con frenazo', flag_stun='Con aturdimiento', flag_regen='Con regeneración', slow='Frenazo', stun='Aturdimiento', regen='Regeneración', slowS='SLOW', stunS='STUN', regenS='REGEN',
             mode_help='Por defecto: habilidad 1, naturaleza neutra y solo sus ataques naturales. Tienda Kecleon: la mejor habilidad (Cápsula), la mejor naturaleza (Menta) y las MT que le sirven.',
             back='Tier list', rank_base='Puesto · por defecto', rank_shop='Puesto · con Tienda Kecleon', rank_hordes='Ranking en hordas (SurvivorTiers)', of='de', stats='Estadísticas del juego', guard='Daño que recibe (defensa)',
-            radius='Radio de colisión', px='px', speed_eff='Velocidad efectiva en la Sentencia', score='Puntuación', components='Por qué está aquí', incoming='Daño recibido por tipo (pool de legendarios)',
+            radius='Radio de colisión', px='px', speed_eff='Velocidad efectiva en la Sentencia', score='Puntuación', components='Componentes del modelo', incoming='Daño recibido por tipo (pool de legendarios)',
             abilities='Habilidades', default_ab='Habilidad 1 · por defecto', hidden_ab='Oculta', rec_ab='Recomendada', ab_note='A cada cuenta le toca al azar la habilidad 1 o la 2 (50 %), y la oculta 1 de cada 20. La Cápsula Habilidad (1.500) cambia entre la 1 y la 2; la Cápsula Habilidad Oculta (5.000) pone la oculta.',
             build='Build', tab_base='Por defecto', tab_shop='Con Tienda Kecleon', moves='Movimientos', slot='HUECO', why='Por qué', start='Movimiento inicial', start2='Segundo movimiento inicial (Repertorio)', bans='Vetos (Mejoras → Veto)',
             items='Objeto equipable', items_note='Solo se lleva uno por partida: los sueltan los jefes y los cofres con candado.', cards='Cartas de nivel: prioridad', evos='Evoluciones de movimiento', evo_text='{move} evoluciona al nivel máximo si en la partida has cogido al menos una vez la carta {need}.',
@@ -56,6 +56,7 @@ UI = {
             footer_fan='Proyecto de fans sin ánimo de lucro, sin relación con los autores del juego ni con Nintendo.', generated='Generado el', not_available='—',
             flag_tm='MT útil hoy', tmToday='MT a la venta hoy en la Tienda Kecleon ({d})', tmHint='Pokémon a los que su build con Tienda Kecleon les pide una MT que se vende hoy', tmFor='{n} Pokémon la usan en su build', moved='Puestos que ha subido o bajado con la última actualización del juego', tmNone='Hoy ninguna de las MT a la venta aparece en las builds recomendadas: no merece la pena comprar ninguna para la Sentencia. Mañana habrá otras 8.', tm8='la octava puede ser otra: si ninguna le sirve a tu compañero, el juego la cambia (carga tu partida para verla exacta)',
             changes='Cambios', search='Nombre, nº, ataque o habilidad',
+            est='Aguanta en la Sentencia (estimado)',
             me='Mi partida', meTitle='Cargar tu partida', meIntro='Con tu partida la web marca los Pokémon que tienes, sus mejoras y la habilidad y naturaleza que te tocaron, y calcula tu puesto aproximado con ellas. Todo se queda en este navegador: no se envía a ningún sitio.',
             meHow='1. Abre pokesurvivor.com con tu cuenta. 2. Pulsa F12 y entra en la pestaña «Console». 3. Pega esta línea y pulsa Intro: copia tu partida al portapapeles. 4. Vuelve aquí y pégala en el cuadro.',
             copy='Copiar la línea', copied='Copiada', meLoad='Cargar', meClear='Quitar partida', close='Cerrar', mePaste='Pega aquí tu partida (empieza por {"stats":…)', meError='No parece una partida de PokéSurvivor: tiene que ser el JSON entero de la clave ps.cloud.',
@@ -63,7 +64,7 @@ UI = {
             sort_you='Tu puesto', meBlock='Tu partida ({name})', meAbility='Tu habilidad', meNature='Tu naturaleza', loading='Calculando tu puesto…',
             meRank='Con tu habilidad y tu naturaleza quedaría en el puesto <b>{n}</b> de 966 (puesto general: {base}). Las mejoras y cartas se suponen al máximo; las MT que ya le enseñaste no se cuentan.'),
  'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source',
-            intro='All 966 Pokémon ranked only by how long they last in Arceus’ Judgment (minute 30). Computed from the game’s code: slows, stuns, defenses against the 86 legendaries that show up, regeneration, capped speed and size. How well they clear before minute 30 is shown on each page; it does not score.',
+            intro='All 966 Pokémon ranked by the seconds they last in Arceus’ Judgment (minute 30). The estimate combines the game’s real records (the best runs of each Pokémon) with a model built from its code: slows, stuns, defenses against the 86 legendaries, regeneration, attack, speed and size.',
             updated='Game patch', pokemon='Pokémon', legs='Legendaries', nonlegs='Non-legendaries', all='All', tier='Tier', sort='Sort by', group='Group by',
             mode_base='Default', mode_shop='Kecleon Shop', count='{n} of {m} Pokémon', none='No Pokémon matches the filters.', shuffle='Shuffle', filters='Filters', types='Types',
             sort_opts=[('pos', 'Rank'), ('name', 'Name'), ('dex', 'Dex number'), ('hordes', 'Horde ranking'), ('T', 'Toughness'), ('U', 'Control'), ('A', 'Regeneration'), ('D', 'Damage'), ('S', 'Speed'), ('Z', 'Size'), ('hp', 'HP'), ('spd', 'Base speed'), ('rnd', 'Random')],
@@ -71,7 +72,7 @@ UI = {
             flag_leg='Legendaries only', flag_slow='Has a slow', flag_stun='Has a stun', flag_regen='Has regeneration', slow='Slow', stun='Stun', regen='Regeneration', slowS='SLOW', stunS='STUN', regenS='REGEN',
             mode_help='Default: ability 1, neutral nature and natural moves only. Kecleon Shop: best ability (Capsule), best nature (Mint) and the TMs that help.',
             back='Tier list', rank_base='Rank · default', rank_shop='Rank · with Kecleon Shop', rank_hordes='Horde ranking (SurvivorTiers)', of='of', stats='In-game stats', guard='Damage taken (defense)',
-            radius='Collision radius', px='px', speed_eff='Effective speed in the Judgment', score='Score', components='Why it is here', incoming='Damage taken by type (legendary pool)',
+            radius='Collision radius', px='px', speed_eff='Effective speed in the Judgment', score='Score', components='Model components', incoming='Damage taken by type (legendary pool)',
             abilities='Abilities', default_ab='Ability 1 · default', hidden_ab='Hidden', rec_ab='Recommended', ab_note='Each account rolls ability 1 or 2 at random (50%), and the hidden one 1 in 20. The Ability Capsule (1,500) swaps between 1 and 2; the Hidden Ability Capsule (5,000) sets the hidden one.',
             build='Build', tab_base='Default', tab_shop='With Kecleon Shop', moves='Moves', slot='SLOT', why='Why', start='Starting move', start2='Second starting move (Repertoire)', bans='Bans (Upgrades → Ban)',
             items='Held item', items_note='Only one per run: dropped by bosses and locked chests.', cards='Level-up cards: priority', evos='Move evolutions', evo_text='{move} evolves at max level if you have taken the {need} card at least once this run.',
@@ -81,6 +82,7 @@ UI = {
             footer_fan='Non-profit fan project, unaffiliated with the game’s authors or Nintendo.', generated='Generated on', not_available='—',
             flag_tm='TM useful today', tmToday='TMs on sale today at the Kecleon Shop ({d})', tmHint='Pokémon whose Kecleon Shop build asks for a TM on sale today', tmFor='{n} Pokémon use it in their build', moved='Ranks gained or lost with the latest game update', tmNone='None of today’s TMs appears in the recommended builds: none is worth buying for the Judgment today. There will be 8 new ones tomorrow.', tm8='the eighth may differ: if none fits your partner, the game swaps it (load your save to see it exactly)',
             changes='Changes', search='Name, no., move or ability',
+            est='Lasts in the Judgment (estimate)',
             me='My save', meTitle='Load your save', meIntro='With your save the site marks the Pokémon you own, their upgrades and the ability and nature you rolled, and estimates your rank with them. Everything stays in this browser: nothing is sent anywhere.',
             meHow='1. Open pokesurvivor.com with your account. 2. Press F12 and open the “Console” tab. 3. Paste this line and press Enter: it copies your save to the clipboard. 4. Come back here and paste it in the box.',
             copy='Copy the line', copied='Copied', meLoad='Load', meClear='Remove save', close='Close', mePaste='Paste your save here (it starts with {"stats":…)', meError='That does not look like a PokéSurvivor save: it must be the whole JSON of the ps.cloud key.',
@@ -233,6 +235,13 @@ def strategy(p, lang):
             paras.append((f"With the Kecleon Shop it climbs to rank {s['pos']}: " if s['pos'] < b['pos'] else f"With the Kecleon Shop it lands at rank {s['pos']} (it improves, but others improve more): ") + changes + '.')
     return paras
 
+def evidence_txt(p, lang):
+    e = p.get('evidence') or {}
+    if not e.get('nj'): return 'predicción del modelo (sin partidas reales)' if lang == 'es' else 'model prediction (no real runs)'
+    w = round(e['weight'] * 100)
+    return (f"{e['nj']} partidas reales (mediana {e['real']} s, pesan un {w} %)" if lang == 'es'
+            else f"{e['nj']} real runs (median {e['real']} s, {w}% of the weight)")
+
 def slow_pct(b):
     if not b['slow']: return 0
     return round(min(0.8, MOVES[b['slow']]['slow'] * (2 if b['ability'] == 'serene-grace' else 1)) * 100)
@@ -243,18 +252,20 @@ def verdict(p, lang):
     if lang == 'es':
         h = {'S': ' Además es de los mejores limpiando hordas: llega al minuto 30 sobrado.', 'A': ' Limpia hordas muy bien: llega al minuto 30 sin problema.', 'B': ' Limpiando hordas es del montón: llega al minuto 30 con una partida normal.',
              'C': ' Limpiando hordas flojea: llegar al minuto 30 cuesta.', 'D': ' Limpiando hordas es de los peores: llegar al minuto 30 es lo difícil.'}[ht]
-        if b['tier'] == 'S': return 'De los que más aguantan en la Sentencia: control y resistencia frente a los legendarios.' + h
-        if b['tier'] == 'A': return 'Aguanta muy bien la Sentencia' + (': tiene las herramientas de control que importan.' if tools >= 2 else ', aunque le falta alguna herramienta de control.') + h
-        if b['tier'] == 'B': return 'Aguanta la Sentencia un rato, pero hay quien lo hace mejor con menos esfuerzo.' + h
-        if b['tier'] == 'C': return 'Justo en la Sentencia: le falta control o aguante.' + h
-        return 'No aguanta la Sentencia: le faltan herramientas y resistencia. Juégalo por gusto, no por el ranking.' + h
+        e = p.get('evidence') or {}; src = (f" Lo dicen sus {e['nj']} partidas reales más la predicción." if e.get('nj', 0) >= 10 else ' Es sobre todo una predicción: tiene pocas partidas reales.' if e.get('nj') else ' Es una predicción: no hay partidas reales suyas en la Sentencia.')
+        if b['tier'] == 'S': return 'De los que más aguantan en la Sentencia.' + src + h
+        if b['tier'] == 'A': return 'Aguanta muy bien la Sentencia.' + src + h
+        if b['tier'] == 'B': return 'Aguanta la Sentencia un rato, pero hay quien lo hace mejor con menos esfuerzo.' + src + h
+        if b['tier'] == 'C': return 'Justo en la Sentencia.' + src + h
+        return 'De los que menos aguantan en la Sentencia. Juégalo por gusto, no por el ranking.' + src + h
     h = {'S': ' It is also among the best at clearing hordes: reaches minute 30 with ease.', 'A': ' Clears hordes very well: reaches minute 30 without trouble.', 'B': ' Average at clearing hordes: reaches minute 30 with a normal run.',
          'C': ' Weak at clearing hordes: reaching minute 30 is hard.', 'D': ' Among the worst at clearing hordes: reaching minute 30 is the real challenge.'}[ht]
-    if b['tier'] == 'S': return 'Among the longest-lasting in the Judgment: control and resistance against the legendaries.' + h
-    if b['tier'] == 'A': return 'Lasts very well in the Judgment' + (': it has the control tools that matter.' if tools >= 2 else ', though it lacks a control tool.') + h
-    if b['tier'] == 'B': return 'Lasts a while in the Judgment, but others do it better with less effort.' + h
-    if b['tier'] == 'C': return 'Marginal in the Judgment: it lacks control or toughness.' + h
-    return 'Does not last in the Judgment: it lacks the tools and the resistance. Play it for fun, not for the ranking.' + h
+    e = p.get('evidence') or {}; src = (f" Backed by its {e['nj']} real runs plus the prediction." if e.get('nj', 0) >= 10 else ' Mostly a prediction: few real runs.' if e.get('nj') else ' A prediction: no real Judgment runs of it.')
+    if b['tier'] == 'S': return 'Among the longest-lasting in the Judgment.' + src + h
+    if b['tier'] == 'A': return 'Lasts very well in the Judgment.' + src + h
+    if b['tier'] == 'B': return 'Lasts a while in the Judgment, but others do it better with less effort.' + src + h
+    if b['tier'] == 'C': return 'Marginal in the Judgment.' + src + h
+    return 'Among the shortest-lasting in the Judgment. Play it for fun, not for the ranking.' + src + h
 
 # ---------------- plantillas ----------------
 def layout(lang, title, body, active, depth, desc='', extra_head='', path=''):
@@ -334,8 +345,8 @@ def bars(p, lang):
     for k in ('T', 'U', 'A', 'D', 'S', 'Z', 'V'):
         if not R['weights'].get(k): continue
         b = p['base']['comp'][k]; s = p['shop']['comp'][k]; label, hint = COMP[lang][k]
-        out.append(f'<div class="bar" title="{esc(hint)}"><span class="l">{label} <small>{round(R["weights"][k] * 100)} %</small></span><span class="track"><span class="fill base" style="width:{b * 100:.0f}%"></span><span class="fill shop" style="width:{s * 100:.0f}%"></span></span><span class="v">{b:.2f} <em>{s:.2f}</em></span></div>')
-    out.append(f'</div><div class="legend"><span><i style="background:var(--yellow)"></i>{U["mode_base"]}</span><span><i style="background:var(--red)"></i>{U["mode_shop"]}</span><span class="muted">{"% = peso en la puntuación · pasa el ratón para ver qué mide" if lang == "es" else "% = weight in the score · hover to see what it measures"}</span></div>')
+        out.append(f'<div class="bar" title="{esc(hint)}"><span class="l">{label} </span><span class="track"><span class="fill base" style="width:{b * 100:.0f}%"></span><span class="fill shop" style="width:{s * 100:.0f}%"></span></span><span class="v">{b:.2f} <em>{s:.2f}</em></span></div>')
+    out.append(f'</div><div class="legend"><span><i style="background:var(--yellow)"></i>{U["mode_base"]}</span><span><i style="background:var(--red)"></i>{U["mode_shop"]}</span><span class="muted">{"0 a 1 entre los 966 · entran en la predicción del puesto · pasa el ratón para ver qué mide" if lang == "es" else "0 to 1 across the 966 · they feed the rank prediction · hover to see what it measures"}</span></div>')
     return ''.join(out)
 
 def build_panel(p, var, key, lang):
@@ -390,6 +401,7 @@ def pokemon_page(p, lang, prev, nxt):
 <div class="hd"><div class="sub"><h1>{esc(N)}</h1><span>Nº {p['dex']:03d}</span>{''.join(typechip(t, lang) for t in p['types'])}{'<span class="pill c">' + ('Legendario' if lang == 'es' else 'Legendary') + '</span>' if p['leg'] else ''}<span class="tier {b['tier']}">TIER {b['tier']}</span></div>
 <div class="ranks"><div class="rank"><span class="l">{U['rank_base']}</span><span class="v">{b['pos']} <span class="small muted">/ 966</span></span></div>
 <div class="rank shop"><span class="l">{U['rank_shop']}</span><span class="v">{s['pos']} <span class="small muted">/ 966 · {U['tier']} {s['tier']}</span></span></div>
+<div class="rank est"><span class="l">{U['est']}</span><span class="v">{round(b['est'])} s <span class="small muted">{evidence_txt(p, lang)}</span></span></div>
 <div class="rank ext"><span class="l">{U['rank_hordes']}</span><span class="v">{hordes['rank'] or '—'} <span class="small muted">/ 966 · {U['tier']} {hordes['tier']}</span></span></div></div>
 <div class="verdict"><b class="up" style="color:var(--yellow)">{U['verdict']}:</b> {verdict(p, lang)}</div>
 <section id="me" class="panel me" hidden data-dex="{p['dex']}" data-pos="{b['pos']}" data-sc="{b['score']}" data-scores="../../../assets/scores.json" data-abils="{esc(json.dumps(p['abils']))}" data-names="{esc(json.dumps([aname(a, lang) if a else '' for a in p['abils']], ensure_ascii=False))}" data-abs="{esc(json.dumps({int(k): v for k, v in p['abil_scores'].items()}))}" data-natures="{esc(json.dumps([dict(id=n['id'], n=nname(n['id'], lang)) for n in NAT_BY.values()], ensure_ascii=False))}" data-t="{esc(json.dumps(dict(title=U['meBlock'], owned=U['owned'], notOwned=U['notOwned'], upgrades=U['upgrades'], ability=U['meAbility'], hidden=U['hidden_ab'].lower(), nature=U['meNature'], loading=U['loading'], rank=U['meRank']), ensure_ascii=False))}"></section></div></section>
@@ -484,13 +496,19 @@ def validation_html(lang):
 <p class="small">Higher here than in reality: {names(V['sobrevalorados'])}. Lower: {names(V['infravalorados'])}.</p>"""
 
 def method_text(lang):
-    W = R['weights']; pool = R['legendary_pool']
+    W = R['weights']; pool = R['legendary_pool']; B = R.get('blend') or dict(cv_spearman=0, model_only_cv=0, K=10, with_records=0)
+    f2 = lambda x: f'{x:.2f}'.replace('.', ',') if lang == 'es' else f'{x:.2f}'
     rows = ''.join(f"<tr><td>{COMP[lang][k][0]}</td><td>{round(W[k] * 100)} %</td><td>{COMP[lang][k][1]}</td></tr>" for k in ('T', 'U', 'A', 'D', 'S', 'Z') if W.get(k))
     pool_html = ', '.join(f"{(BY[l['dex']]['name'] if lang == 'es' else BY[l['dex']]['nameEn']) if l['dex'] in BY else l['name']}" for l in pool)
     if lang == 'es':
         return f'''<h1>Método del ranking</h1>
-<p>Cada Pokémon recibe una puntuación de 0 a 1 que suma siete componentes, cada uno normalizado entre los 966 y con su peso. El puesto ordena por esa puntuación; los tiers van por puesto: S 1–30, A 31–120, B 121–320, C 321–620, D 621–966 (los mismos cortes que SurvivorTiers, para comparar).</p>
-<table><tr><th>Componente</th><th>Peso</th><th>Qué mide</th></tr>{rows}</table>
+<p>El puesto ordena por los <b>segundos estimados</b> que aguanta en la Sentencia un buen jugador. La estimación sale de dos fuentes:</p>
+<ol><li><b>Récords reales</b>: la mediana de las mejores partidas de cada Pokémon en las tablas públicas del juego (ver el contraste más abajo).</li>
+<li><b>Predicción</b> para todos: una regresión ridge ajustada con los Pokémon que tienen récords, a partir de su ataque, tamaño, ranking en hordas, vida, velocidad, BST, si es legendario y los seis componentes del modelo de abajo. Fuera de muestra acierta el orden con una correlación de {f2(B['cv_spearman'])}; la puntuación antigua del modelo, sola, con {f2(B['model_only_cv'])}.</li></ol>
+<p>Se mezclan en escala logarítmica: cuantas más partidas reales tiene un Pokémon, más pesan (con {B['K']} partidas, la mitad). {B['with_records']} de los 966 tienen alguna. Los tiers van por puesto: S 1–30, A 31–120, B 121–320, C 321–620, D 621–966.</p>
+<div class="callout">Los récords tienen un sesgo: los Pokémon raros los juegan sobre todo jugadores veteranos, con más mejoras. La estimación es lo que aguanta ese Pokémon en buenas manos, no lo que aguantarás tú con cualquier cuenta.</div>
+<h2>Los componentes del modelo</h2><p>Siguen calculándose a partir del código del juego y se enseñan en cada ficha; ya no ordenan por sí solos, entran en la predicción.</p>
+<table><tr><th>Componente</th><th>Peso antiguo</th><th>Qué mide</th></tr>{rows}</table>
 <h2>Las dos variantes</h2><ul><li><b>Por defecto:</b> habilidad 1, naturaleza neutra y solo los ataques de sus tipos (más el pool Normal de todos). Es lo que tiene cualquier jugador que acaba de sacarlo del gacha.</li>
 <li><b>Tienda Kecleon:</b> se prueban sus habilidades (Cápsula y Cápsula Oculta), las naturalezas que suben Defensa, Defensa Especial o Velocidad bajando el ataque que no usa (Menta), y las MT que aprende en los juegos y vende la tienda. Se queda con la combinación que más puntúa.</li></ul>
 <h2>Supuestos</h2><ul><li>Mejoras permanentes al máximo del Pokémon (Vitalidad +80, Zancada ×1,24, Reflejos ×0,76, Golpe Crítico 30 %) y cartas típicas al minuto 30 (15 Vigor, 8 Carrera, 10 Reflejos).</li>
@@ -503,8 +521,13 @@ def method_text(lang):
 <h2>Lo que no se modela</h2><p>Los objetos (se recomiendan aparte), el clima de las habilidades que lo invocan, la habilidad del jugador al esquivar y los vínculos de las grietas. Los pesos son una decisión de criterio, no una medida: dos Pokémon separados por unos puestos son, en la práctica, iguales.</p>
 <h2>Créditos</h2><p>PokéSurvivor es de <a href="https://github.com/JPTER78/pokesurvivor" rel="noopener">JPTER78</a> (código bajo PolyForm Noncommercial). El ranking en hordas es de <a href="https://survivortiers.pages.dev/" rel="noopener">SurvivorTiers</a> (@fildotai). Retratos de <a href="https://github.com/PMDCollab/SpriteCollab" rel="noopener">PMD SpriteCollab</a> (CC BY-NC 4.0, ver sus créditos por artista). Pokémon © Nintendo/Creatures/GAME FREAK. Web hecha por Julio (<a href="{REPO}" rel="noopener">código y datos</a>), sin ánimo de lucro.</p>'''
     return f'''<h1>Ranking method</h1>
-<p>Each Pokémon gets a 0–1 score that adds up seven components, each normalized across the 966 and weighted. Rank follows that score; tiers follow rank: S 1–30, A 31–120, B 121–320, C 321–620, D 621–966 (the same cutoffs as SurvivorTiers, for comparison).</p>
-<table><tr><th>Component</th><th>Weight</th><th>What it measures</th></tr>{rows}</table>
+<p>Rank follows the <b>estimated seconds</b> a good player lasts in the Judgment. The estimate comes from two sources:</p>
+<ol><li><b>Real records</b>: the median of each Pokémon's best runs in the game's public tables (see the check below).</li>
+<li><b>Prediction</b> for all: a ridge regression fitted on the Pokémon with records, from attack, size, horde rank, HP, speed, BST, legendary status and the six model components below. Out of sample it gets the order right with a correlation of {f2(B['cv_spearman'])}; the old model score alone, {f2(B['model_only_cv'])}.</li></ol>
+<p>They are blended on a log scale: the more real runs a Pokémon has, the more they weigh (half at {B['K']} runs). {B['with_records']} of the 966 have some. Tiers follow rank: S 1–30, A 31–120, B 121–320, C 321–620, D 621–966.</p>
+<div class="callout">Records are biased: rare Pokémon are mostly played by veterans with more upgrades. The estimate is how long that Pokémon lasts in good hands, not how long you will last with any account.</div>
+<h2>The model components</h2><p>Still computed from the game's code and shown on each page; they no longer rank on their own, they feed the prediction.</p>
+<table><tr><th>Component</th><th>Old weight</th><th>What it measures</th></tr>{rows}</table>
 <h2>The two variants</h2><ul><li><b>Default:</b> ability 1, neutral nature and only its own types’ moves (plus the Normal pool everyone has). What any player has right after pulling it from the gacha.</li>
 <li><b>Kecleon Shop:</b> its abilities are tried (Capsule and Hidden Capsule), the natures that raise Defense, Special Defense or Speed while lowering the attack it does not use (Mint), and the TMs it learns in the games and the shop sells. The best-scoring combination is kept.</li></ul>
 <h2>Assumptions</h2><ul><li>Permanent upgrades maxed for the Pokémon (Vitality +80, Stride ×1.24, Reflexes ×0.76, Critical Hit 30%) and typical cards by minute 30 (15 Vigor, 8 Sprint, 10 Reflexes).</li>

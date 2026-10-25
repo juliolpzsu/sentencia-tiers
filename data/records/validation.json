@@ -5,19 +5,19 @@
  "spearman": {
   "modelo": 0.084,
   "modelo_ic95": [
-   -0.06,
-   0.218
+   -0.044,
+   0.213
   ],
   "tienda": 0.113,
   "hordas": 0.118,
   "hordas_ic95": [
-   -0.02,
-   0.254
+   -0.021,
+   0.255
   ],
   "popularidad": -0.048,
   "nivel": 0.638,
   "ataque": 0.24,
-  "simulador": -0.02
+  "simulador": 0.093
  },
  "parcial_popularidad": {
   "modelo": 0.095,
@@ -35,84 +35,84 @@
  "sobrevalorados": [
   {
    "name": "Baxcalibur",
-   "pos": 31,
+   "pos": 939,
    "med": 51
   },
   {
    "name": "Gyarados",
-   "pos": 111,
+   "pos": 950,
    "med": 33
   },
   {
    "name": "Aggron",
-   "pos": 16,
+   "pos": 681,
    "med": 82
   },
   {
    "name": "Gallade",
-   "pos": 93,
+   "pos": 845,
    "med": 57
   },
   {
    "name": "Phione",
-   "pos": 134,
+   "pos": 940,
    "med": 45
   },
   {
    "name": "Empoleon",
-   "pos": 38,
+   "pos": 731,
    "med": 79
   },
   {
    "name": "Buzzwole",
-   "pos": 179,
+   "pos": 944,
    "med": 35
   },
   {
    "name": "Swampert",
-   "pos": 92,
+   "pos": 881,
    "med": 64
   }
  ],
  "infravalorados": [
   {
    "name": "Gengar",
-   "pos": 721,
+   "pos": 4,
    "med": 289
   },
   {
    "name": "Dunsparce",
-   "pos": 890,
+   "pos": 65,
    "med": 184
   },
   {
    "name": "Porygon-Z",
-   "pos": 760,
+   "pos": 22,
    "med": 183
   },
   {
    "name": "Spectrier",
-   "pos": 557,
+   "pos": 7,
    "med": 248
   },
   {
    "name": "Naganadel",
-   "pos": 668,
+   "pos": 30,
    "med": 179
   },
   {
    "name": "Slaking",
-   "pos": 727,
+   "pos": 36,
    "med": 172
   },
   {
    "name": "Arceus",
-   "pos": 630,
+   "pos": 32,
    "med": 179
   },
   {
    "name": "Ferropolilla",
-   "pos": 770,
+   "pos": 42,
    "med": 159
   }
  ]

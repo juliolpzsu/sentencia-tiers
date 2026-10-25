@@ -30,6 +30,7 @@ ATK_MUL = 1.4 * 1.1 ** 10         # Fuerza al máximo + 10 cartas de Potencia
 CRIT = 1 + 0.30 * 0.5             # Golpe Crítico 30 % a ×1,5
 RED = 0.8                         # Coraza (mejoras + cartas) en el tope
 REACT = 0.3                       # tiempo de reacción del bot ante un aviso
+LEVEL = 200                       # mismo nivel al minuto 30 para todos: mide lo que aporta el Pokémon
 LOOK = 0.6                        # horizonte del planificador del bot (s)
 KEEP = 380                        # distancia a Arceus que intenta mantener
 WALL = 600                        # a partir de aquí la pared penaliza
@@ -109,7 +110,7 @@ def player_profile(p, level=None):
                 sturdy=ab == 'sturdy', eff={(m['type'], m['cat'], L['dex']): tmult(m['type'], L['types']) * guard(L['df'] if m['cat'] == 'physical' else L['sd']) for m in moves for L in LEGS})
 
 DEBUG = None
-def run(prof, seed, tmax=1200):
+def run(prof, seed, tmax=900):
     rnd = random.Random(seed)
     dbg = DEBUG if DEBUG is not None else {}
     px, py = 0.0, 96.0; ax, ay = 0.0, -160.0
@@ -121,8 +122,9 @@ def run(prof, seed, tmax=1200):
     single = max((m['dps'] for m in moves), default=10)
     floor = (3200 + T0 * 9) * 0.35
     base = max(floor, single * 3)
+    step = 0
     while arenaT < tmax:
-        arenaT += DT; t = T0 + arenaT
+        arenaT += DT; t = T0 + arenaT; step += 1
         # ---------- Arceus ----------
         dA = math.hypot(px - ax, py - ay) or 1e-6
         if acast > 0:
@@ -208,11 +210,13 @@ def run(prof, seed, tmax=1200):
             if not e.fury and e.hp < base * 1.25 ** 0 * 0.5: pass
         # ---------- movimiento del bot ----------
         for h in hz: h.seen += DT
-        vis = [h for h in hz if h.seen > 0]
+        reach2 = (spd * LOOK + pr + 60) ** 2
+        vis = [h for h in hz if h.seen > 0 and (h.kind == 'beam' or (h.x - px) ** 2 + (h.y - py) ** 2 < (h.r + spd * LOOK + pr + 10) ** 2)]
+        replan = (step % 2 == 0)
         kA = min(1.22, 0.74 + arenaT * 0.013) + max(0, arenaT - 300) * 0.0015
         aspd = max(70, spd * kA)
         best = None
-        for c in CAND:
+        for c in (CAND if replan else ()):
             if c is None: dx_, dy_ = 0.0, 0.0
             else: dx_, dy_ = c
             qx, qy = px + dx_ * spd * LOOK, py + dy_ * spd * LOOK
@@ -235,7 +239,8 @@ def run(prof, seed, tmax=1200):
                     if h.inside(hx, hy, pr + 4): sc -= 900 * (h.pct * 3 if h.pct else 1)
             if prev_dir is not None and c is not None: sc += 25 * (dx_ * prev_dir[0] + dy_ * prev_dir[1])
             if best is None or sc > best[0]: best = (sc, c)
-        c = best[1]; prev_dir = c
+        if replan: c = best[1]; prev_dir = c
+        else: c = prev_dir
         if c is not None:
             px += c[0] * spd * DT; py += c[1] * spd * DT
         rr = math.hypot(px, py)
@@ -272,7 +277,7 @@ def sim_one(args):
 
 def main():
     runs = int(sys.argv[1]) if len(sys.argv) > 1 else 8
-    procs = int(sys.argv[2]) if len(sys.argv) > 2 else (os.cpu_count() or 4)
+    procs = int(sys.argv[2]) if len(sys.argv) > 2 else max(2, (os.cpu_count() or 4) // 2)
     only = [int(x) for x in sys.argv[3].split(',')] if len(sys.argv) > 3 else None
     R = json.load(open(os.path.join(ROOT, 'data', 'ranking.json'), encoding='utf-8'))
     P = [p for p in R['pokemon'] if not only or p['dex'] in only]
@@ -280,12 +285,12 @@ def main():
     if procs > 1 and len(P) > 4:
         from multiprocessing import Pool
         with Pool(procs) as pool:
-            for i, (dex, r) in enumerate(pool.imap_unordered(sim_one, [(p, runs, p['dex']) for p in P], chunksize=4)):
+            for i, (dex, r) in enumerate(pool.imap_unordered(sim_one, [(p, runs, p['dex'], LEVEL) for p in P], chunksize=4)):
                 out[str(dex)] = r
                 if i % 100 == 0: print(f'  {i}/{len(P)}  {time.time() - t0:.0f}s', flush=True)
     else:
-        for p in P: dex, r = sim_one((p, runs, p['dex'])); out[str(dex)] = r
-    doc = dict(generated=time.strftime('%Y-%m-%d'), runs=runs, bot=dict(reaction=REACT, dt=DT), pokemon=out)
+        for p in P: dex, r = sim_one((p, runs, p['dex'], LEVEL)); out[str(dex)] = r
+    doc = dict(generated=time.strftime('%Y-%m-%d'), runs=runs, level=LEVEL, bot=dict(reaction=REACT, dt=DT, look=LOOK, keep=KEEP), pokemon=out)
     path = os.path.join(ROOT, 'data', 'sim.json') if not only else os.path.join(ROOT, 'data', 'sim-sample.json')
     json.dump(doc, open(path, 'w', encoding='utf-8', newline='\n'), separators=(',', ':'))
     print(f'{len(out)} Pokémon en {time.time() - t0:.0f}s → {path}')

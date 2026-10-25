@@ -323,6 +323,12 @@ def main():
                legendary_pool=[dict(dex=L['dex'], name=L['name'], types=L['types'], side='physical' if L['pa'] >= L['sa'] else 'special') for L in LEGS],
                model=dict(upgrades='Vitalidad +80, Zancada ×1,24, Reflejos ×0,76, Golpe Crítico 30 %', cards='15 Vigor, 8 Carrera, 10 Reflejos', spd_cap=130),
                pokemon=rows)
+    # Orden final: empírico + modelo (blend.py). Los puestos por puntuación del modelo quedan en model_pos.
+    for key in ('base', 'shop'):
+        for r in rows: r[key]['model_pos'] = r[key]['pos']
+    import blend
+    info = blend.apply(doc, TIERS[:-1] + [(10 ** 6, 'D')])
+    if info: print('mezcla empírico+modelo:', info); rows.sort(key=lambda r: r['base']['pos'])
     out = os.path.join(ROOT, 'data', 'ranking.json')
     json.dump(doc, open(out, 'w', encoding='utf-8', newline='\n'), ensure_ascii=False, indent=1)
     print(f'escrito {out} ({os.path.getsize(out) // 1024} KB) en {time.time() - t0:.0f}s')

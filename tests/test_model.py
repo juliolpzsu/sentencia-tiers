@@ -90,6 +90,14 @@ class TestRanking(unittest.TestCase):
             for slot, row in p['an_scores'].items():
                 self.assertEqual(len(row), 25, p['name'])
                 for i in neutral: self.assertAlmostEqual(row[i] / 10000, p['abil_scores'][slot], places=3)
+    def test_blend_order(self):
+        """El puesto sigue a los segundos estimados (empírico + modelo) y la predicción mejora a la puntuación sola."""
+        self.assertIn('blend', self.R)
+        for key in ('base', 'shop'):
+            order = sorted(self.P, key=lambda p: p[key]['pos'])
+            ests = [p[key]['est'] for p in order]
+            self.assertEqual(ests, sorted(ests, reverse=True), key)
+        self.assertGreater(self.R['blend']['cv_spearman'], self.R['blend']['model_only_cv'])
     def test_deterministic(self):
         """rank.py produce el mismo fichero dos veces (con semillas de hash distintas)."""
         tmp = os.path.join(ROOT, 'data', 'ranking.json')

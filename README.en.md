@@ -35,7 +35,7 @@ Everything is computed from the **game's source code**, not from anyone's impres
 
 ## How it is computed
 
-Six components normalized across the 966 and weighted:
+Rank follows the **estimated seconds** a good player lasts in the Judgment: the median of each Pokémon's real records, blended with a prediction for all (out-of-sample rank correlation 0.29, versus 0.09 for the old score). The prediction uses attack, size, horde rank and these components computed from the game's code:
 
 | Component | Weight | What it measures |
 |---|---|---|

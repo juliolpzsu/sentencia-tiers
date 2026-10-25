@@ -1,0 +1,11 @@
+{
+ "n": 144,
+ "runs": 6,
+ "sim_con_nivel_real": 0.224,
+ "sim_con_nivel_200": 0.142,
+ "nivel_solo": 0.728,
+ "tiempos": {
+  "sim_mediana": 356,
+  "real_mediana": 119
+ }
+}

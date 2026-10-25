@@ -272,3 +272,5 @@ section.me h3 { color: var(--red); }
 table.moves-t { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: .85rem; }
 table.moves-t td, table.moves-t th { border: 1px solid var(--line); padding: 4px 8px; text-align: left; }
 table.moves-t td.up { color: #58f08a; } table.moves-t td.down { color: var(--red); }
+.rank.est .v { color: #58f08a; flex-wrap: wrap; } .rank.est .v::before { content: none; }
+.rank.est { box-shadow: 5px 5px 0 0 #58f08a; }

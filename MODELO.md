@@ -88,3 +88,14 @@ La Action `.github/workflows/update.yml` ejecuta `update.py` a diario. Si el jue
 Dentro de cada Pokémon, más nivel también es más Sentencia (Spearman medio 0,22, positivo en 121 de 144). Explicación compatible con el código: con el nivel típico del minuto 30 las cartas con tope ya se han agotado y cada nivel extra da Vigor (+20 de vida) o Síntesis (+0,9 PS/s), sin tope. El nivel depende de lo bien que el Pokémon limpia hordas (el ataque explica el nivel con 0,39). Es decir: **lo de antes del minuto 30 sí importa para la Sentencia**, no por llegar, sino por el nivel con el que se llega.
 
 **Simulador** (`build/sim.py`). Reproduce la arena, el ciclo de Arceus, los legendarios con su vida mínima y crecimiento, el contacto y las zonas con aviso, la build por defecto y un bot que huye por la pared y esquiva lo que ve venir. Simula 966 × 16 partidas en ~70 s. Hoy no predice los récords: el bot muere casi siempre por los toques de Arceus, que quitan un porcentaje y no dependen de la vida, mientras que los buenos jugadores casi no los reciben. Para que sirva hace falta un bot que evite esos toques y modelar el nivel al minuto 30. Se publica como experimental y no entra en la puntuación.
+
+## 10. Ranking empírico + modelo (desde el 25-10-2026)
+
+Decisión de Julio tras el contraste del apartado 9: el puesto ya no lo da la puntuación de los componentes, sino los **segundos estimados** que aguanta un buen jugador en la Sentencia (`build/blend.py`, lo llama `rank.py`).
+
+1. **Predicción** para los 966: regresión ridge sobre ataque, log del radio, ranking en hordas, vida, velocidad, BST, legendario y los seis componentes T, U, A, D, S, Z. Objetivo: log de la mediana real. Se ajusta con los Pokémon con ≥10 marcas en Sentencia; alpha por validación cruzada (5 particiones × 6 repeticiones). Acierta el orden fuera de muestra con Spearman ≈ 0,29; la puntuación antigua sola, ≈ 0,09.
+2. **Mezcla** en escala log: `est = (nj·real + K·pred) / (nj + K)` con K = 10 (con 10 partidas reales, mitad y mitad).
+3. **Tienda Kecleon**: `est_tienda = est · exp(pred(componentes de tienda) − pred(componentes por defecto))`.
+4. Puestos y tiers por `est`; los puestos de la puntuación antigua quedan en `model_pos`. La ficha enseña los segundos y de dónde salen.
+
+Sesgo conocido: los récords son el top 50 de cada Pokémon; los raros los juegan sobre todo veteranos con más mejoras. La estimación es "en buenas manos". El puesto personal de "Mi partida" sigue usando la puntuación de componentes con tu habilidad y naturaleza.

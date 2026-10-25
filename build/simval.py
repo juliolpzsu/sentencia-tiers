@@ -11,7 +11,7 @@ if __name__ == '__main__':
     R = json.load(open(os.path.join(sim.ROOT, 'data', 'ranking.json'), encoding='utf-8'))
     rec = json.load(open(os.path.join(sim.ROOT, 'data', 'records', 'records.json'), encoding='utf-8'))['pokemon']
     P = [p for p in R['pokemon'] if rec.get(str(p['dex']), {}).get('nj', 0) >= mn and rec[str(p['dex'])].get('lv')]
-    with Pool(os.cpu_count() or 4) as pool:
+    with Pool(max(2, (os.cpu_count() or 4) // 2)) as pool:
         resL = dict(pool.map(sim.sim_one, [(p, runs, p['dex'], rec[str(p['dex'])]['lv']) for p in P]))
         resN = dict(pool.map(sim.sim_one, [(p, runs, p['dex'], 200) for p in P]))
     y = [rec[str(p['dex'])]['med'] for p in P]
