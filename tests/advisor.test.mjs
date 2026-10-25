@@ -18,7 +18,8 @@ function sandbox() {
     addEventListener: () => {}, removeEventListener: () => {}, postMessage: () => {},
     location: { origin: 'https://pokesurvivor.com' },
     localStorage: { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)) },
-    document: { documentElement: { lang: 'es', classList: { contains: () => false } }, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], head: { appendChild() {} } },
+    document: { documentElement: { lang: 'es', classList: { contains: () => false } }, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], head: { appendChild() {} },
+      createElement: () => ({ hidden: false, innerHTML: '' }), body: { appendChild(el) { ctx.__jd = el; } } },
     PS_LOCALES: { lang: 'es' },
   };
   ctx.window = ctx;
@@ -38,7 +39,7 @@ function sandbox() {
   };
   ctx.__stAdvisorCore.setNS(NS);
   ctx.__stAdvisorCore.setData(JSON.parse(read('docs/assets/advisor.json')));
-  return { G, NS, core: ctx.__stAdvisorCore };
+  return { G, NS, ctx, core: ctx.__stAdvisorCore };
 }
 
 const S = sandbox();
@@ -144,4 +145,24 @@ test('vínculo: se fusiona antes el control que el resto', () => {
   assert.ok(r('thunder-wave') > r('thunder-shock'));
   assert.ok(r('thunder-shock') > r('nasty-plot'));
   assert.ok(r('nasty-plot') > r('metal-claw'));      // fuera de la build, lo último
+});
+
+test('Sentencia: distancia a Arceus y aviso de control con legendarios encima', () => {
+  const pl = magnezone([mv('thunder-shock'), mv('thunder-wave')], { x: 0, y: 0, active: 0, dead: false });
+  pl.slots = [[pl.moves[0]], [pl.moves[1]]];
+  const foes = [{ dex: 493, x: 150, y: 0 }, { boss: true, x: 100, y: 50 }, { boss: true, x: -80, y: 90 }];
+  Object.assign(S.NS, { Judgment: { active: true, cinematic: false }, EnemyMgr: { all: () => foes } });
+  S.NS.Game = { st: { time: 1900 }, state: 'playing', player: pl };
+  S.core.judgmentTick();
+  const html = S.ctx.__jd.innerHTML;
+  assert.match(html, /150 px/);
+  assert.match(html, /demasiado cerca/);
+  assert.match(html, /2 legendarios cerca/);
+  assert.match(html, /activa Onda Trueno \(2\)/);       // el aturdimiento está en el hueco 2 y no es el activo
+  pl.active = 1;
+  S.core.judgmentTick();
+  assert.doesNotMatch(S.ctx.__jd.innerHTML, /activa/);   // ya lo tienes activo: sin aviso
+  foes[0].x = 300;
+  S.core.judgmentTick();
+  assert.match(S.ctx.__jd.innerHTML, /buena distancia/);
 });

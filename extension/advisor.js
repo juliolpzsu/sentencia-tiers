@@ -144,6 +144,8 @@
       bond: (a, b) => `fusiona ${a}${b ? ' con ' + b : ''}: saldrán a la vez`,
       bondWhy: 'la web aconseja juntar el control (frenazo y aturdimiento) en un mismo hueco',
       dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · puesto ${p} de 966`, build: 'Build', ban: 'Vetar', items: 'Objetos', shop: 'con MT' },
+      jd: { title: 'Sentencia', arceus: 'Arceus', near: 'demasiado cerca: zona de su onda', close: 'cerca', good: 'buena distancia', far: 'lejos',
+        legs: (n) => `${n} legendario${n === 1 ? '' : 's'} cerca`, use: (m, k) => `activa ${m} (${k})` },
     },
     en: {
       best: 'RECOMMENDED', least: 'LEAST BAD', ok: 'also fine', bad: 'avoid',
@@ -194,6 +196,8 @@
       bond: (a, b) => `fuse ${a}${b ? ' with ' + b : ''}: they will fire together`,
       bondWhy: 'the site advises putting your control (slow and stun) in one slot',
       dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · rank ${p} of 966`, build: 'Build', ban: 'Veto', items: 'Items', shop: 'with TMs' },
+      jd: { title: 'Judgment', arceus: 'Arceus', near: 'too close: shockwave range', close: 'close', good: 'good distance', far: 'far',
+        legs: (n) => `${n} legendar${n === 1 ? 'y' : 'ies'} nearby`, use: (m, k) => `switch to ${m} (${k})` },
     },
   };
   const T = () => TXT[lang()];
@@ -371,6 +375,10 @@
 #item-cards > .card.sta-best,#bond-cards > .card.sta-best{box-shadow:inset 0 0 0 2px #fcee0a,0 0 14px rgba(252,238,10,.35)}
 .sta-dex{text-shadow:none;margin:10px 0 4px;padding:8px 10px;border-left:3px solid #fcee0a;background:rgba(0,0,0,.3);font:12px/1.45 system-ui,sans-serif;color:#e8eef8;text-align:left}
 .sta-dex b{color:#fcee0a}.sta-dex small{color:#9fb1c9;margin-right:4px}.sta-dex .sta-k{color:#00e5ff;text-decoration:none;margin-left:6px}
+#sta-jd{position:fixed;bottom:168px;left:50%;transform:translateX(-50%);z-index:40;pointer-events:none;display:flex;gap:10px;align-items:center;white-space:nowrap;padding:4px 10px;background:rgba(0,0,0,.62);border-left:3px solid #fcee0a;font:12px/1.4 system-ui,sans-serif;color:#e8eef8;text-shadow:none}
+#sta-jd .sta-jd-h{font-weight:700;color:#fcee0a;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+#sta-jd .ok{color:#7dff9a}#sta-jd .mid{color:#ffd23f}#sta-jd .bad{color:#ff5a7a;font-weight:700}
+#sta-jd .sta-jd-t{color:#000;background:#00e5ff;padding:1px 6px;font-weight:700;display:inline-block}
 @media (max-height:520px){#sta-why{font-size:11px;padding:4px 8px;margin-top:4px}}`;
     document.head.appendChild(st);
   }
@@ -530,6 +538,49 @@
     box.appendChild(el);
   }
 
+  // ---------------- ayuda durante la Sentencia ----------------
+  // Distancia a Arceus (su onda sale a menos de 210 px; la web aconseja 250–400) y, si se te
+  // juntan legendarios, qué ataque de control de tu build activar y con qué tecla.
+  const ARCEUS = 493, NOVA_R = 210, GOOD_MIN = 250, GOOD_MAX = 400, LEG_R = 320;
+  let jdEl = null;
+  function judgmentTick() {
+    const N = ns(), J = N && N.Judgment, pl = N && N.Game && N.Game.player;
+    const on = enabled && J && J.active && !J.cinematic && pl && !pl.dead && N.Game.state === 'playing';
+    if (!on) { if (jdEl) jdEl.hidden = true; return; }
+    let arc = null, legs = 0;
+    for (const e of (N.EnemyMgr.all() || [])) {
+      if (!e || e.dead) continue;
+      if (e.dex === ARCEUS || e.behavior === 'arceus' || (e.def && e.def.dex === ARCEUS)) { arc = e; continue; }
+      if (e.boss && Math.hypot(e.x - pl.x, e.y - pl.y) < LEG_R) legs++;
+    }
+    if (!jdEl) {
+      css();
+      jdEl = document.createElement('div');
+      jdEl.id = 'sta-jd';
+      document.body.appendChild(jdEl);
+    }
+    const t = T().jd;
+    let dist = '';
+    if (arc) {
+      const d = Math.round(Math.hypot(arc.x - pl.x, arc.y - pl.y));
+      const [cls, txt] = d < NOVA_R ? ['bad', t.near] : d < GOOD_MIN ? ['mid', t.close] : d <= GOOD_MAX ? ['ok', t.good] : ['mid', t.far];
+      dist = `<div class="sta-jd-d ${cls}"><b>${t.arceus}</b> ${d} px · ${txt}</div>`;
+    }
+    // El control de la build que ya tienes y no está activo: su tecla es su hueco (1–4).
+    let tip = '';
+    if (legs >= 2) {
+      const B = buildFor(pl);
+      const ctl = B ? B.b.m.filter(([, r]) => r === 'slow' || r === 'stun').map(([id]) => id) : [];
+      const slot = (pl.slots || []).findIndex((g) => g.some((m) => ctl.includes(m.id)));
+      if (slot >= 0 && slot !== pl.active) {
+        const m = pl.slots[slot].find((x) => ctl.includes(x.id));
+        tip = `<div class="sta-jd-t">${esc(t.use(moveName(m.id), slot + 1))}</div>`;
+      }
+    }
+    jdEl.innerHTML = `<div class="sta-jd-h">${t.title}</div>${dist}<div class="sta-jd-l${legs >= 3 ? ' bad' : ''}">${esc(t.legs(legs))}</div>${tip}`;
+    jdEl.hidden = false;
+  }
+
   // ---------------- registro local de partidas ----------------
   // Para ajustar los pesos con partidas reales: en cada carta, qué salió, qué recomendó el
   // Consejero y qué elegiste; al acabar, cuánto duró. Solo en este navegador (sta:runs, las
@@ -611,6 +662,8 @@
     const watch = (id, fn) => { const el = document.getElementById(id); if (el) new MutationObserver(() => { try { fn(); } catch (err) { log(err); } }).observe(el, { childList: true }); };
     watch('bond-cards', decorateBond);
     watch('dex-detail', decorateDex);
+    // Ayuda durante la Sentencia (5 veces por segundo; no dibuja en el lienzo del juego).
+    setInterval(() => { try { judgmentTick(); } catch (err) { log(err); } }, 200);
     // Cada vez que el juego pinta las cartas (nivel nuevo o cambiar cartas), se marcan.
     const box = document.getElementById('cards');
     new MutationObserver(() => decorate()).observe(box, { childList: true });
@@ -627,7 +680,7 @@
   }
 
   // Para las pruebas (tests/advisor.test.mjs): el cálculo sin pantalla.
-  window.__stAdvisorCore = { advise, itemScore, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
+  window.__stAdvisorCore = { advise, itemScore, judgmentTick, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
 
   waitFor(() => { const N = ns(); return N && N.LevelUp && N.LevelUp.offer && N.RunUI && document.getElementById('cards'); }, setup);
 })();
