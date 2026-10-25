@@ -394,6 +394,48 @@
     log('cartas', last.list.map((c) => c.key), a.out);
   }
 
+  // ---------------- registro local de partidas ----------------
+  // Para ajustar los pesos con partidas reales: en cada carta, qué salió, qué recomendó el
+  // Consejero y qué elegiste; al acabar, cuánto duró. Solo en este navegador (sta:runs, las
+  // últimas 30); no se envía a ningún sitio. Se lee con __stAdvisorApi.runs().
+  const RUNS_MAX = 30;
+  let run = null;          // la partida en curso
+  function runOf(pl) {
+    if (run && run.pl === pl) return run;
+    endRun();
+    const N = ns();
+    run = { pl, r: { at: Date.now(), dex: pl.dex || (pl.mon && pl.mon.dex), mon: pl.mon && pl.mon.name,
+      endless: document.documentElement.classList.contains('psm-endless-run'),
+      coop: !!(N.Coop && N.Coop.active), picks: [] } };
+    return run;
+  }
+  function endRun() {
+    if (!run) return;
+    const N = ns(), r = run.r, pl = run.pl;
+    run = null;
+    if (!r.picks.length) return;
+    const t = (N.Game && N.Game.st && N.Game.st.time) || r.picks[r.picks.length - 1].t;
+    Object.assign(r, { secs: Math.round(t), lvl: pl.level, judgment: Math.max(0, Math.round(t - 1800)),
+      died: !!pl.dead, followed: r.picks.filter((x) => x.pick === x.rec).length });
+    const all = load('runs', []);
+    all.push(r);
+    save('runs', all.slice(-RUNS_MAX));
+    log('partida guardada', r);
+  }
+  function recordPick(pl, list, card) {
+    try {
+      const N = ns(), rr = runOf(pl), a = advise(list, pl);
+      rr.r.picks.push({ t: Math.round((N.Game && N.Game.st && N.Game.st.time) || 0), lvl: pl.level,
+        cards: list.map((c) => c.key), s: a ? a.out.map((x) => x.s) : null,
+        rec: a ? list[a.best].key : null, pick: card.key, hp: pl.maxHp ? Math.round(100 * pl.hp / pl.maxHp) : null });
+    } catch (err) { log('registro', err); }
+  }
+  // La partida acaba al volver al menú o al ver la pantalla final.
+  setInterval(() => {
+    const N = ns();
+    if (run && N && N.Game && (N.Game.state === 'over' || N.Game.state === 'ui' || N.Game.player !== run.pl)) endRun();
+  }, 1000);
+
   function setup() {
     const N = ns();
     // Una sola envoltura, que no cambia nada: anota qué cartas salen y para quién.
@@ -401,7 +443,18 @@
     if (!offer.__sta) {
       const wrapped = function (pl) {
         const r = offer.apply(this, arguments);
-        if (Array.isArray(r)) { last = { list: r, pl: pl || (N.Game && N.Game.player) }; setTimeout(decorate, 0); }
+        if (Array.isArray(r)) {
+          const who = pl || (N.Game && N.Game.player);
+          last = { list: r, pl: who };
+          // Para el registro: anotar la carta que de verdad se aplica (también si se cambia en cooperativo).
+          for (const c of r) {
+            if (typeof c.apply !== 'function' || c.apply.__sta) continue;
+            const apply = c.apply;
+            c.apply = function () { recordPick(who, r, c); return apply.apply(this, arguments); };
+            c.apply.__sta = true;
+          }
+          setTimeout(decorate, 0);
+        }
         return r;
       };
       wrapped.__sta = true;
@@ -417,9 +470,13 @@
         e.preventDefault(); e.stopPropagation();
       }
     }, true);
-    window.__stAdvisorApi = { advise: () => last && advise(last.list, last.pl), data: () => DATA, ns };
+    window.__stAdvisorApi = { advise: () => last && advise(last.list, last.pl), data: () => DATA, ns,
+      runs: () => load('runs', []), clearRuns: () => save('runs', []) };
     log('listo');
   }
+
+  // Para las pruebas (tests/advisor.test.mjs): el cálculo sin pantalla.
+  window.__stAdvisorCore = { advise, setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
 
   waitFor(() => { const N = ns(); return N && N.LevelUp && N.LevelUp.offer && N.RunUI && document.getElementById('cards'); }, setup);
 })();

@@ -9,7 +9,11 @@ Extensión de navegador para [PokéSurvivor](https://pokesurvivor.com/). En cada
 - **★ RECOMENDADA** en la mejor carta, **también vale** en las que se quedan cerca y **evitar** en las que estropean la build. Debajo de las cartas, una línea con el motivo, el tier y el puesto del Pokémon y un enlace a su ficha.
 - **Ataques nuevos:** los de la build primero (frenazo y aturdimiento, después Acua Aro, ataque principal, segundo ataque y potenciadores). Uno fuera de la build solo se recomienda si te sobran huecos después de contar los que aún pide la build; si no, «evitar».
 - **Mejoras de ataques:** las de la build, con el control por delante. Un punto más si con esa mejora llega al máximo y ya tienes la stat que pide su evolución.
-- **Stats:** la carta dorada que desbloquea una evolución va primero, y también la stat que pida un ataque de la build aunque aún no esté al máximo. Después Reflejos, Carrera (solo hasta el tope suave de 130 que calcula la web), Coraza, Vigor y Síntesis. La Baya Zidra sube mucho con poca vida (por debajo del 40 %). Potencia y Aprendizaje valen más al principio de la partida (hordas) que al final.
+- **Stats:** la carta dorada que desbloquea una evolución va primero, y también la stat que pida un ataque de la build cuando le faltan dos niveles o menos para el máximo. Después Reflejos, Carrera, Coraza, Vigor y Síntesis, valoradas por lo que **de verdad suman en tu partida**:
+  - **Coraza** hace `min(70 %, actual + 6 %)`. Con reducción de Mejoras o el Chaleco Asalto llegas al 70 % antes de las 12 cartas, y las que sobran no suman nada aunque el juego las siga ofreciendo: el Consejero lo detecta.
+  - **Carrera** se cuenta con tu velocidad real (Mejoras y objeto incluidos) hasta el tope suave de 130 de la Sentencia.
+  - **Reflejos** deja de servir si tus ataques ya están en la recarga mínima (0,12 s).
+  - El motivo enseña cuántas llevas de cada una y su tope (por ejemplo «(3/10)»): al llegar al tope, el juego deja de ofrecerla. La Baya Zidra sube mucho con poca vida (por debajo del 40 %). Potencia y Aprendizaje valen más al principio de la partida (hordas) que al final.
 - **Evoluciones:** siempre recomendadas.
 - Si las tres cartas estropean la build (ataques que ocupan un hueco que pide otro), marca la menos mala y, si te quedan cambios, sugiere cambiar las cartas. Si hay una carta inofensiva (Imán, Baya Zidra…), la recomienda antes que gastar un cambio.
 - Con la **Tienda Kecleon**: si ya has enseñado las MT de su build de tienda, usa esa build en vez de la base.
@@ -20,8 +24,12 @@ Extensión de navegador para [PokéSurvivor](https://pokesurvivor.com/). En cada
 Está hecha para funcionar junto a PokeSurvivor Plus, en cualquier orden de carga:
 
 - Las dos necesitan el objeto interno del juego. Si PokeSurvivor Plus ya lo ha cogido (`window.__psmodNS`), el Consejero usa ese; si no, lo atrapa con el mismo método **encadenado** con la trampa que hubiera, sin quitársela a nadie.
-- Solo envuelve `LevelUp.offer`, devolviendo la misma lista sin tocarla. No reescribe las cartas ni cambia lo que hace elegir una: añade una etiqueta dentro de cada carta (PokeSurvivor Plus les fija el alto) y una línea al final de la caja.
+- Solo envuelve `LevelUp.offer` (devuelve la misma lista) y el `apply` de cada carta para anotar cuál eliges, llamando siempre al original. No reescribe las cartas ni cambia lo que hace elegir una: añade una etiqueta dentro de cada carta (PokeSurvivor Plus les fija el alto) y una línea al final de la caja. Funciona también con el cambio de carta en cooperativo de PokeSurvivor Plus.
 - Todo lo suyo lleva el prefijo `sta-` (clases, ids, `localStorage`). Atajo Alt + J, que PokeSurvivor Plus no usa.
+
+## Registro de partidas
+
+Para ajustar los pesos con partidas reales, el Consejero anota en este navegador (`localStorage`, clave `sta:runs`, las últimas 30 partidas) qué cartas salieron, cuál recomendó y cuál elegiste, y al acabar la duración, el nivel y los segundos de Sentencia. Las partidas del modo Infinito de PokeSurvivor Plus quedan marcadas. No se envía a ningún sitio. Se puede ver o borrar desde la consola: `__stAdvisorApi.runs()` y `__stAdvisorApi.clearRuns()`.
 
 ## Datos
 
@@ -35,9 +43,9 @@ Está hecha para funcionar junto a PokeSurvivor Plus, en cualquier orden de carg
 
 ## Privacidad
 
-El Consejero no recoge, guarda en servidores ni envía ningún dato del jugador. Lee las cartas de subida de nivel dentro de la propia página del juego para marcarlas, y solo hace una petición de red: una vez al día descarga el fichero público `https://juliolpzsu.github.io/sentencia-tiers/assets/advisor.json` (sin cookies ni identificadores). En el `localStorage` del navegador guarda únicamente esa copia de los datos y si está encendido o apagado (claves `sta:`). No usa analítica ni publicidad.
+El Consejero no recoge, guarda en servidores ni envía ningún dato del jugador. Lee las cartas de subida de nivel dentro de la propia página del juego para marcarlas, y solo hace una petición de red: una vez al día descarga el fichero público `https://juliolpzsu.github.io/sentencia-tiers/assets/advisor.json` (sin cookies ni identificadores). En el `localStorage` del navegador guarda únicamente esa copia de los datos, si está encendido o apagado y el registro local de tus últimas partidas (claves `sta:`), que nunca sale de tu navegador. No usa analítica ni publicidad.
 
-*Privacy: the Advisor collects, stores remotely or sends no player data. It reads the level-up cards inside the game page to mark them, and its only network request is a daily download of the public `advisor.json` file above (no cookies or identifiers). It keeps only that data copy and its on/off switch in the browser's `localStorage` (`sta:` keys). No analytics, no ads.*
+*Privacy: the Advisor collects, stores remotely or sends no player data. It reads the level-up cards inside the game page to mark them, and its only network request is a daily download of the public `advisor.json` file above (no cookies or identifiers). It keeps only that data copy, its on/off switch and a local log of your last runs in the browser's `localStorage` (`sta:` keys), which never leaves your browser. No analytics, no ads.*
 
 ## Limitaciones
 

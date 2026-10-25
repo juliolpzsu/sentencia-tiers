@@ -10,7 +10,8 @@ js/entities/enemy.js, con un bot que juega igual con todos los Pokémon:
     tipos, defensa (física/especial), Coraza (80 %) y habilidad.
   - El jugador lleva su build por defecto (data/ranking.json): ataque principal, frenazo y aturdimiento, con
     las mejoras y cartas típicas del minuto 30, y Restos hasta el minuto 35.
-  - El bot orbita la arena alejándose de Arceus, evita las zonas y rayos que ve venir (reacción 0,3 s) y cambia
+  - El bot planifica a 0,6 s entre 16 direcciones: se aleja de Arceus (aprovechando sus pausas), de los
+    legendarios y de la pared, sale de los avisos que estallan antes de poder salir (reacción 0,3 s) y cambia
     de ataque: aturde si hay grupo, frena si alguno se le acerca, si no, pega.
 Salida: data/sim.json con la mediana y percentiles de segundos aguantados por Pokémon.
 Uso: python -I build/sim.py [partidas por Pokémon=8] [procesos=núcleos]
@@ -29,6 +30,10 @@ ATK_MUL = 1.4 * 1.1 ** 10         # Fuerza al máximo + 10 cartas de Potencia
 CRIT = 1 + 0.30 * 0.5             # Golpe Crítico 30 % a ×1,5
 RED = 0.8                         # Coraza (mejoras + cartas) en el tope
 REACT = 0.3                       # tiempo de reacción del bot ante un aviso
+LOOK = 0.6                        # horizonte del planificador del bot (s)
+KEEP = 380                        # distancia a Arceus que intenta mantener
+WALL = 600                        # a partir de aquí la pared penaliza
+CAND = [None] + [(math.cos(i * math.pi / 8), math.sin(i * math.pi / 8)) for i in range(16)]
 LEGS = rank.LEGS
 
 def cap_spd(s): return s if s <= 130 else 130 + (s - 130) * 0.25
@@ -111,7 +116,7 @@ def run(prof, seed, tmax=1200):
     hp = maxhp = prof['hp']; spd = prof['spd']; pr = prof['r']
     hz = []; legs = []; arenaT = 0.0; bossT = 1.2; n = 0
     acd = 2.2; alast = None; acast = 0.0; atouch = 0.0; invul = 0.0; item = True; sash_t = -99; sturdy_t = -999
-    orbit = 1 if rnd.random() < 0.5 else -1
+    prev_dir = None
     moves = prof['moves']; mcd = [0.0] * len(moves); active = 0
     single = max((m['dps'] for m in moves), default=10)
     floor = (3200 + T0 * 9) * 0.35
@@ -202,26 +207,37 @@ def run(prof, seed, tmax=1200):
         for e in legs:
             if not e.fury and e.hp < base * 1.25 ** 0 * 0.5: pass
         # ---------- movimiento del bot ----------
-        rr = math.hypot(px, py) or 1e-6
-        ox, oy = (px - ax) / dA, (py - ay) / dA                           # huir de Arceus
-        vx, vy = ox * 2.0, oy * 2.0
-        if rr > 520:                                                      # en la pared: deslizarse por ella
-            nx, ny = px / rr, py / rr
-            out = vx * nx + vy * ny
-            if out > 0: vx -= out * nx * 1.2; vy -= out * ny * 1.2
-            tx, ty = -ny, nx
-            if tx * ox + ty * oy < 0: tx, ty = -tx, -ty
-            vx += tx * 1.5; vy += ty * 1.5
-        for e in near[:6]:
-            dx, dy = px - e.x, py - e.y; d = math.hypot(dx, dy) or 1e-6
-            if d < 140: vx += dx / d * (140 - d) / 60; vy += dy / d * (140 - d) / 60
-        for h in hz:
-            h.seen += DT
-            if h.seen > 0 and h.inside(px, py, pr + 6):
-                ex, ey = h.escape(px, py); w = 4.0 / max(0.15, h.t)
-                vx += ex * w; vy += ey * w
-        vn = math.hypot(vx, vy) or 1e-6
-        px += vx / vn * spd * DT; py += vy / vn * spd * DT
+        for h in hz: h.seen += DT
+        vis = [h for h in hz if h.seen > 0]
+        kA = min(1.22, 0.74 + arenaT * 0.013) + max(0, arenaT - 300) * 0.0015
+        aspd = max(70, spd * kA)
+        best = None
+        for c in CAND:
+            if c is None: dx_, dy_ = 0.0, 0.0
+            else: dx_, dy_ = c
+            qx, qy = px + dx_ * spd * LOOK, py + dy_ * spd * LOOK
+            qr = math.hypot(qx, qy)
+            if qr > ARENA: qx, qy = qx / qr * ARENA, qy / qr * ARENA; qr = ARENA
+            # Arceus dentro de LOOK s (quieto mientras lanza)
+            mv = max(0.0, LOOK - max(0.0, acast)) * aspd
+            ddx, ddy = qx - ax, qy - ay; dq = math.hypot(ddx, ddy) or 1e-6
+            dA2 = max(0.0, dq - mv)
+            sc = -max(0.0, KEEP - dA2) * 3.0 - (400 if dA2 < 215 else 0) - (2000 if dA2 < 28.5 + pr + 10 else 0)
+            sc -= max(0.0, qr - WALL) * 2.0
+            for e in near[:10]:
+                dd = math.hypot(qx - e.x, qy - e.y) - (0 if e.stun > 0 else e.spd * (1 - e.slow) * LOOK)
+                if dd < 160: sc -= (160 - dd) * 2.0
+            for h in vis:
+                if h.t <= LOOK + 0.25:
+                    # posición cuando estalla
+                    f = min(1.0, h.t / LOOK)
+                    hx, hy = px + (qx - px) * f, py + (qy - py) * f
+                    if h.inside(hx, hy, pr + 4): sc -= 900 * (h.pct * 3 if h.pct else 1)
+            if prev_dir is not None and c is not None: sc += 25 * (dx_ * prev_dir[0] + dy_ * prev_dir[1])
+            if best is None or sc > best[0]: best = (sc, c)
+        c = best[1]; prev_dir = c
+        if c is not None:
+            px += c[0] * spd * DT; py += c[1] * spd * DT
         rr = math.hypot(px, py)
         if rr > ARENA: px, py = px / rr * ARENA, py / rr * ARENA
         # ---------- avisos que estallan ----------
@@ -248,8 +264,8 @@ def run(prof, seed, tmax=1200):
     return tmax
 
 def sim_one(args):
-    p, runs, seed = args
-    prof = player_profile(p)
+    p, runs, seed = args[:3]
+    prof = player_profile(p, level=args[3] if len(args) > 3 else None)
     ts = sorted(run(prof, seed * 1000 + i) for i in range(runs))
     q = lambda f: round(ts[min(len(ts) - 1, int(f * (len(ts) - 1) + 0.5))], 1)
     return p['dex'], dict(med=q(0.5), p25=q(0.25), p75=q(0.75), mean=round(sum(ts) / len(ts), 1))

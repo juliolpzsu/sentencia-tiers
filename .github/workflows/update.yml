@@ -34,6 +34,9 @@ jobs:
       - name: Regenerar la web
         if: steps.upd.outputs.changed == 'true'
         run: python -I build/gen.py
+      - name: Pruebas del Consejero con los datos nuevos (no se publica si fallan)
+        if: steps.upd.outputs.changed == 'true'
+        run: node --test tests/advisor.test.mjs
       - name: Publicar
         if: steps.upd.outputs.changed == 'true'
         run: |

@@ -1,0 +1,42 @@
+name: Vigilar lo que usa el Consejero
+
+# La extensión se engancha a piezas concretas del juego (cartas de subida de nivel, la pantalla
+# que las pinta, campos del jugador). Si cambian, se abre una incidencia para revisarla.
+on:
+  schedule:
+    - cron: '45 6 * * *'   # a diario, después de la actualización del ranking
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: update-ranking
+  cancel-in-progress: false
+
+jobs:
+  hooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Comparar con las huellas guardadas
+        id: hk
+        run: python -I build/check_hooks.py --update
+      - name: Abrir incidencia
+        if: steps.hk.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --title "El juego ha cambiado algo que usa el Consejero ($(date -u +%F))" --body-file data/hooks-report.md
+      - name: Guardar las huellas nuevas
+        if: steps.hk.outputs.changed == 'true'
+        run: |
+          git config user.name "sentencia-tiers[bot]"
+          git config user.email "sentencia-tiers[bot]@users.noreply.github.com"
+          git pull -q --rebase
+          git add data/game/HOOKS.sha
+          git commit -m "Consejero: huellas del juego actualizadas (ver incidencia)"
+          git push

@@ -3,9 +3,9 @@ name: Pruebas del modelo
 on:
   push:
     branches: [main]
-    paths: ['build/**', 'data/**', 'tests/**', '.github/workflows/tests.yml']
+    paths: ['build/**', 'data/**', 'tests/**', 'extension/**', 'docs/assets/advisor.json', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['build/**', 'data/**', 'tests/**']
+    paths: ['build/**', 'data/**', 'tests/**', 'extension/**']
   workflow_dispatch:
 
 jobs:
@@ -17,3 +17,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -I -m unittest discover -s tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pruebas del Consejero (extensión)
+        run: node --test tests/advisor.test.mjs
