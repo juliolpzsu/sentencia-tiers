@@ -129,3 +129,19 @@ test('el motivo lleva el contador de veces que sale cada mejora', () => {
   const pl = cloyster([mv('ice-beam')], { statsTaken: { cd: 3 } });
   assert.match(advise([card('stat:cd')], pl).out[0].why, /\(3\/10\)/);
 });
+
+test('objeto: los de la build primero, y la Cinta Elección al final', () => {
+  const pl = magnezone([mv('thunder-wave')]);
+  const s = (id) => S.core.itemScore(id, pl).s;
+  assert.ok(s('leftovers') > s('focussash') && s('focussash') > s('assaultvest'));   // orden de la build de la web
+  assert.ok(s('assaultvest') > s('quickclaw'));
+  assert.ok(s('choiceband') < s('amuletcoin'));
+});
+
+test('vínculo: se fusiona antes el control que el resto', () => {
+  const pl = magnezone([mv('thunder-wave'), mv('thunder-shock'), mv('nasty-plot'), mv('metal-claw')]);
+  const r = (id) => S.core.bondRank(pl.moves.find((m) => m.id === id), pl);
+  assert.ok(r('thunder-wave') > r('thunder-shock'));
+  assert.ok(r('thunder-shock') > r('nasty-plot'));
+  assert.ok(r('nasty-plot') > r('metal-claw'));      // fuera de la build, lo último
+});

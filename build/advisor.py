@@ -6,7 +6,8 @@ build de la Sentencia de cada Pokémon. Aquí se resume ranking.json a lo que ne
   dex -> {p: puesto, t: tier, s: slug de la ficha,
           b: build base, k: build de la Tienda Kecleon (solo si cambia los ataques)}
   build = {m: [[movimiento, papel], ...], e: {movimiento: stat que pide su evolución},
-           sp: cartas de Carrera hasta el tope suave, tm: [MT que necesita]}
+           sp: cartas de Carrera hasta el tope suave, i: [objetos, mejor primero], v: [ataques a vetar],
+           tm: [MT que necesita]}
 
 Papeles (de rank.choose_build): slow, stun, primary, second, buff, aquaring, agility.
 Se escribe en docs/assets/advisor.json (la extensión lo baja una vez al día) y en
@@ -21,6 +22,8 @@ def _build(var, tms=()):
     ev = {e['move']: e['need'] for e in b['evos']}
     if ev: out['e'] = ev
     if b['spd_cards']: out['sp'] = b['spd_cards']
+    if b.get('items'): out['i'] = b['items']
+    if b.get('bans'): out['v'] = b['bans']
     if tms: out['tm'] = list(tms)
     return out
 
@@ -34,7 +37,8 @@ def advisor_data(rk, slug):
         k = _build(p['shop'], tms)
         if k['m'] != b['m']: e['k'] = k
         mons[str(p['dex'])] = e
-    return {'v': 1, 'generated': rk['generated'], 'game': rk['game_commit'], 'mons': mons}
+    # v: formato (la extensión 1.0 solo acepta 1); f: campos que trae (2 = objetos y vetos)
+    return {'v': 1, 'f': 2, 'generated': rk['generated'], 'game': rk['game_commit'], 'mons': mons}
 
 
 def write_all(rk, slug, docs, ext_dir):

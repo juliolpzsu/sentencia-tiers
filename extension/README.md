@@ -17,6 +17,9 @@ Extensión de navegador para [PokéSurvivor](https://pokesurvivor.com/). En cada
 - **Evoluciones:** siempre recomendadas.
 - Si las tres cartas estropean la build (ataques que ocupan un hueco que pide otro), marca la menos mala y, si te quedan cambios, sugiere cambiar las cartas. Si hay una carta inofensiva (Imán, Baya Zidra…), la recomienda antes que gastar un cambio.
 - Con la **Tienda Kecleon**: si ya has enseñado las MT de su build de tienda, usa esa build en vez de la base.
+- **Objeto** («Quedarme con» o «Cambiar a»): recomienda según los tres objetos de la build de la web, en su orden; el resto va por lo que ayuda a aguantar (la Cinta Elección, la última: no deja cambiar de ataque y rompe la rotación del control). Recuerda que en la Sentencia Arceus rompe tu objeto en el minuto 35.
+- **Vínculo** (tras una grieta): qué ataques fusionar en un mismo hueco, con el control primero (frenazo y aturdimiento, como aconseja la web), en los dos pasos de la pareja y al añadir a un grupo.
+- **Ficha del Pokémon** (pantalla Pokémon del menú): un bloque con su tier y puesto en la Sentencia, la build, los ataques que conviene **vetar** y el orden de objetos, con enlace a la ficha de la web.
 - **Alt + J** enciende y apaga el Consejero.
 
 ## Convivencia con PokeSurvivor Plus
@@ -24,7 +27,7 @@ Extensión de navegador para [PokéSurvivor](https://pokesurvivor.com/). En cada
 Está hecha para funcionar junto a PokeSurvivor Plus, en cualquier orden de carga:
 
 - Las dos necesitan el objeto interno del juego. Si PokeSurvivor Plus ya lo ha cogido (`window.__psmodNS`), el Consejero usa ese; si no, lo atrapa con el mismo método **encadenado** con la trampa que hubiera, sin quitársela a nadie.
-- Solo envuelve `LevelUp.offer` (devuelve la misma lista) y el `apply` de cada carta para anotar cuál eliges, llamando siempre al original. No reescribe las cartas ni cambia lo que hace elegir una: añade una etiqueta dentro de cada carta (PokeSurvivor Plus les fija el alto) y una línea al final de la caja. Funciona también con el cambio de carta en cooperativo de PokeSurvivor Plus.
+- Solo envuelve `LevelUp.offer` (devuelve la misma lista), el `apply` de cada carta para anotar cuál eliges y `RunUI.showItemChoice` / `RunUI.showBond` para saber qué se ofrece, llamando siempre al original. No reescribe las cartas ni cambia lo que hace elegir una: añade una etiqueta dentro de cada carta (PokeSurvivor Plus les fija el alto) y una línea al final de la caja. Funciona también con el cambio de carta en cooperativo de PokeSurvivor Plus.
 - Todo lo suyo lleva el prefijo `sta-` (clases, ids, `localStorage`). Atajo Alt + J, que PokeSurvivor Plus no usa.
 
 ## Registro de partidas

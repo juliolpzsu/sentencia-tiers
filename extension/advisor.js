@@ -66,10 +66,12 @@
 
   // ---------------- datos de la web ----------------
   let DATA = window.__stAdvisorData || null;   // copia de serie (data.js)
+  // ¿a es mejor que b? Primero el formato más completo (f: campos que trae), luego el más reciente.
+  const newer = (a, b) => !b || (a.f || 1) > (b.f || 1) || ((a.f || 1) === (b.f || 1) && a.generated >= b.generated);
   // La extensión pide una vez al día los datos actualizados de la web (bridge.js → background.js).
   (function refresh() {
     const cached = load('data', null);
-    if (cached && cached.mons && (!DATA || cached.generated >= DATA.generated)) DATA = cached;
+    if (cached && cached.mons && newer(cached, DATA)) DATA = cached;
     if (cached && Date.now() - (load('dataAt', 0)) < 20 * 3600e3) return;
     const id = Math.random().toString(36).slice(2);
     const onMsg = (e) => {
@@ -78,7 +80,7 @@
       removeEventListener('message', onMsg);
       const r = d.res;
       if (r && r.ok && r.data && r.data.mons && r.data.v === 1) {
-        if (!DATA || r.data.generated >= DATA.generated) DATA = r.data;
+        if (newer(r.data, DATA)) DATA = r.data;
         save('data', r.data); save('dataAt', Date.now());
         log('datos de la web', r.data.generated);
       } else log('sin datos nuevos', r && r.err);
@@ -127,6 +129,21 @@
         evoLater: (m) => `además ${m} la pedirá para evolucionar`,
       },
       role: { slow: 'frenazo', stun: 'aturdimiento', primary: 'ataque principal', second: 'segundo ataque', buff: 'potenciador', aquaring: 'regeneración', agility: 'velocidad' },
+      item: {
+        build: (it, n) => `${it}: ${n}.º objeto de su build`,
+        quickclaw: 'Garra Rápida: −20 % de recarga, encadena el control',
+        choicescarf: 'Pañuelo Elección: más velocidad para esquivar',
+        shellbell: 'Cascabel Concha: algo de curación con tu daño',
+        rockyhelmet: 'Casco Dentado: apenas cuenta contra los legendarios',
+        luckyegg: 'Huevo Suerte: solo ayuda al principio',
+        amuletcoin: 'Moneda Amuleto: no ayuda a aguantar',
+        lifeorb: 'Vidasfera: te quita vida en cada ataque',
+        choiceband: 'Cinta Elección: no deja cambiar de ataque (rompe la rotación de control)',
+        broken: 'en la Sentencia, Arceus rompe tu objeto en el minuto 35',
+      },
+      bond: (a, b) => `fusiona ${a}${b ? ' con ' + b : ''}: saldrán a la vez`,
+      bondWhy: 'la web aconseja juntar el control (frenazo y aturdimiento) en un mismo hueco',
+      dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · puesto ${p} de 966`, build: 'Build', ban: 'Vetar', items: 'Objetos', shop: 'con MT' },
     },
     en: {
       best: 'RECOMMENDED', least: 'LEAST BAD', ok: 'also fine', bad: 'avoid',
@@ -162,6 +179,21 @@
         evoLater: (m) => `${m} will also need it to evolve`,
       },
       role: { slow: 'slow', stun: 'stun', primary: 'main attack', second: 'second attack', buff: 'booster', aquaring: 'regeneration', agility: 'speed' },
+      item: {
+        build: (it, n) => `${it}: item #${n} of its build`,
+        quickclaw: 'Quick Claw: −20% cooldown, chains your control',
+        choicescarf: 'Choice Scarf: more speed to dodge',
+        shellbell: 'Shell Bell: some healing from your damage',
+        rockyhelmet: 'Rocky Helmet: barely matters against legendaries',
+        luckyegg: 'Lucky Egg: only helps early on',
+        amuletcoin: 'Amulet Coin: does not help you last',
+        lifeorb: 'Life Orb: costs HP on every attack',
+        choiceband: 'Choice Band: locks your move (breaks the control rotation)',
+        broken: 'in the Judgment, Arceus breaks your item at minute 35',
+      },
+      bond: (a, b) => `fuse ${a}${b ? ' with ' + b : ''}: they will fire together`,
+      bondWhy: 'the site advises putting your control (slow and stun) in one slot',
+      dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · rank ${p} of 966`, build: 'Build', ban: 'Veto', items: 'Items', shop: 'with TMs' },
     },
   };
   const T = () => TXT[lang()];
@@ -332,6 +364,13 @@
 #sta-why b{color:#fcee0a}
 #sta-why .sta-k{color:#00e5ff;text-decoration:none;margin-left:6px}
 #sta-why .sta-m{color:#9fb1c9}
+.sta-why2{text-shadow:none;margin:8px 0 0;padding:6px 10px;border-left:3px solid #fcee0a;background:rgba(0,0,0,.35);font:12px/1.35 system-ui,sans-serif;color:#e8eef8;text-align:left}
+.sta-why2 b{color:#fcee0a}.sta-why2 .sta-m{color:#9fb1c9}
+#item-cards > .card.sta-c,#bond-cards > .card.sta-c{position:relative}
+#item-cards > .card .sta-b,#bond-cards > .card .sta-b{position:absolute;top:7px;right:12px;z-index:3;pointer-events:none;font:700 10px/1.2 system-ui,sans-serif;letter-spacing:.06em;padding:2px 6px;border-radius:4px;background:#fcee0a;color:#000;text-shadow:none}
+#item-cards > .card.sta-best,#bond-cards > .card.sta-best{box-shadow:inset 0 0 0 2px #fcee0a,0 0 14px rgba(252,238,10,.35)}
+.sta-dex{text-shadow:none;margin:10px 0 4px;padding:8px 10px;border-left:3px solid #fcee0a;background:rgba(0,0,0,.3);font:12px/1.45 system-ui,sans-serif;color:#e8eef8;text-align:left}
+.sta-dex b{color:#fcee0a}.sta-dex small{color:#9fb1c9;margin-right:4px}.sta-dex .sta-k{color:#00e5ff;text-decoration:none;margin-left:6px}
 @media (max-height:520px){#sta-why{font-size:11px;padding:4px 8px;margin-top:4px}}`;
     document.head.appendChild(st);
   }
@@ -392,6 +431,103 @@
         `<a class="sta-k" href="${link}" target="_blank" rel="noopener">${t.ficha} ↗</a>`;
     }
     log('cartas', last.list.map((c) => c.key), a.out);
+  }
+
+  // ---------------- objeto: quedártelo o cambiarlo ----------------
+  // Los tres de la build de la web van primero (en su orden); el resto, por lo que ayudan a aguantar.
+  const ITEM_BASE = { leftovers: 80, focussash: 78, assaultvest: 76, quickclaw: 66, choicescarf: 58, shellbell: 50,
+    rockyhelmet: 40, luckyegg: 34, amuletcoin: 18, lifeorb: 22, choiceband: 8 };
+  function itemScore(id, pl) {
+    const B = buildFor(pl), t = T(), list = (B && B.b.i) || [];
+    const i = list.indexOf(id);
+    let name = id;
+    try { name = ns().Items.BY[id].name; } catch (_) { /* id */ }
+    if (i >= 0) return { s: 100 - i * 6, why: t.item.build(name, i + 1) };
+    const N = ns(), min = ((N && N.Game && N.Game.st && N.Game.st.time) || 0) / 60;
+    let s = ITEM_BASE[id] != null ? ITEM_BASE[id] : 30;
+    if (id === 'luckyegg' && min < 12) s = 56;
+    return { s, why: t.item[id] || '' };
+  }
+  function markBest(cards, best) {
+    css();
+    cards.forEach((el, i) => {
+      el.querySelectorAll('.sta-b').forEach((b) => b.remove());
+      el.classList.add('sta-c');
+      el.classList.toggle('sta-best', i === best);
+      if (i !== best) return;
+      const tag = document.createElement('span');
+      tag.className = 'sta-b'; tag.textContent = '★ ' + T().best;
+      el.appendChild(tag);
+    });
+  }
+  function decorateItems(cur, next) {
+    const box = document.getElementById('item-cards'), N = ns();
+    if (!box || !enabled || !N || !N.Game || !N.Game.player) return;
+    const cards = [...box.querySelectorAll(':scope > .card')];
+    if (cards.length !== 2) return;
+    const sc = [itemScore(cur, N.Game.player), itemScore(next, N.Game.player)];
+    const best = sc[1].s > sc[0].s ? 1 : 0;
+    markBest(cards, best);
+    whyLine(box, `<b>${T().head}</b> ${esc(sc[best].why)}<span class="sta-m"> · ${esc(T().item.broken)}</span>`);
+  }
+
+  // ---------------- vínculo: qué ataques fusionar ----------------
+  const BOND_ROLE = { slow: 100, stun: 96, aquaring: 80, primary: 76, second: 60, buff: 50, agility: 40 };
+  let bondOpt = null;
+  function bondRank(m, B) { const r = B && B.role[m.id]; return r ? BOND_ROLE[r] || 30 : 10 + (m.lvl || 1); }
+  function decorateBond() {
+    const box = document.getElementById('bond-cards'), N = ns();
+    if (!box || !bondOpt || !enabled || !N || !N.Game || !N.Game.player) return;
+    const B = buildFor(N.Game.player);
+    const cards = [...box.querySelectorAll(':scope > .card')];
+    if (!cards.length) return;
+    // Cada carta es un ataque suelto; se casa por el nombre (el juego no deja otra pista).
+    const nameOf = (el) => String(((el.querySelector('.nm') || el).firstChild || {}).textContent || '').trim();
+    const moves = cards.map((el) => bondOpt.loose.find((m) => nameOf(el) === String(moveName(m.id)).trim() || nameOf(el) === String(m.name).trim()) || null);
+    if (moves.some((m) => !m)) return;
+    const scores = moves.map((m) => bondRank(m, B));
+    const best = scores.indexOf(Math.max(...scores));
+    markBest(cards, best);
+    // Con quién: en el primer paso de una pareja, el siguiente mejor; al añadir, el grupo que ya hay.
+    const step1 = bondOpt.mode === 'pair' && moves.length === bondOpt.loose.length;
+    const other = step1 ? moves.filter((_, i) => i !== best).sort((a, b) => bondRank(b, B) - bondRank(a, B))[0] : null;
+    // En el segundo paso, el primero que elegiste es el que ya no está en la lista.
+    const first = bondOpt.mode === 'pair' && !step1 ? bondOpt.loose.find((m) => !moves.includes(m)) : null;
+    const withWho = bondOpt.mode === 'add' ? bondOpt.group.map((m) => moveName(m.id)).join(' + ') : other ? moveName(other.id) : first ? moveName(first.id) : '';
+    whyLine(box, `<b>${T().head}</b> ${esc(T().bond(moveName(moves[best].id), withWho))}<span class="sta-m"> · ${esc(T().bondWhy)}</span>`);
+  }
+
+  // Una línea de motivo bajo una caja de cartas (objeto, vínculo).
+  function whyLine(box, html) {
+    let el = box.parentElement.querySelector(':scope > .sta-why2');
+    if (!el) { el = document.createElement('div'); el.className = 'sta-why2'; box.after(el); }
+    el.innerHTML = html;
+  }
+
+  // ---------------- ficha del Pokémon en el juego ----------------
+  function decorateDex() {
+    const box = document.getElementById('dex-detail');
+    if (!box || !enabled) return;
+    if (!DATA && window.__stAdvisorData) DATA = window.__stAdvisorData;
+    if (!DATA) return;
+    const m = /N[º°o.]+\s*0*(\d{1,4})/.exec(box.textContent || '');
+    const e = m && DATA.mons[m[1]];
+    const old = box.querySelector('.sta-dex');
+    if (!e) { if (old) old.remove(); return; }
+    if (old && old.dataset.dex === m[1]) return;
+    if (old) old.remove();
+    css();
+    const t = T().dex, L = lang(), N = ns();
+    const itemName = (id) => { try { return N.Items.BY[id].name; } catch { return id; } };
+    const row = (k, v) => (v ? `<div><small>${k}</small> ${v}</div>` : '');
+    const el = document.createElement('div');
+    el.className = 'sta-dex'; el.dataset.dex = m[1];
+    el.innerHTML = `<b>${t.title}</b> · ${esc(t.rank(e.t, e.p))} <a class="sta-k" href="${SITE}/${L}/pokemon/${e.s}/" target="_blank" rel="noopener">${T().ficha} ↗</a>` +
+      row(t.build, esc(e.b.m.map(([id, r]) => moveName(id) + ' (' + T().role[r] + ')').join(', '))) +
+      (e.k ? row(t.build + ' ' + t.shop, esc(e.k.m.map(([id]) => moveName(id)).join(', '))) : '') +
+      row(t.ban, esc((e.b.v || []).map(moveName).join(', '))) +
+      row(t.items, esc((e.b.i || []).map(itemName).join(' › ')));
+    box.appendChild(el);
   }
 
   // ---------------- registro local de partidas ----------------
@@ -460,6 +596,21 @@
       wrapped.__sta = true;
       N.LevelUp.offer = wrapped;
     }
+    // Objeto y vínculo: se envuelven (llamando siempre al original) para saber qué se ofrece.
+    const R = N.RunUI;
+    if (R.showItemChoice && !R.showItemChoice.__sta) {
+      const f = R.showItemChoice;
+      R.showItemChoice = function (cur, next) { const r = f.apply(this, arguments); try { decorateItems(cur, next); } catch (err) { log(err); } return r; };
+      R.showItemChoice.__sta = true;
+    }
+    if (R.showBond && !R.showBond.__sta) {
+      const f = R.showBond;
+      R.showBond = function (opt) { bondOpt = opt; return f.apply(this, arguments); };
+      R.showBond.__sta = true;
+    }
+    const watch = (id, fn) => { const el = document.getElementById(id); if (el) new MutationObserver(() => { try { fn(); } catch (err) { log(err); } }).observe(el, { childList: true }); };
+    watch('bond-cards', decorateBond);
+    watch('dex-detail', decorateDex);
     // Cada vez que el juego pinta las cartas (nivel nuevo o cambiar cartas), se marcan.
     const box = document.getElementById('cards');
     new MutationObserver(() => decorate()).observe(box, { childList: true });
@@ -476,7 +627,7 @@
   }
 
   // Para las pruebas (tests/advisor.test.mjs): el cálculo sin pantalla.
-  window.__stAdvisorCore = { advise, setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
+  window.__stAdvisorCore = { advise, itemScore, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
 
   waitFor(() => { const N = ns(); return N && N.LevelUp && N.LevelUp.offer && N.RunUI && document.getElementById('cards'); }, setup);
 })();
