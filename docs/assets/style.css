@@ -239,6 +239,8 @@ footer a { color: var(--muted); }
   .move .why, .move .d { font-size: .82rem; }
   .strat { font-size: .9rem; }
   .nav { margin-left: 0; }
+  .nav a { padding: 4px 6px; letter-spacing: .05em; }
+  .nav a.rp { display: none; } /* GitHub sigue en el pie: así la barra cabe en una fila */
   input[type=search] { min-width: 0; width: 100%; }
 }
 

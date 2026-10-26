@@ -29,7 +29,7 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 - Los filtros, el orden y la variante viajan en la **URL**, así que cualquier vista se puede compartir con un enlace; cada página lleva su tarjeta de vista previa para Discord, WhatsApp o X.
 - Páginas **La Sentencia** (la mecánica completa, con números) y **Método** (pesos, supuestos, pool de legendarios y créditos).
 - Estética *Night City*, legible en móvil e iPad, sin dependencias ni rastreadores.
-- **Consejero** ([extension/](extension/README.md)): extensión de navegador que, dentro del juego, marca en cada subida de nivel qué carta coger según la build de la ficha. Compatible con PokeSurvivor Plus.
+- **Consejero** ([Chrome Web Store](https://chromewebstore.google.com/detail/glehijclpafhcajjdcmmcaepkjeianlo) · [código](extension/README.md)): extensión de navegador que, dentro del juego, marca en cada subida de nivel qué carta coger según la build de la ficha, y además recomienda objeto y vínculo y ayuda durante la Sentencia. Compatible con PokeSurvivor Plus.
 
 ![Ficha de un Pokémon](assets/readme/readme-ficha.png)
 

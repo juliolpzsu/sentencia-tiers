@@ -14,6 +14,7 @@ FRESH = bool(DELTA) and (time.mktime(time.strptime(R['generated'], '%Y-%m-%d')) 
 DOCS = os.path.join(ROOT, 'docs')
 SITE = 'https://juliolpzsu.github.io/sentencia-tiers'
 REPO = 'https://github.com/juliolpzsu/sentencia-tiers'
+STORE = 'https://chromewebstore.google.com/detail/glehijclpafhcajjdcmmcaepkjeianlo'
 LANGS = ['es', 'en']
 esc = html.escape
 
@@ -37,7 +38,7 @@ COMP = {'es': dict(V=('Llegar al minuto 30', 'ranking en hordas de SurvivorTiers
                    D=('Damage to one legendary', 'best same-side attack against the pool'), S=('Effective speed', 'with the soft cap at 130'), Z=('Size', 'collision radius: smaller is easier to dodge with'))}
 
 UI = {
- 'es': dict(title='Sentencia Tiers', tagline='Tier list de PokéSurvivor para la Sentencia de Arceus', nav_tiers='Tiers', nav_judg='La Sentencia', nav_method='Método', nav_repo='Código',
+ 'es': dict(title='Sentencia Tiers', tagline='Tier list de PokéSurvivor para la Sentencia de Arceus', nav_tiers='Tiers', nav_judg='La Sentencia', nav_method='Método', nav_repo='Código', nav_adv='Consejero', nav_adv_t='Extensión para Chrome: marca en el juego qué carta coger según la build de la Sentencia',
             intro='Los 966 Pokémon ordenados por los segundos que aguantan en la Sentencia de Arceus (minuto 30). La estimación combina los récords reales del juego (las mejores partidas de cada Pokémon) con un modelo hecho a partir de su código: frenazos, aturdimientos, defensas frente a los 86 legendarios, regeneración, ataque, velocidad y tamaño.',
             updated='Parche del juego', pokemon='Pokémon', legs='Legendarios', nonlegs='No legendarios', all='Todos', tier='Tier', sort='Ordenar por', group='Agrupar por',
             mode_base='Por defecto', mode_shop='Tienda Kecleon', count='{n} de {m} Pokémon', none='Ningún Pokémon cumple los filtros.', shuffle='Al azar', filters='Filtros', types='Tipos',
@@ -63,7 +64,7 @@ UI = {
             meLoaded='Partida de {name}: {n} Pokémon.', mine='Mis Pokémon', owned='Lo tienes', notOwned='No lo tienes', ownedS='TUYO', upgrades='Mejoras compradas', yourRank='Tu puesto con tu habilidad y tu naturaleza', you='tú',
             sort_you='Tu puesto', meBlock='Tu partida ({name})', meAbility='Tu habilidad', meNature='Tu naturaleza', loading='Calculando tu puesto…',
             meRank='Con tu habilidad y tu naturaleza quedaría en el puesto <b>{n}</b> de 966 (puesto general: {base}). Las mejoras y cartas se suponen al máximo; las MT que ya le enseñaste no se cuentan.'),
- 'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source',
+ 'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source', nav_adv='Advisor', nav_adv_t='Chrome extension: marks in game which card to take according to the Judgment build',
             intro='All 966 Pokémon ranked by the seconds they last in Arceus’ Judgment (minute 30). The estimate combines the game’s real records (the best runs of each Pokémon) with a model built from its code: slows, stuns, defenses against the 86 legendaries, regeneration, attack, speed and size.',
             updated='Game patch', pokemon='Pokémon', legs='Legendaries', nonlegs='Non-legendaries', all='All', tier='Tier', sort='Sort by', group='Group by',
             mode_base='Default', mode_shop='Kecleon Shop', count='{n} of {m} Pokémon', none='No Pokémon matches the filters.', shuffle='Shuffle', filters='Filters', types='Types',
@@ -277,7 +278,8 @@ def layout(lang, title, body, active, depth, desc='', extra_head='', path=''):
                    f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc or U["tagline"])}"><meta name="twitter:image" content="{SITE}/og.png">'
                    f'<link rel="canonical" href="{url}"><link rel="alternate" hreflang="{lang}" href="{url}"><link rel="alternate" hreflang="{other}" href="{SITE}/{path.replace(lang + "/", other + "/", 1)}">')
     nav = ''.join(f'<a href="{root}{lang}/{h}" class="{"on" if k == active else ""}">{U[k]}</a>' for k, h in (('nav_tiers', ''), ('nav_judg', 'sentencia/'), ('nav_method', 'metodo/'), ('changes', 'cambios/')))
-    nav += f'<a href="{REPO}" rel="noopener">{U["nav_repo"]}</a>'
+    nav += f'<a href="{STORE}" rel="noopener" title="{U["nav_adv_t"]}">{U["nav_adv"]}</a>'
+    nav += f'<a class="rp" href="{REPO}" rel="noopener">{U["nav_repo"]}</a>'
     return f'''<!doctype html>
 <html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title><meta name="description" content="{esc(desc or U['tagline'])}">

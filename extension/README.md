@@ -41,6 +41,10 @@ Para ajustar los pesos con partidas reales, el Consejero anota en este navegador
 
 ## Instalar (Chrome, Edge, Brave, Opera)
 
+Desde la **[Chrome Web Store](https://chromewebstore.google.com/detail/glehijclpafhcajjdcmmcaepkjeianlo)**: «Añadir a Chrome» y recarga pokesurvivor.com. Se actualiza sola.
+
+Para probar la versión del repositorio (puede ir por delante de la tienda):
+
 1. Abre `chrome://extensions` y activa el **Modo de desarrollador**.
 2. **Cargar descomprimida** y elige esta carpeta (`extension/`).
 3. Recarga pokesurvivor.com.
@@ -61,4 +65,4 @@ El Consejero no recoge, guarda en servidores ni envía ningún dato del jugador.
 
 ## In English
 
-Browser extension for PokéSurvivor: on every level-up (and on item and bond choices) it marks which card to take (new move, move upgrade or stat) according to the Arceus Judgment build of the Pokémon you play, the one shown on its [Sentencia Tiers](https://juliolpzsu.github.io/sentencia-tiers/en/) page. Build moves first (slow and stun ahead), off-build moves only when there are spare slots, evolution cards always, then Reflexes, Sprint up to the speed soft cap, Armor, Vigor and Synthesis; Sitrus Berry when HP is low. During the Judgment it shows your distance to Arceus, nearby legendaries and which control move to switch to. It also adds the Judgment build, vetoes and item order to the in-game Pokémon page. Alt + J toggles it. Built to run alongside PokeSurvivor Plus in any load order: it reuses its hook into the game when present, chains its own otherwise, only wraps `LevelUp.offer` (returning the same list) and adds a tag to each card plus one line under them. Install with **Load unpacked** on `chrome://extensions` (Developer mode) pointing at this folder.
+Browser extension for PokéSurvivor: on every level-up (and on item and bond choices) it marks which card to take (new move, move upgrade or stat) according to the Arceus Judgment build of the Pokémon you play, the one shown on its [Sentencia Tiers](https://juliolpzsu.github.io/sentencia-tiers/en/) page. Build moves first (slow and stun ahead), off-build moves only when there are spare slots, evolution cards always, then Reflexes, Sprint up to the speed soft cap, Armor, Vigor and Synthesis; Sitrus Berry when HP is low. During the Judgment it shows your distance to Arceus, nearby legendaries and which control move to switch to. It also adds the Judgment build, vetoes and item order to the in-game Pokémon page. Alt + J toggles it. Built to run alongside PokeSurvivor Plus in any load order: it reuses its hook into the game when present, chains its own otherwise, only wraps `LevelUp.offer` (returning the same list) and adds a tag to each card plus one line under them. Install it from the **[Chrome Web Store](https://chromewebstore.google.com/detail/glehijclpafhcajjdcmmcaepkjeianlo)**, or with **Load unpacked** on `chrome://extensions` (Developer mode) pointing at this folder.
