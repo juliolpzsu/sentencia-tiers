@@ -143,7 +143,11 @@
       },
       bond: (a, b) => `fusiona ${a}${b ? ' con ' + b : ''}: saldrán a la vez`,
       bondWhy: 'la web aconseja juntar el control (frenazo y aturdimiento) en un mismo hueco',
-      dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · puesto ${p} de 966`, build: 'Build', ban: 'Vetar', items: 'Objetos', shop: 'con MT' },
+      bondWhyCtl: 'así el control sale siempre junto a tu ataque, sin cambiar de hueco',
+      bondWhyBuild: 'ataques de su build: salen juntos sin tener que cambiar de ataque',
+      dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · puesto ${p} de 966`, build: 'Build', ban: 'Vetar', items: 'Objetos', shop: 'con MT',
+        cell: (t, p) => `Sentencia de Arceus: tier ${t}, puesto ${p} de 966 (Sentencia Tiers)`,
+        note: 'Letra amarilla, abajo a la izquierda: tier en la Sentencia de Arceus' },
       jd: { title: 'Sentencia', arceus: 'Arceus', near: 'demasiado cerca: zona de su onda', close: 'cerca', good: 'buena distancia', far: 'lejos',
         legs: (n) => `${n} legendario${n === 1 ? '' : 's'} cerca`, use: (m, k) => `activa ${m} (${k})` },
     },
@@ -195,7 +199,11 @@
       },
       bond: (a, b) => `fuse ${a}${b ? ' with ' + b : ''}: they will fire together`,
       bondWhy: 'the site advises putting your control (slow and stun) in one slot',
-      dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · rank ${p} of 966`, build: 'Build', ban: 'Veto', items: 'Items', shop: 'with TMs' },
+      bondWhyCtl: 'so your control always fires with your attack, no slot switching',
+      bondWhyBuild: 'moves from its build: they fire together without switching moves',
+      dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · rank ${p} of 966`, build: 'Build', ban: 'Veto', items: 'Items', shop: 'with TMs',
+        cell: (t, p) => `Arceus' Judgment: tier ${t}, rank ${p} of 966 (Sentencia Tiers)`,
+        note: 'Yellow letter, bottom left: tier in Arceus’ Judgment' },
       jd: { title: 'Judgment', arceus: 'Arceus', near: 'too close: shockwave range', close: 'close', good: 'good distance', far: 'far',
         legs: (n) => `${n} legendar${n === 1 ? 'y' : 'ies'} nearby`, use: (m, k) => `switch to ${m} (${k})` },
     },
@@ -379,6 +387,10 @@
 #sta-jd .sta-jd-h{font-weight:700;color:#fcee0a;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
 #sta-jd .ok{color:#7dff9a}#sta-jd .mid{color:#ffd23f}#sta-jd .bad{color:#ff5a7a;font-weight:700}
 #sta-jd .sta-jd-t{color:#000;background:#00e5ff;padding:1px 6px;font-weight:700;display:inline-block}
+#dex-grid .sta-tb{position:absolute;bottom:6px;left:6px;z-index:1;pointer-events:auto;min-width:16px;height:16px;box-sizing:border-box;padding:0 3px;display:inline-grid;place-items:center;font:800 11px/1 system-ui,sans-serif;background:#fcee0a;color:#000;box-shadow:2px 2px 0 #000;text-shadow:none}
+#dex-grid .sta-tb.sta-tS{background:#fcee0a}#dex-grid .sta-tb.sta-tA{background:#ffe680}#dex-grid .sta-tb.sta-tB{background:#e8eef8}#dex-grid .sta-tb.sta-tC{background:#9fb1c9}#dex-grid .sta-tb.sta-tD{background:#6b7a90;color:#fff}
+#dex-grid .cell.locked .sta-tb{opacity:.85}
+#sta-dexnote{margin:4px 0 0;text-align:right;font:11px/1.3 system-ui,sans-serif;color:#9fb1c9;text-shadow:none}#sta-dexnote i{display:inline-block;width:9px;height:9px;background:#fcee0a;margin-right:5px;vertical-align:-1px}#sta-dexnote a{color:#fcee0a}
 @media (max-height:520px){#sta-why{font-size:11px;padding:4px 8px;margin-top:4px}}`;
     document.head.appendChild(st);
   }
@@ -502,7 +514,12 @@
     // En el segundo paso, el primero que elegiste es el que ya no está en la lista.
     const first = bondOpt.mode === 'pair' && !step1 ? bondOpt.loose.find((m) => !moves.includes(m)) : null;
     const withWho = bondOpt.mode === 'add' ? bondOpt.group.map((m) => moveName(m.id)).join(' + ') : other ? moveName(other.id) : first ? moveName(first.id) : '';
-    whyLine(box, `<b>${T().head}</b> ${esc(T().bond(moveName(moves[best].id), withWho))}<span class="sta-m"> · ${esc(T().bondWhy)}</span>`);
+    // El motivo según lo que se junta: control con control, control con ataque o ataques de la build.
+    const partners = bondOpt.mode === 'add' ? bondOpt.group : [other || first].filter(Boolean);
+    const isCtl = (m) => { const r = B && B.role[m.id]; return r === 'slow' || r === 'stun'; };
+    const ctl = [moves[best], ...partners].filter(isCtl).length;
+    const why = ctl >= 2 ? T().bondWhy : ctl === 1 ? T().bondWhyCtl : T().bondWhyBuild;
+    whyLine(box, `<b>${T().head}</b> ${esc(T().bond(moveName(moves[best].id), withWho))}<span class="sta-m"> · ${esc(why)}</span>`);
   }
 
   // Una línea de motivo bajo una caja de cartas (objeto, vínculo).
@@ -536,6 +553,43 @@
       row(t.ban, esc((e.b.v || []).map(moveName).join(', '))) +
       row(t.items, esc((e.b.i || []).map(itemName).join(' › ')));
     box.appendChild(el);
+  }
+
+  // ---------------- letra de la Sentencia en la cuadrícula del Pokédex ----------------
+  // PokeSurvivor Plus pone abajo a la derecha la letra de SurvivorTiers (hordas); la nuestra va
+  // abajo a la izquierda, con el tier de la Sentencia. El juego pinta las casillas por tandas.
+  function decorateGrid() {
+    const grid = document.getElementById('dex-grid');
+    if (!grid) return;
+    if (!enabled) { grid.querySelectorAll('.sta-tb').forEach((b) => b.remove()); const n = document.getElementById('sta-dexnote'); if (n) n.remove(); return; }
+    if (!DATA && window.__stAdvisorData) DATA = window.__stAdvisorData;
+    if (!DATA) return;
+    let styled = false;
+    for (const cell of grid.querySelectorAll(':scope > .cell')) {
+      const no = cell.querySelector('.no');
+      const m = no && /\d{1,4}/.exec(no.textContent || '');
+      const dex = m && String(+m[0]);
+      const e = dex && DATA.mons[dex];
+      const tb = cell.querySelector(':scope > .sta-tb');
+      if (tb && tb.dataset.dex === dex) continue;
+      if (tb) tb.remove();
+      if (!e) continue;
+      if (!styled) { css(); styled = true; }
+      if (getComputedStyle(cell).position === 'static') cell.style.position = 'relative';
+      const b = document.createElement('span');
+      b.className = 'sta-tb sta-t' + e.t;
+      b.dataset.dex = dex;
+      b.textContent = e.t;
+      b.title = T().dex.cell(e.t, e.p);
+      cell.appendChild(b);
+    }
+    let note = document.getElementById('sta-dexnote');
+    if (!note) {
+      note = document.createElement('p');
+      note.id = 'sta-dexnote';
+      note.innerHTML = `<i></i>${esc(T().dex.note)} · <a href="${SITE}/${lang()}/" target="_blank" rel="noopener">Sentencia Tiers ↗</a>`;
+      grid.after(note);
+    }
   }
 
   // ---------------- ayuda durante la Sentencia ----------------
@@ -662,6 +716,8 @@
     const watch = (id, fn) => { const el = document.getElementById(id); if (el) new MutationObserver(() => { try { fn(); } catch (err) { log(err); } }).observe(el, { childList: true }); };
     watch('bond-cards', decorateBond);
     watch('dex-detail', decorateDex);
+    watch('dex-grid', decorateGrid);
+    decorateGrid();
     // Ayuda durante la Sentencia (5 veces por segundo; no dibuja en el lienzo del juego).
     setInterval(() => { try { judgmentTick(); } catch (err) { log(err); } }, 200);
     // Cada vez que el juego pinta las cartas (nivel nuevo o cambiar cartas), se marcan.
@@ -670,7 +726,7 @@
     // Alt + J: encender / apagar.
     addEventListener('keydown', (e) => {
       if (e.altKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyJ')) {
-        enabled = !enabled; save('on', enabled); decorate();
+        enabled = !enabled; save('on', enabled); decorate(); try { decorateGrid(); } catch (err) { log(err); }
         e.preventDefault(); e.stopPropagation();
       }
     }, true);
@@ -680,7 +736,7 @@
   }
 
   // Para las pruebas (tests/advisor.test.mjs): el cálculo sin pantalla.
-  window.__stAdvisorCore = { advise, itemScore, judgmentTick, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
+  window.__stAdvisorCore = { advise, itemScore, judgmentTick, decorateGrid, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
 
   waitFor(() => { const N = ns(); return N && N.LevelUp && N.LevelUp.offer && N.RunUI && document.getElementById('cards'); }, setup);
 })();

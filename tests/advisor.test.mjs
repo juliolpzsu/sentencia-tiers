@@ -166,3 +166,48 @@ test('Sentencia: distancia a Arceus y aviso de control con legendarios encima', 
   S.core.judgmentTick();
   assert.match(S.ctx.__jd.innerHTML, /buena distancia/);
 });
+
+test('Pokédex: letra de la Sentencia en cada casilla, junto a la de PokeSurvivor Plus', () => {
+  const data = JSON.parse(read('docs/assets/advisor.json'));
+  const el = (cls, text = '') => {
+    const e = { className: cls, textContent: text, children: [], style: {}, dataset: {}, parent: null,
+      appendChild(c) { c.parent = e; e.children.push(c); return c; },
+      remove() { const p = e.parent; if (p) p.children.splice(p.children.indexOf(e), 1); },
+      querySelector(sel) { return e.querySelectorAll(sel)[0] || null; },
+      querySelectorAll(sel) {
+        const want = sel.replace(':scope > ', '').replace('.', '');
+        const direct = sel.startsWith(':scope');
+        const out = [];
+        const walk = (n) => { for (const c of n.children) { if (String(c.className).split(' ').includes(want)) out.push(c); if (!direct) walk(c); } };
+        walk(e);
+        return out;
+      } };
+    return e;
+  };
+  const cell = (dex) => { const c = el('cell'); c.appendChild(el('no', String(dex).padStart(3, '0'))); c.appendChild(el('psmod-tierb', 'A')); return c; };
+  const grid = el('grid');
+  [91, 462, 25].forEach((d) => grid.appendChild(cell(d)));
+  let note = null;
+  grid.after = (n) => { note = n; };
+  const doc = S.ctx.document;
+  const saved = { get: doc.getElementById, ce: doc.createElement };
+  doc.getElementById = (id) => (id === 'dex-grid' ? grid : id === 'sta-dexnote' ? note : null);
+  doc.createElement = (tag) => el('');
+  S.ctx.getComputedStyle = () => ({ position: 'relative' });
+  try {
+    S.core.decorateGrid();
+    const badges = grid.querySelectorAll('sta-tb');
+    assert.equal(badges.length, 3);
+    for (const [i, d] of [91, 462, 25].entries()) {
+      const b = grid.children[i].querySelector(':scope > .sta-tb');
+      assert.equal(b.textContent, data.mons[String(d)].t, `tier de ${d}`);
+      assert.match(b.title, new RegExp(`puesto ${data.mons[String(d)].p} de 966`));
+      assert.equal(grid.children[i].querySelector('.psmod-tierb').textContent, 'A', 'la de PokeSurvivor Plus sigue');
+    }
+    assert.ok(note && /Sentencia de Arceus/.test(note.innerHTML), 'nota bajo la cuadrícula');
+    S.core.decorateGrid();
+    assert.equal(grid.querySelectorAll('sta-tb').length, 3, 'no se duplica al repintar');
+  } finally {
+    doc.getElementById = saved.get; doc.createElement = saved.ce; delete S.ctx.getComputedStyle;
+  }
+});
