@@ -225,3 +225,12 @@ test('Sentencia: con legendarios encima sugiere Ataque Rápido si lo tienes', ()
   assert.match(S.ctx.__jd.innerHTML, /quick-attack|Ataque R/);
   assert.match(S.ctx.__jd.innerHTML, /\(2\)/);
 });
+
+test('un potenciador solo en su hueco no se sube; fusionado, sí', () => {
+  const np = mv('nasty-plot'), ts = mv('thunder-shock');
+  const alone = magnezone([ts, np]); alone.slots = [[ts], [np]];
+  const a = advise([card('up:nasty-plot'), card('stat:hp')], alone);
+  assert.equal(alone && a.best, 1);
+  const fused = magnezone([ts, np]); fused.slots = [[ts, np]];
+  assert.equal(advise([card('up:nasty-plot'), card('stat:hp')], fused).best, 0);
+});

@@ -107,6 +107,7 @@
       newBuff: 'potenciador fuera de la build',
       up: (m, r) => `sube ${m} (${r})`,
       upOff: (m) => `${m} no es de la build`,
+      upBuffAlone: (m) => `${m} solo funciona activo: súbelo cuando lo fusiones con tus ataques`,
       upEvo: (s) => `y al máximo evoluciona (ya tienes ${s})`,
       stat: {
         cd: 'Reflejos: encadena frenazos y aturdimientos',
@@ -164,6 +165,7 @@
       newBuff: 'off-build booster',
       up: (m, r) => `upgrades ${m} (${r})`,
       upOff: (m) => `${m} is not in the build`,
+      upBuffAlone: (m) => `${m} only works while active: upgrade it once fused with your attacks`,
       upEvo: (s) => `and evolves at max (you already have ${s})`,
       stat: {
         cd: 'Reflexes: chains slows and stuns',
@@ -271,6 +273,11 @@
       const r = B.role[id], m = (pl.moves || []).find((x) => x.id === id);
       if (!r) return { s: 28, why: t.upOff(moveName(id)) };
       let s = ROLE_UP[r] || 50, why = t.up(moveName(id), t.role[r]);
+      // Un potenciador solo funciona en el hueco activo: hasta fusionarlo con ataques, subirlo no rinde.
+      if (m && m.kind === 'buff') {
+        const g = (pl.slots || []).find((x) => x.includes(m));
+        if (!g || !g.some((x) => x.kind !== 'buff')) { s = 18; why = t.upBuffAlone(moveName(id)); }
+      }
       if (m && m.def && m.lvl + 1 >= m.def.maxLvl) {
         const need = (B.b.e || {})[id];
         if (need && pl.statsTaken && pl.statsTaken[need]) { s += 10; why += ' ' + t.upEvo(statTitle(need)); }
