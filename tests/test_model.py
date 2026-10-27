@@ -53,7 +53,14 @@ class TestRanking(unittest.TestCase):
         for p in self.P:
             for key in ('base', 'shop'):
                 b = p[key]['build']; ids = [m['id'] for m in b['moves']]
-                self.assertLessEqual(len(ids), 4, p['name']); self.assertEqual(len(ids), len(set(ids)))
+                self.assertEqual(len(ids), len(set(ids)))
+                # huecos (27-10-2026): 1 = grupo que farmea (hasta 4, para fusionar), 2 = Ataque Rápido, 3-4 = control
+                slots = [m['slot'] for m in b['moves']]
+                self.assertLessEqual(slots.count(1), 4, p['name']); self.assertTrue(set(slots) <= {1, 2, 3, 4}, p['name'])
+                self.assertLessEqual(len({s for s in slots if s >= 3}), 2, p['name'])
+                self.assertEqual(slots, sorted(slots), p['name'])
+                self.assertEqual(b['moves'][0]['code'], 'primary', p['name'])
+                self.assertIn('quick-attack', ids, p['name']); self.assertNotIn('quick-attack', b['bans'])
                 self.assertTrue(any(G.MOVES[i]['kind'] != 'buff' for i in ids), p['name'])
                 self.assertLessEqual(sum(1 for i in ids if G.MOVES[i]['kind'] == 'buff'), 2, p['name'])
                 if b['start']: self.assertIn(b['start'], ids); self.assertNotEqual(G.MOVES[b['start']]['kind'], 'buff')
@@ -66,13 +73,14 @@ class TestRanking(unittest.TestCase):
         import advisor
         d = advisor.advisor_data(self.R, lambda p: str(p['dex']))
         self.assertEqual(len(d['mons']), 966)
-        roles = {'slow', 'stun', 'primary', 'second', 'buff', 'aquaring', 'agility'}
+        roles = {'slow', 'stun', 'primary', 'second', 'buff', 'aquaring', 'agility', 'dash'}
         stats = {'hp', 'atk', 'spd', 'cd', 'def', 'rgn', 'mag', 'xp'}
         for e in d['mons'].values():
             for b in filter(None, (e['b'], e.get('k'))):
-                self.assertTrue(b['m'] and all(r in roles for _, r in b['m']))
+                self.assertTrue(b["m"] and all(e[1] in roles and e[2] in (1, 2, 3, 4) for e in b["m"]))
                 self.assertTrue(set(b.get('e', {}).values()) <= stats)
-        self.assertEqual(d['mons']['91']['b']['m'][0], ['ice-beam', 'slow'])
+        self.assertEqual(d['mons']['91']['b']['m'][0][1], 'primary')
+        self.assertIn(['quick-attack', 'dash', 2], d['mons']['91']['b']['m'])
     def test_shop_never_worse(self):
         for p in self.P: self.assertGreaterEqual(p['shop']['score'], p['base']['score'] - 1e-9, p['name'])
     def test_known_facts(self):

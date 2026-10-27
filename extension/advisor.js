@@ -128,7 +128,7 @@
         evoNeed: (s, m) => `${s}: la pide ${m} para evolucionar`,
         evoLater: (m) => `además ${m} la pedirá para evolucionar`,
       },
-      role: { slow: 'frenazo', stun: 'aturdimiento', primary: 'ataque principal', second: 'segundo ataque', buff: 'potenciador', aquaring: 'regeneración', agility: 'velocidad' },
+      role: { slow: 'frenazo', stun: 'aturdimiento', primary: 'ataque principal', second: 'ataque del grupo', buff: 'potenciador', aquaring: 'regeneración', agility: 'velocidad', dash: 'embestida invulnerable' },
       item: {
         build: (it, n) => `${it}: ${n}.º objeto de su build`,
         quickclaw: 'Garra Rápida: −20 % de recarga, encadena el control',
@@ -145,6 +145,7 @@
       bondWhy: 'la web aconseja juntar el control (frenazo y aturdimiento) en un mismo hueco',
       bondWhyCtl: 'así el control sale siempre junto a tu ataque, sin cambiar de hueco',
       bondWhyBuild: 'ataques de su build: salen juntos sin tener que cambiar de ataque',
+      bondWhyG1: 'el grupo del primer hueco de la web: fusionados salen juntos y farmeas mucho más (Ataque Rápido, aparte)',
       dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · puesto ${p} de 966`, build: 'Build', ban: 'Vetar', items: 'Objetos', shop: 'con MT',
         cell: (t, p) => `Sentencia de Arceus: tier ${t}, puesto ${p} de 966 (Sentencia Tiers)`,
         note: 'Letra amarilla, abajo a la izquierda: tier en la Sentencia de Arceus' },
@@ -184,7 +185,7 @@
         evoNeed: (s, m) => `${s}: ${m} needs it to evolve`,
         evoLater: (m) => `${m} will also need it to evolve`,
       },
-      role: { slow: 'slow', stun: 'stun', primary: 'main attack', second: 'second attack', buff: 'booster', aquaring: 'regeneration', agility: 'speed' },
+      role: { slow: 'slow', stun: 'stun', primary: 'main attack', second: 'group attack', buff: 'booster', aquaring: 'regeneration', agility: 'speed', dash: 'invulnerable dash' },
       item: {
         build: (it, n) => `${it}: item #${n} of its build`,
         quickclaw: 'Quick Claw: −20% cooldown, chains your control',
@@ -201,6 +202,7 @@
       bondWhy: 'the site advises putting your control (slow and stun) in one slot',
       bondWhyCtl: 'so your control always fires with your attack, no slot switching',
       bondWhyBuild: 'moves from its build: they fire together without switching moves',
+      bondWhyG1: 'the slot-1 group from the site: fused, they fire together and you farm far more (Quick Attack stays apart)',
       dex: { title: 'Sentencia Tiers', rank: (t, p) => `tier ${t} · rank ${p} of 966`, build: 'Build', ban: 'Veto', items: 'Items', shop: 'with TMs',
         cell: (t, p) => `Arceus' Judgment: tier ${t}, rank ${p} of 966 (Sentencia Tiers)`,
         note: 'Yellow letter, bottom left: tier in Arceus’ Judgment' },
@@ -212,8 +214,9 @@
 
   // ---------------- la recomendación ----------------
   // Importancia de cada papel de la build en la Sentencia (frenazo y aturdimiento primero).
-  const ROLE_NEW = { slow: 96, stun: 94, aquaring: 88, primary: 86, second: 72, buff: 66, agility: 62 };
-  const ROLE_UP = { slow: 74, stun: 72, aquaring: 60, primary: 68, second: 56, buff: 50, agility: 46 };
+  // (27-10-2026) Como juegan los mejores: primero el grupo que farmea, luego Ataque Rápido, el control al final.
+  const ROLE_NEW = { primary: 96, buff: 90, second: 86, dash: 80, slow: 66, stun: 64, aquaring: 62, agility: 40 };
+  const ROLE_UP = { primary: 74, second: 66, buff: 60, dash: 52, slow: 48, stun: 46, aquaring: 44, agility: 30 };
 
   const moveName = (id) => {
     const N = ns(), d = N && N.Moves && N.Moves.BY_ID[id];
@@ -492,9 +495,10 @@
   }
 
   // ---------------- vínculo: qué ataques fusionar ----------------
-  const BOND_ROLE = { slow: 100, stun: 96, aquaring: 80, primary: 76, second: 60, buff: 50, agility: 40 };
+  // Se fusiona el grupo del primer hueco; Ataque Rápido nunca (va aparte para esquivar).
+  const BOND_ROLE = { primary: 100, second: 96, buff: 94, slow: 50, stun: 48, aquaring: 44, agility: 30, dash: 0 };
   let bondOpt = null;
-  function bondRank(m, B) { const r = B && B.role[m.id]; return r ? BOND_ROLE[r] || 30 : 10 + (m.lvl || 1); }
+  function bondRank(m, B) { const r = B && B.role[m.id]; return r ? BOND_ROLE[r] ?? 30 : 10 + (m.lvl || 1); }
   function decorateBond() {
     const box = document.getElementById('bond-cards'), N = ns();
     if (!box || !bondOpt || !enabled || !N || !N.Game || !N.Game.player) return;
@@ -518,7 +522,9 @@
     const partners = bondOpt.mode === 'add' ? bondOpt.group : [other || first].filter(Boolean);
     const isCtl = (m) => { const r = B && B.role[m.id]; return r === 'slow' || r === 'stun'; };
     const ctl = [moves[best], ...partners].filter(isCtl).length;
-    const why = ctl >= 2 ? T().bondWhy : ctl === 1 ? T().bondWhyCtl : T().bondWhyBuild;
+    const G1 = new Set(['primary', 'second', 'buff']);
+    const g1 = [moves[best], ...partners].every((m) => B && G1.has(B.role[m.id]));
+    const why = g1 ? T().bondWhyG1 : ctl >= 2 ? T().bondWhy : ctl === 1 ? T().bondWhyCtl : T().bondWhyBuild;
     whyLine(box, `<b>${T().head}</b> ${esc(T().bond(moveName(moves[best].id), withWho))}<span class="sta-m"> · ${esc(why)}</span>`);
   }
 
@@ -624,8 +630,12 @@
     let tip = '';
     if (legs >= 2) {
       const B = buildFor(pl);
-      const ctl = B ? B.b.m.filter(([, r]) => r === 'slow' || r === 'stun').map(([id]) => id) : [];
-      const slot = (pl.slots || []).findIndex((g) => g.some((m) => ctl.includes(m.id)));
+      // Primero Ataque Rápido (invulnerable 0,3 s por embestida frente a los legendarios); si no, el control.
+      const dash = B ? B.b.m.filter(([, r]) => r === 'dash').map(([id]) => id) : [];
+      const ctl0 = B ? B.b.m.filter(([, r]) => r === 'slow' || r === 'stun').map(([id]) => id) : [];
+      const has = (ids) => (pl.slots || []).findIndex((g) => g.some((m) => ids.includes(m.id)));
+      const ctl = has(dash) >= 0 ? dash : ctl0;
+      const slot = has(ctl);
       if (slot >= 0 && slot !== pl.active) {
         const m = pl.slots[slot].find((x) => ctl.includes(x.id));
         tip = `<div class="sta-jd-t">${esc(t.use(moveName(m.id), slot + 1))}</div>`;

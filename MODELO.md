@@ -49,14 +49,20 @@ Tiers por puesto: S 1–30, A 31–120, B 121–320, C 321–620, D 621–966 (l
 
 ## 6. La build recomendada
 
-Para cada variante se eligen cuatro huecos en este orden: frenazo a distancia → aturdimiento → ataque principal (el mejor a distancia de su lado bueno; una MT solo entra como principal si rinde un 30 % más que el mejor natural) → Acua Aro si lo tiene → potenciador de su lado (Danza Espada, Danza Dragón o Maquinación) → segundo ataque natural → Agilidad. Además: movimiento inicial (el frenazo si es un ataque, si no el principal), segundo inicial para Repertorio (el aturdimiento), tres vetos (Placaje, Ataque Rápido, Golpe Cuerpo…), la condición de evolución de cada ataque elegido, el número de cartas de Carrera hasta el tope de 130, y el objeto recomendado (Restos, o Banda Focus si ya regenera con Acua Aro).
+Desde el 27-10-2026 la build sigue cómo juegan los que más aguantan (el nivel con el que se llega al minuto 30 es lo que más explica la Sentencia, apartado 9), por huecos:
+
+- **Hueco 1, el grupo que farmea** (hasta 4, para fusionarlos en las grietas: un grupo fusionado se lanza a la vez y solo dispara el hueco activo): el ataque principal, el potenciador de su lado (Danza Espada, Danza Dragón o Maquinación) y dos ataques más. Los ataques se ordenan por **daño en hordas**: daño × enemigos que alcanza de media cada tipo de ataque (ráfaga, cono, cadena, rebote, meteoro…) ÷ recarga, con su lado y el bonus de un solo tipo. Se prefieren los de distancia; una MT solo entra si rinde un 30 % más que el mejor natural.
+- **Hueco 2, Ataque Rápido** (lo aprenden los 966): cada embestida deja 0,3 s invulnerable y la recarga es de 0,75 s; con los 10 Reflejos (×0,434) y la Garra Rápida (−20 %) baja a 0,26 s, invulnerable sin pausa frente a las hordas y los legendarios. No protege del toque de Arceus ni de sus pilares, rayos y onda (ponen la invulnerabilidad a cero).
+- **Huecos 3 y 4**: frenazo a distancia, aturdimiento y Acua Aro si los tiene. Solo afectan a los legendarios que acuden (Arceus se mueve con su propia fórmula), y con los cuatro huecos llenos dejan de salir ataques nuevos en las cartas.
+
+Además: movimiento inicial (el principal), segundo inicial para Repertorio (otro ataque del grupo), hasta tres vetos (Placaje, Golpe Cuerpo, Giro Rápido…; ya no Ataque Rápido), la condición de evolución de cada ataque elegido, el número de cartas de Carrera hasta el tope de 130 y los objetos (Garra Rápida, Restos, Banda Focus).
 
 Los empates se deshacen a favor del movimiento natural y, después, por nombre: el resultado es **determinista** (tres ejecuciones con semillas distintas producen el mismo fichero).
 
 ## 7. Supuestos y límites
 
 - Mejoras permanentes al máximo del Pokémon y cartas típicas al minuto 30 (15 Vigor, 8 Carrera, 10 Reflejos). Coraza llega al tope del 80 % para todos, así que no diferencia.
-- Un solo movimiento activo a la vez: frenazo y aturdimiento solo coinciden con un vínculo de grieta. El componente de control los suma igualmente; la ficha recomienda fusionarlos.
+- Un solo hueco activo a la vez: los ataques solo se lanzan juntos si se fusionan con un vínculo de grieta. Por eso la build agrupa en el hueco 1 lo que farmea. Con el grupo completo no conviene entrar en más grietas: cada fusión libera un hueco y las cartas vuelven a ofrecer ataques nuevos en vez de mejoras (`LevelUp.candidates` solo ofrece ataques nuevos con huecos libres).
 - No se modelan los objetos (se recomiendan aparte), el clima de las habilidades que lo invocan, los vínculos ni la pericia del jugador al esquivar.
 - Los pesos son una decisión de criterio, no una medida: dos Pokémon separados por unos puestos son, en la práctica, iguales.
 - La verificación del sorteo de habilidad y naturaleza por cuenta (hash FNV con la fecha de creación de la partida) se hizo contra una cuenta real, pero la web no personaliza: usa la habilidad 1.
@@ -93,7 +99,7 @@ Dentro de cada Pokémon, más nivel también es más Sentencia (Spearman medio 0
 
 Decisión de Julio tras el contraste del apartado 9: el puesto ya no lo da la puntuación de los componentes, sino los **segundos estimados** que aguanta un buen jugador en la Sentencia (`build/blend.py`, lo llama `rank.py`).
 
-1. **Predicción** para los 966: regresión ridge sobre ataque, log del radio, ranking en hordas, vida, velocidad, BST, legendario y los seis componentes T, U, A, D, S, Z. Objetivo: log de la mediana real. Se ajusta con los Pokémon con ≥10 marcas en Sentencia; alpha por validación cruzada (5 particiones × 6 repeticiones). Acierta el orden fuera de muestra con Spearman ≈ 0,29; la puntuación antigua sola, ≈ 0,09.
+1. **Predicción** para los 966: regresión ridge sobre ataque, log del radio, ranking en hordas, vida, velocidad, BST, legendario, **lado especial** (si es especial y log At. Esp./Ataque, desde el 27-10-2026) y los seis componentes T, U, A, D, S, Z. Objetivo: log de la mediana real. Se ajusta con los Pokémon con ≥10 marcas en Sentencia; alpha por validación cruzada (5 particiones × 6 repeticiones). Acierta el orden fuera de muestra con Spearman ≈ 0,39 (≈ 0,29 sin el lado especial); la puntuación antigua sola, ≈ 0,09. En los récords los especiales aguantan una mediana de 118 s frente a 88 s de los físicos y llegan con más nivel (229 frente a 215); no es por las defensas de los enemigos (como mucho un 1 % a favor del especial), sino porque los ataques especiales son de distancia y en área (ráfagas, auras, rayos, rebotes) y los físicos, sobre todo cuerpo a cuerpo.
 2. **Mezcla** en escala log: `est = (nj·real + K·pred) / (nj + K)` con K = 10 (con 10 partidas reales, mitad y mitad).
 3. **Tienda Kecleon**: `est_tienda = est · exp(pred(componentes de tienda) − pred(componentes por defecto))`.
 4. Puestos y tiers por `est`; los puestos de la puntuación antigua quedan en `model_pos`. La ficha enseña los segundos y de dónde salen.

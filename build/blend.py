@@ -20,8 +20,11 @@ SIM = {}
 def feats(p, comp):
     s = p['stats']
     extra = [math.log(max(1.0, SIM[str(p['dex'])]['mean']))] if SIM else []
-    return extra + [s['atk'], math.log(max(p['r'], 1)), p['hordes']['surv'], s['hp'], s['spd'], p['bst'] / 100, 1.0 if p['leg'] else 0.0] + [comp[k] for k in COMPS]
-NAMES = ['ataque', 'log radio', 'hordas', 'vida', 'velocidad', 'BST', 'legendario'] + [f'comp {k}' for k in COMPS]
+    # Lado especial (27-10-2026): en los récords los especiales aguantan más (ataques a distancia y en área:
+    # farmean más y llegan con más nivel). Con estas dos variables la validación cruzada pasa de 0,28 a 0,39.
+    side = [1.0 if s['sa'] > s['pa'] else 0.0, math.log(s['sa'] / s['pa'])]
+    return extra + [s['atk'], math.log(max(p['r'], 1)), p['hordes']['surv'], s['hp'], s['spd'], p['bst'] / 100, 1.0 if p['leg'] else 0.0] + side + [comp[k] for k in COMPS]
+NAMES = ['ataque', 'log radio', 'hordas', 'vida', 'velocidad', 'BST', 'legendario', 'especial', 'log AtEsp/Ataque'] + [f'comp {k}' for k in COMPS]
 
 def _solve(A, b):
     n = len(A); M = [row[:] + [b[i]] for i, row in enumerate(A)]

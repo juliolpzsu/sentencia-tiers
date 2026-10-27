@@ -91,10 +91,12 @@ UI = {
             sort_you='Your rank', meBlock='Your save ({name})', meAbility='Your ability', meNature='Your nature', loading='Computing your rank…',
             meRank='With your ability and nature it would rank <b>{n}</b> of 966 (general rank: {base}). Upgrades and cards are assumed maxed; TMs you already taught are not counted.'),
 }
-ITEMS = {'es': dict(leftovers=('Restos', 'Recuperas un 1,5 % de tu vida por segundo. El daño de Arceus es porcentual y puro: la regeneración porcentual es lo único que lo contrarresta.'),
+ITEMS = {'es': dict(quickclaw=('Garra Rápida', '−20 % de recarga: más daño para farmear y, con Reflejos, Ataque Rápido encadena las embestidas y te deja invulnerable sin pausa ante las hordas y los legendarios.'),
+                    leftovers=('Restos', 'Recuperas un 1,5 % de tu vida por segundo. El daño de Arceus es porcentual y puro: la regeneración porcentual es lo único que lo contrarresta.'),
                     focussash=('Banda Focus', 'Un golpe mortal te deja con 1 de vida (cada 60 s). Salva de un pilar o de un toque de Arceus hasta el minuto 35, cuando Arceus rompe tu objeto.'),
                     assaultvest=('Chaleco Asalto', '−20 % de daño recibido. Ayuda a llegar al minuto 30; en la Sentencia sobra en cuanto Coraza alcanza el tope del 80 %.')),
-         'en': dict(leftovers=('Leftovers', 'Recover 1.5% of your HP per second. Arceus’ damage is percentage-based and pure: percentage regeneration is the only thing that offsets it.'),
+         'en': dict(quickclaw=('Quick Claw', '−20% cooldown: more damage to farm and, with Reflexes, Quick Attack chains its dashes and keeps you invulnerable nonstop against hordes and legendaries.'),
+                    leftovers=('Leftovers', 'Recover 1.5% of your HP per second. Arceus’ damage is percentage-based and pure: percentage regeneration is the only thing that offsets it.'),
                     focussash=('Focus Sash', 'A lethal hit leaves you at 1 HP (every 60 s). Saves you from a pillar or an Arceus touch until minute 35, when Arceus breaks your item.'),
                     assaultvest=('Assault Vest', '−20% damage taken. Helps reach minute 30; in the Judgment it becomes redundant once Armor hits the 80% cap.'))}
 CARDS = {'es': dict(cd='Reflejos', spd='Carrera', def_='Coraza', hp='Vigor', rgn='Síntesis', atk='Potencia', heal='Baya Zidra', mag='Imán', xp='Aprendizaje'),
@@ -122,32 +124,34 @@ def typechip(t, lang): return f'<span class="type" style="--tc:{TC[t]}">{TYPE_NA
 def reason(m, p, var, lang):
     c = m['code']; mv = MOVES[m['id']]
     if lang == 'es':
-        if c == 'slow': return f"Frena un {m['pct']} % a todo lo que toca y los jefes no lo resisten: los legendarios de la Sentencia se quedan al {m['left']} % de velocidad y dejan de alcanzarte. Con Reflejos la recarga baja tanto que el frenazo no se corta."
-        if c == 'stun': return f"Zona con aviso que aturde. En los jefes solo dura el 35 % ({m['secs']} s por lanzamiento), pero con la recarga reducida se encadena: un legendario aturdido no ataca ni te hace daño al tocarte."
+        if c == 'slow': return f"Para los huecos que sobran: frena un {m['pct']} % a lo que toca y los legendarios que acuden a la Sentencia no lo resisten (se quedan al {m['left']} % de velocidad). A Arceus no le afecta, así que no es lo primero; además, con los huecos llenos dejan de salirte ataques nuevos en las cartas."
+        if c == 'stun': return f"Para los huecos que sobran: zona que aturde. En los legendarios dura el 35 % ({m['secs']} s por lanzamiento) y uno aturdido no te hace daño al tocarte. A Arceus no le afecta."
         if c == 'primary':
             k = {'homing': 'los proyectiles persiguen al objetivo y no fallan', 'beam': 'atraviesa a todo lo que pilla en línea', 'projectile': 'varios proyectiles al objetivo más cercano', 'charge': 'se carga un instante y suelta un rayo enorme',
                  'meteor': 'cae sobre los enemigos cercanos', 'bounce': 'rebota de enemigo en enemigo', 'chain': 'salta entre enemigos', 'boomerang': 'golpea a la ida y a la vuelta', 'nova': 'sale en todas direcciones', 'cone': 'abanico corto de disparos',
                  'quake': 'ondas en línea por el suelo', 'vortex': 'remolino que daña en su zona', 'shove': 'onda alrededor', 'melee': 'cuerpo a cuerpo: recibes un 25 % menos de daño con él activo, pero te obliga a estar pegado a los legendarios',
                  'dash': 'embestida: cruzas a los enemigos sin recibir daño', 'spin': 'giras golpeando alrededor', 'aura': 'daño continuo a tu alrededor', 'orbit': 'orbes que giran a tu alrededor', 'mine': 'minas que estallan al pisarlas', 'trail': 'charcos que dañan al pisarlos'}.get(m['kind'], '')
             side = 'físico' if m['cat'] == 'physical' else 'especial'
-            return f"Tu ataque de daño para llegar al minuto 30 y rematar legendarios: es {side}, su lado bueno ({m['fit']}× del máximo), y {k}. En la Sentencia el daño cuenta poco (la vida de cada legendario se ajusta a tu propio daño), así que prima la fiabilidad."
+            return f"Tu ataque principal y el primero del grupo que fusionarás en las grietas: es {side}, su lado bueno ({m['fit']}× del máximo), y {k}. Lo que más explica cuánto aguantas en la Sentencia es el nivel con el que llegas al minuto 30, así que aquí manda farmear."
         if c == 'aquaring': return "No hace daño: acumula regeneración (hasta 6 cargas con sus mejoras, unos 19 PS/s). Los pilares de Arceus quitan un 30 % de vida puro y esta es la mejor forma de recuperarlo entre salvas."
-        if c == 'buff': return f"Acumula {'Ataque' if m['side'] == 'physical' else 'Ataque Especial'} (hasta 5 cargas) para los ataques de su lado. Contra Arceus da igual, pero acorta las oleadas de antes del minuto 30 y los primeros legendarios."
-        if c == 'second': return "Segundo ataque para las hordas de antes del minuto 30 y para cuando el principal no tenga blanco."
+        if c == 'buff': return f"Acumula {'Ataque' if m['side'] == 'physical' else 'Ataque Especial'} (hasta 5 cargas) para los ataques de su lado. Solo funciona si está activo: fusiónalo con tus ataques en la primera grieta para que se lance a la vez."
+        if c == 'second': return "Otro ataque de daño para el grupo del primer hueco: fusionados salen a la vez y farmeas mucho más que cambiando de ataque."
+        if c == 'dash': return "Segundo hueco, aparte de la fusión: cada embestida te deja 0,3 s invulnerable y la recarga es de 0,75 s (con los 10 Reflejos y la Garra Rápida baja de 0,3 s: invulnerable sin pausa). Actívalo cuando las hordas o los legendarios se te echen encima y vuelve a tu grupo al salir. No protege del toque de Arceus ni de sus pilares y rayos."
         if c == 'agility': return "Acumula velocidad: sirve hasta el tope suave de 130; por encima solo cuenta un 25 %."
     else:
-        if c == 'slow': return f"Slows everything it touches by {m['pct']}% and bosses do not resist it: the Judgment legendaries drop to {m['left']}% speed and stop catching you. With Reflexes the cooldown gets so short the slow never lapses."
-        if c == 'stun': return f"Telegraphed zone that stuns. On bosses it only lasts 35% ({m['secs']} s per cast), but with the reduced cooldown it chains: a stunned legendary neither attacks nor hurts you on contact."
+        if c == 'slow': return f"For the spare slots: slows what it touches by {m['pct']}% and the legendaries joining the Judgment do not resist it (they drop to {m['left']}% speed). Arceus is not affected, so it is not the priority; also, with all slots full no more new moves show up on the cards."
+        if c == 'stun': return f"For the spare slots: a zone that stuns. On legendaries it lasts 35% ({m['secs']} s per cast) and a stunned one does not hurt you on contact. Arceus is not affected."
         if c == 'primary':
             k = {'homing': 'the projectiles track the target and never miss', 'beam': 'pierces everything in a line', 'projectile': 'several projectiles at the nearest target', 'charge': 'charges briefly and fires a huge beam',
                  'meteor': 'falls on nearby enemies', 'bounce': 'bounces from enemy to enemy', 'chain': 'jumps between enemies', 'boomerang': 'hits on the way out and back', 'nova': 'fires in every direction', 'cone': 'short fan of shots',
                  'quake': 'ground waves in a line', 'vortex': 'a whirlpool that damages its area', 'shove': 'a wave around you', 'melee': 'melee: you take 25% less damage while it is active, but it forces you to stand next to the legendaries',
                  'dash': 'a dash through enemies without taking damage', 'spin': 'you spin hitting all around', 'aura': 'continuous damage around you', 'orbit': 'orbs circling you', 'mine': 'mines that explode when stepped on', 'trail': 'puddles that hurt whoever steps in'}.get(m['kind'], '')
             side = 'physical' if m['cat'] == 'physical' else 'special'
-            return f"Your damage move to reach minute 30 and finish legendaries: it is {side}, its strong side ({m['fit']}× of max), and {k}. Damage matters little in the Judgment (each legendary’s HP scales with your own damage), so reliability comes first."
+            return f"Your main attack and the first of the group you will fuse in rifts: it is {side}, its strong side ({m['fit']}× of max), and {k}. What explains Judgment survival most is the level you reach minute 30 with, so farming comes first here."
         if c == 'aquaring': return "Deals no damage: stacks regeneration (up to 6 stacks with its upgrades, about 19 HP/s). Arceus’ pillars take 30% of your HP as pure damage and this is the best way to get it back between volleys."
-        if c == 'buff': return f"Stacks {'Attack' if m['side'] == 'physical' else 'Special Attack'} (up to 5) for same-side moves. Irrelevant against Arceus, but it shortens the waves before minute 30 and the first legendaries."
-        if c == 'second': return "Second attack for the hordes before minute 30 and for when the main one has no target."
+        if c == 'buff': return f"Stacks {'Attack' if m['side'] == 'physical' else 'Special Attack'} (up to 5) for same-side moves. It only works while active: fuse it with your attacks at the first rift so it fires with them."
+        if c == 'second': return "Another damage move for the slot-1 group: fused, they fire together and you farm far more than by switching moves."
+        if c == 'dash': return "Slot 2, apart from the fusion: each dash leaves you invulnerable for 0.3 s and the cooldown is 0.75 s (with 10 Reflexes and Quick Claw it drops below 0.3 s: nonstop invulnerability). Switch to it when hordes or legendaries close in and switch back to your group once clear. It does not protect from Arceus’ touch, pillars or beams."
         if c == 'agility': return "Stacks speed: useful up to the soft cap of 130; above it only 25% counts."
     return ''
 
@@ -196,19 +200,16 @@ def strategy(p, lang):
         w = f" Lo que más le castiga: {', '.join(f'{tn(t)} (×{es_num(v)})' for t, v in worst)}." if worst else ' No tiene ningún tipo que le castigue de verdad.'
         r = f" Lo que mejor aguanta: {', '.join(f'{tn(t)} (×{es_num(v)})' for t, v in reversed(best))}." if best else ''
         paras.append(f"{N} es tier {b['tier']} de la Sentencia (puesto {b['pos']} de 966) y tier {ht} en las hordas: {via}. Frente al pool de legendarios {tough}.{w}{r}")
-        tools = []
+        g1 = [m['id'] for m in b['build']['moves'] if m.get('slot', 1) == 1]
+        g1t = ', '.join(mname(x, lang) for x in g1)
+        ctl = [x for x in (b['slow'], b['stun']) if x and x not in g1]
         sp_pct = slow_pct(b)
-        if b['slow']: tools.append(f"{mname(b['slow'], lang)} frena un {sp_pct} % a los legendarios" + (' (van al 80 % de tu velocidad: con eso ya no te alcanzan)' if sp_pct < 50 else ' (se quedan casi parados)'))
-        if b['stun']: tools.append(f"{mname(b['stun'], lang)} los aturde por zonas")
-        if b['heal'] >= 0.6: tools.append("Acua Aro le da regeneración contra los pilares")
-        if tools:
-            fin = ("con eso los legendarios dejan de ser una amenaza y solo queda esquivar a Arceus." if (b['stun'] or sp_pct >= 60) else "con eso puedes mantener a los legendarios a raya mientras esquivas a Arceus.")
-            paras.append("Sus herramientas naturales para la Sentencia: " + '; '.join(tools) + ". Los jefes ignoran el empuje y resisten los remolinos, pero los frenazos entran al 100 % y los aturdimientos se encadenan con Reflejos: " + fin + (" Si consigues un vínculo en una grieta, fusiona el frenazo y el aturdimiento en un mismo hueco para tenerlos activos a la vez." if (b['slow'] and b['stun']) else ''))
-        else: paras.append("No tiene ni frenazo ni aturdimiento naturales a distancia: contra los legendarios solo puede correr y aguantar, así que la Sentencia depende de esquivar y de la regeneración. Con la Tienda Kecleon cambia la cosa (ver la pestaña).")
+        paras.append(f"Cómo se juega (como los que más aguantan): antes del minuto 30 lo que cuenta es farmear, porque el nivel con el que llegas es lo que más explica la Sentencia. Primer hueco: {g1t}; en cada grieta fusiónalos (hasta 4 en un hueco, salen a la vez y el potenciador solo funciona activo). En las cartas, Potencia, Reflejos y Aprendizaje; Carrera solo hasta 130. Segundo hueco: Ataque Rápido. Cuando se te echen encima, actívalo (cada embestida te deja 0,3 s invulnerable; con los 10 Reflejos y la Garra Rápida, sin pausa) y vuelve a tu grupo al salir. Con el grupo completo no entres en más grietas: fusionar libera huecos y vuelven a salirte ataques nuevos en vez de mejoras."
+                     + (f" Huecos 3 y 4: {' y '.join(mname(x, lang) for x in ctl)}, para frenar o aturdir a los legendarios que acuden (a Arceus no le afecta) y para que dejen de salirte ataques nuevos." if ctl else ''))
         sp = b['build']['spd_cards']
         size = 'pequeño, así que los pilares (44 px de radio) y los rayos tienen menos margen para pillarle' if p['r'] <= 11 else 'de tamaño medio' if p['r'] < 17 else 'grande: cuenta como el radio máximo (18 px) y le cuesta un poco más salir de los pilares'
         paras.append(f"Velocidad: {'con Zancada al máximo ya roza el tope suave de 130' if sp == 0 else ('necesita una carta de Carrera' if sp == 1 else f'necesita unas {sp} cartas de Carrera') + ' para llegar al tope suave de 130'}; Arceus corre siempre a 1,22 veces la tuya, así que la velocidad sirve para esquivar y para que los legendarios (al 80 % de tu velocidad) no te alcancen, no para huir de Arceus. Es {size}.")
-        paras.append(f"Plan: mantente a 250–400 px de Arceus (su onda solo sale si estás a menos de 210), muévete en círculos amplios por el borde de la arena y gana distancia en sus pausas de ataque (1,1–1,5 s cada vez que lanza). Cuando los legendarios se agrupen, {'lánzales ' + mname(b['stun'], lang) + ' y ' if b['stun'] else ''}{'mantén ' + mname(b['slow'], lang) + ' activo sobre el grupo' if b['slow'] else 'sigue corriendo: no intentes matarlos a partir del tercero'}. Desde el minuto 35 Arceus rompe tu objeto y acelera; desde el 37 su toque quita cada vez más. El récord realista está entre los 5 y los 8 minutos de Sentencia.")
+        paras.append("En la Sentencia lo que mata son los ataques con aviso de Arceus (pilares sobre ti, rayos en cruz y su onda si estás a menos de 210 px) y su toque: los cuatro ignoran la invulnerabilidad de Ataque Rápido. Muévete sin parar, sal de cada círculo en cuanto aparece y gana distancia en sus pausas (se queda quieto 1–1,5 s cada vez que ataca); mantente a 250–400 px y lejos del borde. Cuando se te junten legendarios, Ataque Rápido. En el minuto 35 Arceus rompe tu objeto. Los que más aguantan pasan de los 30 minutos de Sentencia, y llegan con nivel 200 o más.")
         changes = ', '.join(filter(None, [f"{mname(t['id'], lang)} por MT" for t in s['tms']] + ([f"naturaleza {nname(s['nature'], lang)}"] if s['nature'] else []) + ([f"habilidad {aname(s['ability'], lang)}"] if s['ability'] != b['ability'] else [])))
         if changes:
             paras.append((f"Con la Tienda Kecleon sube al puesto {s['pos']}: " if s['pos'] < b['pos'] else f"Con la Tienda Kecleon queda en el puesto {s['pos']} (mejora, pero otros mejoran más): ") + changes + '.')
@@ -218,19 +219,16 @@ def strategy(p, lang):
         w = f" What punishes it most: {', '.join(f'{tn(t)} (×{v:.2f})' for t, v in worst)}." if worst else ' No type really punishes it.'
         r = f" What it resists best: {', '.join(f'{tn(t)} (×{v:.2f})' for t, v in reversed(best))}." if best else ''
         paras.append(f"{N} is Judgment tier {b['tier']} (rank {b['pos']} of 966) and horde tier {ht}: it {via}. Against the legendary pool it {tough}.{w}{r}")
-        tools = []
+        g1 = [m['id'] for m in b['build']['moves'] if m.get('slot', 1) == 1]
+        g1t = ', '.join(mname(x, lang) for x in g1)
+        ctl = [x for x in (b['slow'], b['stun']) if x and x not in g1]
         sp_pct = slow_pct(b)
-        if b['slow']: tools.append(f"{mname(b['slow'], lang)} slows the legendaries by {sp_pct}%" + (' (they run at 80% of your speed: that is enough to keep them off you)' if sp_pct < 50 else ' (they are left almost standing)'))
-        if b['stun']: tools.append(f"{mname(b['stun'], lang)} stuns them in zones")
-        if b['heal'] >= 0.6: tools.append("Aqua Ring gives it regeneration against the pillars")
-        if tools:
-            fin = ("with those the legendaries stop being a threat and all that is left is dodging Arceus." if (b['stun'] or sp_pct >= 60) else "with that you can keep the legendaries at bay while you dodge Arceus.")
-            paras.append("Its natural Judgment tools: " + '; '.join(tools) + ". Bosses ignore knockback and resist whirlpools, but slows land at 100% and stuns chain with Reflexes: " + fin + (" If you earn a bond in a rift, fuse the slow and the stun into one slot so both stay active at once." if (b['slow'] and b['stun']) else ''))
-        else: paras.append("It has neither a natural ranged slow nor a stun: against the legendaries it can only run and endure, so the Judgment comes down to dodging and regeneration. The Kecleon Shop changes that (see the tab).")
+        paras.append(f"How to play it (like those who last longest): before minute 30 farming is what counts, because the level you arrive with explains the Judgment most. Slot 1: {g1t}; fuse them at every rift (up to 4 in one slot, they fire together and the booster only works while active). On the cards, Power, Reflexes and Learning; Sprint only up to 130. Slot 2: Quick Attack. When enemies close in, switch to it (each dash leaves you invulnerable for 0.3 s; with 10 Reflexes and Quick Claw, nonstop) and switch back to your group once clear. With the group complete, skip further rifts: fusing frees slots and new moves come back on the cards instead of upgrades."
+                     + (f" Slots 3 and 4: {' and '.join(mname(x, lang) for x in ctl)}, to slow or stun the legendaries that join (Arceus is not affected) and to stop new moves showing up." if ctl else ''))
         sp = b['build']['spd_cards']
         size = 'small, so pillars (44 px radius) and beams have less margin to catch it' if p['r'] <= 11 else 'medium-sized' if p['r'] < 17 else 'big: it counts as the maximum radius (18 px) and takes slightly longer to leave a pillar'
         paras.append(f"Speed: {'with Stride maxed it already touches the soft cap of 130' if sp == 0 else ('it needs one Sprint card' if sp == 1 else f'it needs about {sp} Sprint cards') + ' to reach the soft cap of 130'}; Arceus always runs at 1.22× your speed, so speed is for dodging and for keeping the legendaries (at 80% of your speed) off you, not for outrunning Arceus. It is {size}.")
-        paras.append(f"Plan: stay 250–400 px from Arceus (its shockwave only fires if you are closer than 210), run wide circles along the arena edge and gain distance during its casting pauses (1.1–1.5 s every cast). When the legendaries bunch up, {'drop ' + mname(b['stun'], lang) + ' on them and ' if b['stun'] else ''}{'keep ' + mname(b['slow'], lang) + ' active on the group' if b['slow'] else 'keep running: do not try to kill them after the third'}. From minute 35 Arceus breaks your item and speeds up; from minute 37 its touch hurts more and more. A realistic record sits between 5 and 8 minutes of Judgment.")
+        paras.append("In the Judgment what kills you is Arceus’ telegraphed attacks (pillars on you, cross beams and its shockwave if you are within 210 px) and its touch: all four ignore Quick Attack’s invulnerability. Keep moving, leave every circle as soon as it appears and gain distance during its pauses (it stands still 1–1.5 s every time it attacks); stay 250–400 px away and off the edge. When legendaries bunch up on you, Quick Attack. At minute 35 Arceus breaks your item. Those who last longest go past 30 minutes of Judgment, arriving at level 200 or more.")
         changes = ', '.join(filter(None, [f"{mname(t['id'], lang)} via TM" for t in s['tms']] + ([f"{nname(s['nature'], lang)} nature"] if s['nature'] else []) + ([f"{aname(s['ability'], lang)} ability"] if s['ability'] != b['ability'] else [])))
         if changes:
             paras.append((f"With the Kecleon Shop it climbs to rank {s['pos']}: " if s['pos'] < b['pos'] else f"With the Kecleon Shop it lands at rank {s['pos']} (it improves, but others improve more): ") + changes + '.')
@@ -357,7 +355,7 @@ def build_panel(p, var, key, lang):
     for i, m in enumerate(b['moves']):
         mv = MOVES[m['id']]; isTM = any(t['id'] == m['id'] for t in var.get('tms', []))
         tag = f'<span class="pill y">{KIND[lang][mv["kind"]]}</span>' + (f'<span class="pill">{CAT[lang][mv["cat"]]}</span>' if mv['cat'] else '') + ('<span class="pill r">MT</span>' if isTM else '')
-        cards.append(f'<article class="move" style="--tc:{TC[mv["type"]]}"><span class="slot">{U["slot"]} {i + 1}</span><div class="n">{esc(mname(m["id"], lang))} {typechip(mv["type"], lang)} {tag}</div><div class="d">{esc(mdesc(m["id"], lang))}</div><div class="why"><b>{U["why"]}</b>{reason(m, p, var, lang)}</div></article>')
+        cards.append(f'<article class="move" style="--tc:{TC[mv["type"]]}"><span class="slot">{U["slot"]} {m.get("slot", i + 1)}</span><div class="n">{esc(mname(m["id"], lang))} {typechip(mv["type"], lang)} {tag}</div><div class="d">{esc(mdesc(m["id"], lang))}</div><div class="why"><b>{U["why"]}</b>{reason(m, p, var, lang)}</div></article>')
     kv = [(U['start'], esc(mname(b['start'], lang)) if b['start'] else U['not_available']),
           (U['start2'], esc(mname(b['start2'], lang)) if b['start2'] else U['not_available']),
           (U['bans'], ', '.join(esc(mname(x, lang)) for x in b['bans']) or U['not_available'])]

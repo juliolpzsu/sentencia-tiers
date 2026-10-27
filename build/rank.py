@@ -208,49 +208,78 @@ class Norm:
     def score(self, r):
         c = self.comp(r); return sum(W[k] * c[k] for k in W), c
 
+# Enemigos que alcanza de media cada tipo de ataque en las hordas (para ordenar el grupo que farmea).
+def farm_hits(s):
+    k = s['kind']; c = s.get('count') or 1; pi = s.get('pierce') or 0
+    return {'projectile': c * (0.9 + 0.6 * pi), 'homing': c, 'bounce': 3, 'beam': 3, 'charge': 3, 'chain': max(c, 3), 'nova': c * 0.7,
+            'meteor': c * 1.5, 'boomerang': c * 2, 'spin': c * 2, 'melee': 2, 'dash': 2, 'quake': c, 'shove': 3, 'stun': 2,
+            'cone': c * 0.8, 'mine': c * 0.6, 'orbit': c * 1.2, 'aura': 3, 'trail': 1.5, 'vortex': 4}.get(k, 1)
+def farm_dps(s):
+    if s['kind'] in ('buff', 'turret'): return 0
+    if s['kind'] == 'vortex': return s['dmg'] * (s['dur'] / 0.4) / s['cd'] * 2
+    if s['kind'] == 'orbit': return s['dmg'] * s['count'] * 0.6 / 0.3 * 0.5 * 2
+    if s['kind'] == 'aura': return s['dmg'] / s['cd'] * 3
+    return s['dmg'] * farm_hits(s) / s['cd']
+
 # ---------------- la build ----------------
 BUFF_FOR = {'physical': 'swords-dance', 'special': 'nasty-plot'}
 def choose_build(dex, ab, nat, pool, raw, natural=None):
-    """Cuatro huecos con un motivo (código + parámetros) por movimiento.
-    `natural`: pool sin MT; las MT sólo entran como frenazo, aturdimiento o ataque principal claramente mejor."""
+    """La build en huecos, con un motivo (código + parámetros) por movimiento (27-10-2026, como juegan los mejores):
+      hueco 1  los ataques que más farmean de su lado y su potenciador, para fusionarlos en las grietas
+               (hasta 4 en un grupo): lo que más explica la Sentencia es el nivel con el que llegas al minuto 30
+      hueco 2  Ataque Rápido: cada embestida deja 0,3 s invulnerable (con Reflejos y Garra Rápida, sin pausa)
+               contra las hordas y los legendarios que acuden (no contra Arceus)
+      huecos 3-4  frenazo y aturdimiento para los legendarios (a Arceus no le afectan) y, con los huecos llenos,
+               dejan de salir ataques nuevos en las cartas
+    `natural`: pool sin MT; las MT solo entran como ataque claramente mejor (30 %) o como control."""
     mon = raw['mon']; side = 'special' if mon['sa'] > mon['pa'] else 'physical'
     natural = natural if natural is not None else pool
     dps = raw['dps']; chosen = []; reasons = {}
-    def add(mid, code, **p):
-        if mid and mid not in chosen and len(chosen) < 4:
-            chosen.append(mid); reasons[mid] = dict(code=code, **p)
+    def add(mid, code, slot, **p):
+        if mid and mid not in chosen:
+            chosen.append(mid); reasons[mid] = dict(code=code, slot=slot, **p)
     serene = 2 if ab == 'serene-grace' else 1
-    if raw['slow']:
-        d = MOVES[raw['slow']]; pct = round(min(0.8, d['slow'] * serene) * 100)
-        add(raw['slow'], 'slow', pct=pct, left=100 - pct, kind=d['kind'])
-    if raw['stun']:
-        s = maxed(raw['stun']); add(raw['stun'], 'stun', secs=round(s['stun'] * 0.35, 2))
-    # ataque principal: el mejor a distancia de su lado bueno (sin torretas)
     ranked = sorted((mid for mid in dps if MOVES[mid]['kind'] not in ('turret',)), key=lambda m: -dps[m])
     far = [m for m in ranked if MOVES[m]['kind'] not in CLOSE]
     best_nat = max((dps[m] for m in (far or ranked) if m in natural), default=0)
     ranked = [m for m in ranked if m in natural or dps[m] >= best_nat * 1.3]
     far = [m for m in far if m in natural or dps[m] >= best_nat * 1.3]
-    primary = next((m for m in (far or ranked) if m not in chosen), None)
-    if primary and not any(dps.get(c, 0) >= dps[primary] * 0.8 for c in chosen):
-        d = MOVES[primary]; add(primary, 'primary', kind=d['kind'], cat=d['cat'], fit=round((mon['pa'] if d['cat'] == 'physical' else mon['sa']) / mon['atk'], 2))
-    if 'aqua-ring' in pool: add('aqua-ring', 'aquaring')
+    # el grupo que farmea se ordena por daño en hordas (cuántos enemigos alcanza), no contra un solo legendario
+    def fd(m):
+        d = MOVES[m]; atk = mon['pa'] if d['cat'] == 'physical' else mon['sa']
+        return farm_dps(maxed(m)) * atk * (1.2 if len(DEX[dex]['types']) == 1 and d['type'] == DEX[dex]['types'][0] else 1.0) * out_mul(ab, d, DEX[dex]['types'])
+    attacks = sorted((m for m in (far or ranked) if m != 'quick-attack'), key=lambda m: (-fd(m), m))
+    # hueco 1: principal, potenciador de su lado y dos ataques más (un grupo fusionado admite 4)
+    primary = attacks[0] if attacks else None
+    if primary:
+        d = MOVES[primary]; add(primary, 'primary', 1, kind=d['kind'], cat=d['cat'], fit=round((mon['pa'] if d['cat'] == 'physical' else mon['sa']) / mon['atk'], 2))
     buff = 'dragon-dance' if side == 'physical' and 'dragon-dance' in pool else BUFF_FOR[side]
-    if buff in pool and sum(1 for c in chosen if MOVES[c]['kind'] == 'buff') < 2: add(buff, 'buff', side=side)
-    for m in far or ranked:
-        if len(chosen) >= 4: break
-        if m not in chosen and m in natural: add(m, 'second', kind=MOVES[m]['kind'])
-    if len(chosen) < 4 and 'agility' in pool and sum(1 for c in chosen if MOVES[c]['kind'] == 'buff') < 2: add('agility', 'agility')
-    atk_moves = [m for m in chosen if MOVES[m]['kind'] != 'buff']
-    start = next((m for m in (raw['slow'], primary) if m in atk_moves), atk_moves[0] if atk_moves else None)
-    start2 = next((m for m in (raw['stun'], primary) if m in atk_moves and m != start), None)
-    bans = [m for m in ('tackle', 'quick-attack', 'body-slam', 'rapid-spin', 'hyper-voice', 'harden') if m in pool and m not in chosen][:3]
+    if buff in pool: add(buff, 'buff', 1, side=side)
+    for m in attacks[1:]:
+        if sum(1 for r in reasons.values() if r['slot'] == 1) >= 4: break
+        if m in natural: add(m, 'second', 1, kind=MOVES[m]['kind'])
+    # hueco 2: Ataque Rápido (lo aprenden todos)
+    if 'quick-attack' in pool: add('quick-attack', 'dash', 2)
+    # huecos 3-4: control y regeneración
+    nxt = lambda: 3 + sum(1 for r in reasons.values() if r['slot'] >= 3)
+    if raw['slow'] and nxt() <= 4:
+        d = MOVES[raw['slow']]; pct = round(min(0.8, d['slow'] * serene) * 100)
+        add(raw['slow'], 'slow', nxt(), pct=pct, left=100 - pct, kind=d['kind'])
+    if raw['stun'] and nxt() <= 4:
+        s_ = maxed(raw['stun']); add(raw['stun'], 'stun', nxt(), secs=round(s_['stun'] * 0.35, 2))
+    if 'aqua-ring' in pool and nxt() <= 4: add('aqua-ring', 'aquaring', nxt())
+    atk_moves = [m for m in chosen if MOVES[m]['kind'] != 'buff' and m != 'quick-attack']
+    start = primary if primary in atk_moves else (atk_moves[0] if atk_moves else None)
+    start2 = next((m for m in atk_moves if m != start and reasons[m]['slot'] == 1), None)
+    bans = [m for m in ('tackle', 'body-slam', 'rapid-spin', 'hyper-voice', 'harden') if m in pool and m not in chosen][:3]
     evos = [{'move': m, 'need': EVO[m], 'needName': NEED_NAME[EVO[m]]} for m in atk_moves if m in EVO]
     spd_cards = 0
     if DEX[dex]['spd'] * UPG_SPD < 130:
         spd_cards = min(8, math.ceil(math.log(130 / (mon['spd'] * UPG_SPD)) / math.log(1.07)))
-    items = ['leftovers', 'focussash', 'assaultvest'] if 'aqua-ring' not in chosen else ['focussash', 'leftovers', 'assaultvest']
-    return dict(moves=[{'id': m, **reasons[m]} for m in chosen], side=side, start=start, start2=start2, bans=bans, evos=evos, spd_cards=spd_cards, items=items)
+    # objetos: Garra Rápida primero (Ataque Rápido sin pausa y más daño por segundo), luego aguante
+    items = ['quickclaw', 'leftovers', 'focussash']
+    order = sorted(chosen, key=lambda m: (reasons[m]['slot'], chosen.index(m)))
+    return dict(moves=[{'id': m, **reasons[m]} for m in order], side=side, start=start, start2=start2, bans=bans, evos=evos, spd_cards=spd_cards, items=items)
 
 NAT_CANDIDATES = None
 def nature_candidates(mon):

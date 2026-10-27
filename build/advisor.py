@@ -9,7 +9,9 @@ build de la Sentencia de cada Pokémon. Aquí se resume ranking.json a lo que ne
            sp: cartas de Carrera hasta el tope suave, i: [objetos, mejor primero], v: [ataques a vetar],
            tm: [MT que necesita]}
 
-Papeles (de rank.choose_build): slow, stun, primary, second, buff, aquaring, agility.
+Papeles (de rank.choose_build): primary, second, buff (hueco 1, para fusionar), dash (Ataque Rápido,
+hueco 2), slow, stun, aquaring (huecos 3-4). Cada ataque va como [id, papel, hueco]; las versiones
+de la extensión anteriores a la 1.5 solo leen los dos primeros.
 Se escribe en docs/assets/advisor.json (la extensión lo baja una vez al día) y en
 extension/data.js (copia de serie por si la web no responde).
 """
@@ -18,7 +20,7 @@ import json, os
 
 def _build(var, tms=()):
     b = var['build']
-    out = {'m': [[m['id'], m['code']] for m in b['moves']]}
+    out = {'m': [[m['id'], m['code'], m.get('slot', 1)] for m in b['moves']]}
     ev = {e['move']: e['need'] for e in b['evos']}
     if ev: out['e'] = ev
     if b['spd_cards']: out['sp'] = b['spd_cards']

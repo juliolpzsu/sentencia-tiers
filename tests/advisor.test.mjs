@@ -60,13 +60,15 @@ const cloyster = (moves, extra) => player(91, ['water', 'ice'], 'physical', move
 const magnezone = (moves, extra) => player(462, ['electric', 'steel'], 'special', moves, extra);
 
 test('los datos cubren a Cloyster y Magnezone', () => {
-  assert.equal(advise([card('stat:cd')], cloyster([mv('ice-beam')])).B.b.m[0][0], 'ice-beam');
+  const B = advise([card('stat:cd')], cloyster([mv('ice-beam')])).B;
+  assert.equal(B.b.m[0][1], 'primary');                       // el grupo que farmea, primero
+  assert.ok(B.b.m.some(([id, r]) => id === 'quick-attack' && r === 'dash'));
   assert.ok(advise([card('stat:cd')], magnezone([mv('thunder-shock')])));
 });
 
-test('un ataque de la build va antes que una mejora de stat', () => {
-  const cards = [card('stat:cd'), card('new:freeze-dry'), card('stat:hp')];
-  assert.equal(keyOfBest(cards, cloyster([mv('ice-beam')])), 'new:freeze-dry');
+test('un ataque del grupo que farmea va antes que una mejora de stat y que el control', () => {
+  const cards = [card('stat:cd'), card('new:ice-shard'), card('new:freeze-dry')];
+  assert.equal(keyOfBest(cards, cloyster([mv('water-gun')])), 'new:ice-shard');
 });
 
 test('un ataque fuera de la build que quita un hueco necesario se evita', () => {
@@ -94,7 +96,7 @@ test('la mejora que desbloquea una evolución lista va primero', () => {
 
 test('una evolución lejana solo da un empujón', () => {
   const pl = magnezone([mv('thunder-wave', 2), mv('meteor-mash')]);
-  assert.equal(keyOfBest([card('up:thunder-wave'), card('stat:atk')], pl), 'up:thunder-wave');
+  assert.equal(keyOfBest([card('up:thunder-shock'), card('stat:atk')], magnezone([mv('thunder-shock', 2), mv('meteor-mash')])), 'up:thunder-shock');
 });
 
 test('Baya Zidra solo con poca vida', () => {
@@ -134,17 +136,18 @@ test('el motivo lleva el contador de veces que sale cada mejora', () => {
 test('objeto: los de la build primero, y la Cinta Elección al final', () => {
   const pl = magnezone([mv('thunder-wave')]);
   const s = (id) => S.core.itemScore(id, pl).s;
-  assert.ok(s('leftovers') > s('focussash') && s('focussash') > s('assaultvest'));   // orden de la build de la web
-  assert.ok(s('assaultvest') > s('quickclaw'));
+  assert.ok(s('quickclaw') > s('leftovers') && s('leftovers') > s('focussash'));   // orden de la build de la web
+  assert.ok(s('focussash') > s('assaultvest'));
   assert.ok(s('choiceband') < s('amuletcoin'));
 });
 
-test('vínculo: se fusiona antes el control que el resto', () => {
-  const pl = magnezone([mv('thunder-wave'), mv('thunder-shock'), mv('nasty-plot'), mv('metal-claw')]);
+test('vínculo: se fusiona el grupo que farmea, nunca Ataque Rápido', () => {
+  const pl = magnezone([mv('thunder-wave'), mv('thunder-shock'), mv('nasty-plot'), mv('metal-claw'), mv('quick-attack')]);
   const r = (id) => S.core.bondRank(pl.moves.find((m) => m.id === id), pl);
-  assert.ok(r('thunder-wave') > r('thunder-shock'));
-  assert.ok(r('thunder-shock') > r('nasty-plot'));
-  assert.ok(r('nasty-plot') > r('metal-claw'));      // fuera de la build, lo último
+  assert.ok(r('thunder-shock') > r('nasty-plot'));   // principal, luego su potenciador
+  assert.ok(r('nasty-plot') > r('thunder-wave'));    // el control después del grupo
+  assert.ok(r('thunder-wave') > r('metal-claw'));    // fuera de la build, casi lo último
+  assert.ok(r('metal-claw') > r('quick-attack'));    // Ataque Rápido va aparte
 });
 
 test('Sentencia: distancia a Arceus y aviso de control con legendarios encima', () => {
@@ -210,4 +213,15 @@ test('Pokédex: letra de la Sentencia en cada casilla, junto a la de PokeSurvivo
   } finally {
     doc.getElementById = saved.get; doc.createElement = saved.ce; delete S.ctx.getComputedStyle;
   }
+});
+
+test('Sentencia: con legendarios encima sugiere Ataque Rápido si lo tienes', () => {
+  const pl = magnezone([mv('thunder-shock'), mv('quick-attack'), mv('thunder-wave')], { x: 0, y: 0, active: 0, dead: false });
+  pl.slots = [[pl.moves[0]], [pl.moves[1]], [pl.moves[2]]];
+  const foes = [{ dex: 493, x: 300, y: 0 }, { boss: true, x: 100, y: 50 }, { boss: true, x: -80, y: 90 }];
+  Object.assign(S.NS, { Judgment: { active: true, cinematic: false }, EnemyMgr: { all: () => foes } });
+  S.NS.Game = { st: { time: 1900 }, state: 'playing', player: pl };
+  S.core.judgmentTick();
+  assert.match(S.ctx.__jd.innerHTML, /quick-attack|Ataque R/);
+  assert.match(S.ctx.__jd.innerHTML, /\(2\)/);
 });
