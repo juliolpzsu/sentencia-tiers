@@ -162,7 +162,7 @@
     const mine = save && save.owned.includes(p.dex) ? `<span class="tool own" title="${T.owned}">${T.ownedS}</span>` : '';
     return `<a class="lrow" href="pokemon/${p.slug}/"><span class="pos">${m.pos}</span><img class="px" loading="${lazy}" src="../img/p/${p.dex}.png" alt="" width="32" height="32"><span class="tier ${m.tier}">${m.tier}</span>
       <span class="name">${p.name}</span><span class="types">${p.types.map(t => `<span class="type" style="--tc:${TC[t]}">${T.types[t]}</span>`).join('')}</span>
-      <span class="tools">${mine}${tools}</span><span class="est">${m.e} s</span></a>`;
+      <span class="tools">${mine}${tools}</span><span class="est">${m.e >= 0 ? m.e + ' s' : (document.documentElement.lang === 'en' ? 'to min ' : 'hasta el min ') + Math.max(1, Math.round((1800 + m.e) / 60))}</span></a>`;
   }
   function render() {
     computeYouRank();

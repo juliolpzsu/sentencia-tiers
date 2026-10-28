@@ -99,9 +99,25 @@ Dentro de cada Pokémon, más nivel también es más Sentencia (Spearman medio 0
 
 Decisión de Julio tras el contraste del apartado 9: el puesto ya no lo da la puntuación de los componentes, sino los **segundos estimados** que aguanta un buen jugador en la Sentencia (`build/blend.py`, lo llama `rank.py`).
 
+**Desde el 28-10-2026 el objetivo es la fuerza ajustada por jugador** (apartado 11); lo que sigue describe la versión del 25-10, que se mantiene como reserva si no hay fuerza en `records.json`.
+
 1. **Predicción** para los 966: regresión ridge sobre ataque, log del radio, ranking en hordas, vida, velocidad, BST, legendario, **lado especial** (si es especial y log At. Esp./Ataque, desde el 27-10-2026) y los seis componentes T, U, A, D, S, Z. Objetivo: log de la mediana real. Se ajusta con los Pokémon con ≥10 marcas en Sentencia; alpha por validación cruzada (5 particiones × 6 repeticiones). Acierta el orden fuera de muestra con Spearman ≈ 0,39 (≈ 0,29 sin el lado especial); la puntuación antigua sola, ≈ 0,09. En los récords los especiales aguantan una mediana de 118 s frente a 88 s de los físicos y llegan con más nivel (229 frente a 215); no es por las defensas de los enemigos (como mucho un 1 % a favor del especial), sino porque los ataques especiales son de distancia y en área (ráfagas, auras, rayos, rebotes) y los físicos, sobre todo cuerpo a cuerpo.
 2. **Mezcla** en escala log: `est = (nj·real + K·pred) / (nj + K)` con K = 10 (con 10 partidas reales, mitad y mitad).
 3. **Tienda Kecleon**: `est_tienda = est · exp(pred(componentes de tienda) − pred(componentes por defecto))`.
 4. Puestos y tiers por `est`; los puestos de la puntuación antigua quedan en `model_pos`. La ficha enseña los segundos y de dónde salen.
 
 Sesgo conocido: los récords son el top 50 de cada Pokémon; los raros los juegan sobre todo veteranos con más mejoras. La estimación es "en buenas manos". El puesto personal de "Mi partida" sigue usando la puntuación de componentes con tu habilidad y naturaleza.
+
+## 11. Fuerza ajustada por jugador (desde el 28-10-2026)
+
+Problema de la versión anterior: la mediana del top 50 mezcla lo bueno que es el Pokémon con lo bueno que es quien lo juega (los raros los juegan veteranos), y solo contaba las partidas que llegan a la Sentencia, así que los Pokémon sin marcas en la Sentencia quedaban a merced de la predicción.
+
+1. **Datos**: el 28-10-2026 se releyeron una vez los top 50 en solitario de los 966 (2,5 s entre lecturas). De cada marca se guarda solo tiempo total, nivel, enemigos y una huella anónima del jugador (SHA-256 recortado con sal local) que **nunca sale del PC**; al repo solo llegan agregados (`data/records/records.json`: n, nj, mediana, p75, p90, nivel, enemigos/min, nº de jugadores y fuerza). Limpieza: fuera marcas de más de 20 min de Sentencia (imposibles con las reglas actuales), de nivel ≤ 1 o sin enemigos. Quedan 23.931 marcas de 18.602 jugadores; 3.143 jugadores tienen marcas con más de un Pokémon, y son los que permiten separar Pokémon y jugador.
+2. **Modelo**: `log(segundos totales) = media + fuerza(Pokémon) + habilidad(jugador) + ruido`, ajustado alternando medias encogidas (λ = 3 marcas para ambos). Cuenta también las partidas que no llegan al minuto 30.
+3. **Fiabilidad**: con dos mitades al azar de las marcas, la fuerza de los Pokémon con ≥ 10 marcas coincide con Spearman 0,90. La habilidad del jugador varía poco frente a la fuerza (desviación 0,11 frente a 0,46 en log), y la fuerza ajustada sigue a la mediana cruda (0,98): el sesgo de veteranos existe pero es pequeño. Los iniciales salen por debajo de la media, así que la popularidad no infla.
+4. **Predicción** de la fuerza para los 966 con la misma ridge (variables del apartado 10 más log de enemigos/min del banco de partidas del bot), ajustada con los Pokémon con ≥ 5 marcas: CV Spearman **0,60** (0,41 con el objetivo anterior).
+5. **Mezcla**: `fuerza = (n·real + 8·pred) / (n + 8)`, con n = marcas totales.
+6. **Segundos**: `total = exp(b0 + fuerza)`, con b0 la mediana de `log(1800 + mediana de Sentencia) − fuerza` entre los que tienen ≥ 10 marcas en la Sentencia y casi todas llegan; se muestra `total − 1800` como segundos de Sentencia y, si no llega al minuto 30, "hasta el min X".
+7. **Tienda Kecleon**: la ridge entre Pokémon da a los componentes signos poco fiables (están mezclados con las estadísticas), así que la combinación de tienda se elige por la puntuación de mecánicas y su ganancia se pasa a fuerza con la **pendiente parcial** de la puntuación con las estadísticas fijas (≈ 0,09; la pendiente sin fijarlas, ≈ 0,9, confunde "puntúa alto" con "es un Pokémon fuerte").
+
+El análisis de las marcas está en `../_ext/analisis-records.py` (fuera del repo por las huellas). No se vuelven a leer las tablas sin motivo (cuota gratuita del juego).

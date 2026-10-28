@@ -38,11 +38,11 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 
 El puesto lo dan los **segundos estimados** que aguanta un buen jugador en la Sentencia:
 
-1. **Récords reales**: la mediana de las mejores partidas de cada Pokémon en las tablas públicas del juego.
-2. **Predicción** para los 966: una regresión ajustada con los que tienen récords, a partir del ataque, el lado especial, el tamaño, el ranking en hordas, la vida, la velocidad y seis componentes calculados desde el código del juego (aguante ante los legendarios, control, regeneración, daño, velocidad efectiva y tamaño). Acierta el orden fuera de muestra con una correlación de 0,39.
-3. Se mezclan en escala logarítmica: cuantas más partidas reales tiene un Pokémon, más pesan.
+1. **Récords reales**: las casi 24.000 mejores marcas de las tablas públicas del juego (top 50 de cada Pokémon), lleguen o no a la Sentencia. Un modelo separa lo que aporta el Pokémon de lo bueno que es quien lo juega, gracias a los jugadores que tienen marcas con varios Pokémon. Esa "fuerza" es muy estable: con dos mitades de las marcas sale el mismo orden (correlación 0,90).
+2. **Predicción** para los 966: una regresión ajustada con los que tienen récords, a partir del ataque, el lado especial, el tamaño, el ranking en hordas, la vida, la velocidad, los enemigos por minuto de un banco de partidas automáticas y seis componentes calculados desde el código del juego. Acierta el orden fuera de muestra con una correlación de 0,60.
+3. Se mezclan: cuantas más marcas reales tiene un Pokémon, más pesan. Los que no suelen llegar al minuto 30 muestran hasta qué minuto llegan.
 
-La variante **Tienda Kecleon** elige la habilidad, la naturaleza y las MT que más segundos estiman. El detalle completo, con las fórmulas y los ficheros del juego de los que sale cada regla, está en [MODELO.md](MODELO.md).
+La variante **Tienda Kecleon** elige la habilidad, la naturaleza y las MT con mejor puntuación de mecánicas y estima su ganancia con lo que esa puntuación vale en los récords a igualdad de estadísticas. El detalle completo, con las fórmulas y los ficheros del juego de los que sale cada regla, está en [MODELO.md](MODELO.md).
 
 ## Estructura del repositorio
 

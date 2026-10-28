@@ -80,10 +80,67 @@ def cv(X, y, alpha, folds=5, reps=6, seed=3):
             out.append(spearman([m.predict(X[i]) for i in te], [y[i] for i in te]))
     return sum(out) / len(out)
 
+MIN_N = 5          # marcas (con o sin Sentencia) para que la fuerza real entre en el ajuste
+K_F = 8            # marcas "equivalentes" que vale la predicción frente a la fuerza real
+
+def apply_force(doc, tiers, rec, pick=None):
+    """Récords del 28-10-2026: fuerza de cada Pokémon = efecto en log(segundos totales) de un modelo
+    marca = media + Pokémon + jugador + ruido (separa la habilidad de quien lo juega; ../_ext/analisis-records.py).
+    Cuenta también a los que no llegan a Arceus. Predicción ridge de la fuerza para todos, mezcla por nº de marcas,
+    y los segundos de Sentencia mostrados salen de una recta log(mediana de Sentencia) ~ fuerza."""
+    P = doc['pokemon']
+    fit = [p for p in P if rec.get(str(p['dex']), {}).get('n', 0) >= MIN_N and 'force' in rec[str(p['dex'])]]
+    y = [rec[str(p['dex'])]['force'] for p in fit]
+    alphas = [3, 10, 30, 100, 300, 1000, 3000]
+    global SIM
+    SIM = {}
+    X = [feats(p, p['base']['comp']) for p in fit]
+    scores = {a: cv(X, y, a) for a in alphas}
+    alpha = max(scores, key=scores.get)
+    model = Ridge().fit(X, y, alpha)
+    # Pendiente parcial de la puntuación con las estadísticas fijas: la de una variable sola (≈0,9) recoge que los
+    # Pokémon fuertes puntúan alto por otras razones; con las estadísticas fijas queda ≈0,09 (lo que vale cambiar la build).
+    ctl = lambda p: [p['base']['score']] + [p['stats'][k] for k in ('hp', 'atk', 'spd', 'sa', 'pa')] + [p['bst'] / 100, 1.0 if p['leg'] else 0.0, math.log(p['stats']['sa'] / p['stats']['pa'])]
+    Xk = [ctl(p) for p in fit]; mk = [sum(r[j] for r in Xk) / len(Xk) for j in range(len(Xk[0]))]; Zk = [[r[j] - mk[j] for j in range(len(mk))] for r in Xk]
+    y0 = sum(y) / len(y)
+    k_score = max(0.0, _solve([[sum(z[i] * z[j] for z in Zk) + 1e-9 for j in range(len(mk))] for i in range(len(mk))],
+                              [sum(z[i] * (yy - y0) for z, yy in zip(Zk, y)) for i in range(len(mk))])[0])
+    # segundos de Sentencia = tiempo total estimado (exp(c + fuerza)) - 30 min; c se ajusta con los que llegan casi
+    # siempre (≥10 marcas en la Sentencia y al menos el 80 % de sus marcas): c = mediana de log(1800 + mediana) - fuerza
+    cal = sorted(math.log(1800 + rec[str(p['dex'])]['med']) - rec[str(p['dex'])]['force'] for p in P
+                 if rec.get(str(p['dex']), {}).get('nj', 0) >= MIN_FIT and rec[str(p['dex'])].get('med') and rec[str(p['dex'])]['nj'] >= 0.8 * rec[str(p['dex'])]['n'])
+    b0 = cal[len(cal) // 2]; b1 = 1.0
+    secs = lambda f: round(max(0.0, math.exp(b0 + f) - 1800), 1)
+    for p in P:
+        r = rec.get(str(p['dex']), {}); n = r.get('n', 0) or 0; nj = r.get('nj', 0) or 0
+        # Tienda Kecleon: entre Pokémon, la ridge mezcla los componentes con las estadísticas (colinealidad: p. ej. velocidad
+        # propia + y componente S −), así que dentro de un mismo Pokémon no sirve para comparar habilidad/naturaleza/MT.
+        # Se elige por la puntuación de mecánicas y su ganancia se pasa a fuerza con la pendiente k de los récords.
+        if pick: pick(p, None)
+        pb = model.predict(feats(p, p['base']['comp'])); ps = pb + k_score * (p['shop']['score'] - p['base']['score'])
+        real = r.get('force') if n >= 1 and 'force' in r else None
+        fb = (n * real + K_F * pb) / (n + K_F) if real is not None else pb
+        p['base']['force'] = round(fb, 6); p['shop']['force'] = round(fb + (ps - pb), 6)
+        p['base']['est'] = secs(fb); p['shop']['est'] = secs(fb + (ps - pb))
+        p['base']['tot'] = round(math.exp(b0 + fb)); p['shop']['tot'] = round(math.exp(b0 + fb + (ps - pb)))   # segundos totales
+        p['base']['pred'] = secs(pb)
+        p['evidence'] = dict(n=n, nj=nj, real=r.get('med'), lv=r.get('lv'), kpm=r.get('kpm'), players=r.get('players'), weight=round(n / (n + K_F), 2))
+    for key in ('base', 'shop'):
+        order = sorted(P, key=lambda p: (-p[key]['force'], -p[key]['score'], p['dex']))
+        for i, p in enumerate(order):
+            p[key]['pos'] = i + 1; p[key]['tier'] = next(t for lim, t in tiers if i + 1 <= lim)
+    info = dict(target='fuerza ajustada por jugador (log segundos totales)', alpha=alpha, cv_spearman=round(scores[alpha], 3),
+                cv_by_alpha={str(a): round(v, 3) for a, v in scores.items()}, n_fit=len(fit), K=K_F,
+                weights={nm: round(w, 3) for nm, w in zip(NAMES, model.w)}, seconds_line=dict(b0=round(b0, 4), b1=round(b1, 4), n=len(cal)), shop_k=round(k_score, 4),
+                with_records=sum(1 for p in P if p['evidence']['n']), model_only_cv=round(cv([[p['base']['score']] for p in fit], y, 1), 3))
+    doc['blend'] = info
+    return info
+
 def apply(doc, tiers, pick=None):
     path = os.path.join(ROOT, 'data', 'records', 'records.json')
     if not os.path.exists(path): return None
     rec = json.load(open(path, encoding='utf-8'))['pokemon']
+    if any('force' in v for v in rec.values()): return apply_force(doc, tiers, rec, pick)
     P = doc['pokemon']
     fit = [p for p in P if rec.get(str(p['dex']), {}).get('nj', 0) >= MIN_FIT and rec[str(p['dex'])].get('med')]
     y = [math.log(rec[str(p['dex'])]['med']) for p in fit]

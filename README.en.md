@@ -38,11 +38,11 @@ Everything is computed from the **game's source code**, not from anyone's impres
 
 Rank follows the **estimated seconds** a good player lasts in the Judgment:
 
-1. **Real records**: the median of each Pokémon's best runs in the game's public tables.
-2. **Prediction** for all 966: a regression fitted on those with records, from attack, special side, size, horde rank, HP, speed and six components computed from the game's code (toughness against legendaries, control, regeneration, damage, effective speed and size). Out of sample it gets the order right with a 0.39 correlation.
-3. They are blended on a log scale: the more real runs a Pokémon has, the more they weigh.
+1. **Real records**: almost 24,000 best runs from the game's public tables (top 50 of each Pokémon), whether or not they reach the Judgment. A model separates what the Pokémon brings from how good its player is, thanks to players with runs on several Pokémon. That "strength" is very stable: two halves of the runs give the same order (0.90 correlation).
+2. **Prediction** for all 966: a regression fitted on those with records, from attack, special side, size, horde rank, HP, speed, kills per minute from a bank of automated runs and six components computed from the game's code. Out of sample it gets the order right with a 0.60 correlation.
+3. They are blended: the more real runs a Pokémon has, the more they weigh. Those that usually don't reach minute 30 show the minute they get to.
 
-The **Kecleon Shop** variant picks the ability, nature and TMs with the most estimated seconds. Full detail, with formulas and the game files each rule comes from, is in [MODELO.md](MODELO.md) (Spanish).
+The **Kecleon Shop** variant picks the ability, nature and TMs with the best mechanics score and estimates the gain from what that score is worth in the records at equal stats. Full detail, with formulas and the game files each rule comes from, is in [MODELO.md](MODELO.md) (Spanish).
 
 ## Repository layout
 

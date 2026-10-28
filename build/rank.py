@@ -345,7 +345,7 @@ def shop_entry(dex, out, cand):
 def pick_shop(p, predict):
     """Con la predicción ya ajustada (blend.py): la combinación de la tienda que más segundos estima."""
     cands = p['_cands']
-    preds = [predict({k: round(v, 3) for k, v in c[1].items()}) for c in cands]
+    preds = [c[0] if predict is None else predict({k: round(v, 3) for k, v in c[1].items()}) for c in cands]   # None: por puntuación
     best = max(range(len(cands)), key=lambda i: (round(preds[i], 9), cands[i][0], -i))
     model_pos = p['shop'].get('model_pos')
     p['shop'] = shop_entry(p['dex'], p, cands[best])

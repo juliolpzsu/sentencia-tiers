@@ -188,7 +188,7 @@ def strategy(p, lang):
                ('Ya llega al tope de velocidad de 130' if sp == 0 else f"Necesita {'una carta' if sp == 1 else f'{sp} cartas'} de Carrera para el tope de 130")
                + f". {'Pequeño: le cuesta menos esquivar los pilares.' if p['r'] <= 11 else 'Grande: le cuesta más salir de los pilares.' if p['r'] >= 17 else ''}"]
         changes = andjoin([f"{mname(t['id'], lang)} (MT)" for t in s['tms']] + ([f"Menta {nname(s['nature'], lang)}"] if s['nature'] else []) + ([f"habilidad {aname(s['ability'], lang)}"] if s['ability'] != b['ability'] else []), lang)
-        gain = round(s['est'] - b['est'])
+        gain = round(s.get('tot', s['est']) - b.get('tot', b['est']))
         if changes: out.append(f"Tienda Kecleon: {changes}" + (f" (+{gain} s en la Sentencia)." if gain > 0 else ' (apenas cambia lo que aguanta).'))
     else:
         via = {'S': 'reaches minute 30 with ease', 'A': 'reaches minute 30 without trouble', 'B': 'reaches minute 30 if the run goes cleanly', 'C': 'struggles to reach minute 30', 'D': 'reaching minute 30 is already a challenge'}[ht]
@@ -200,16 +200,24 @@ def strategy(p, lang):
                ('Already at the 130 speed cap' if sp == 0 else f"Needs {'one Sprint card' if sp == 1 else f'{sp} Sprint cards'} for the 130 cap")
                + f". {'Small: pillars have less room to catch it.' if p['r'] <= 11 else 'Big: it takes longer to leave a pillar.' if p['r'] >= 17 else ''}"]
         changes = andjoin([f"{mname(t['id'], lang)} (TM)" for t in s['tms']] + ([f"{nname(s['nature'], lang)} Mint"] if s['nature'] else []) + ([f"{aname(s['ability'], lang)} ability"] if s['ability'] != b['ability'] else []), lang)
-        gain = round(s['est'] - b['est'])
+        gain = round(s.get('tot', s['est']) - b.get('tot', b['est']))
         if changes: out.append(f"Kecleon Shop: {changes}" + (f" (+{gain} s in the Judgment)." if gain > 0 else ' (barely changes how long it lasts).'))
     return out
 
+def est_label(v, lang):
+    """Segundos de Sentencia estimados, o hasta qué minuto suele llegar si no llega al 30."""
+    if v.get('est', 0) >= 1 or 'tot' not in v: return f"{round(v['est'])} s"
+    return (f"hasta el min {max(1, round(v['tot'] / 60))}" if lang == 'es' else f"to min {max(1, round(v['tot'] / 60))}")
+
 def evidence_txt(p, lang):
     e = p.get('evidence') or {}
-    if not e.get('nj'): return 'predicción del modelo (sin partidas reales)' if lang == 'es' else 'model prediction (no real runs)'
+    n = e.get('n', e.get('nj', 0))
+    if not n: return 'predicción del modelo (sin partidas reales)' if lang == 'es' else 'model prediction (no real runs)'
     w = round(e['weight'] * 100)
-    return (f"{e['nj']} partidas reales (mediana {e['real']} s, pesan un {w} %)" if lang == 'es'
-            else f"{e['nj']} real runs (median {e['real']} s, {w}% of the weight)")
+    sj = (f", mediana de Sentencia {e['real']} s" if e.get('real') else ', sin llegar a la Sentencia') if lang == 'es' else (f", Judgment median {e['real']} s" if e.get('real') else ', not reaching the Judgment')
+    pl = e.get('players')
+    return (f"{n} marcas reales{f' de {pl} jugadores' if pl else ''}{sj}; pesan un {w} %" if lang == 'es'
+            else f"{n} real runs{f' by {pl} players' if pl else ''}{sj}; {w}% of the weight")
 
 def slow_pct(b):
     if not b['slow']: return 0
@@ -221,7 +229,7 @@ def verdict(p, lang):
     if lang == 'es':
         h = {'S': ' Además es de los mejores limpiando hordas: llega al minuto 30 sobrado.', 'A': ' Limpia hordas muy bien: llega al minuto 30 sin problema.', 'B': ' Limpiando hordas es del montón: llega al minuto 30 con una partida normal.',
              'C': ' Limpiando hordas flojea: llegar al minuto 30 cuesta.', 'D': ' Limpiando hordas es de los peores: llegar al minuto 30 es lo difícil.'}[ht]
-        e = p.get('evidence') or {}; src = (f" Lo dicen sus {e['nj']} partidas reales más la predicción." if e.get('nj', 0) >= 10 else ' Es sobre todo una predicción: tiene pocas partidas reales.' if e.get('nj') else ' Es una predicción: no hay partidas reales suyas en la Sentencia.')
+        e = p.get('evidence') or {}; n = e.get('n', e.get('nj', 0)); src = (f" Lo dicen sus {n} marcas reales más la predicción." if n >= 8 else ' Es sobre todo una predicción: tiene pocas marcas reales.' if n else ' Es una predicción: no hay marcas reales suyas.')
         if b['tier'] == 'S': return 'De los que más aguantan en la Sentencia.' + src + h
         if b['tier'] == 'A': return 'Aguanta muy bien la Sentencia.' + src + h
         if b['tier'] == 'B': return 'Aguanta la Sentencia un rato, pero hay quien lo hace mejor con menos esfuerzo.' + src + h
@@ -229,7 +237,7 @@ def verdict(p, lang):
         return 'De los que menos aguantan en la Sentencia. Juégalo por gusto, no por el ranking.' + src + h
     h = {'S': ' It is also among the best at clearing hordes: reaches minute 30 with ease.', 'A': ' Clears hordes very well: reaches minute 30 without trouble.', 'B': ' Average at clearing hordes: reaches minute 30 with a normal run.',
          'C': ' Weak at clearing hordes: reaching minute 30 is hard.', 'D': ' Among the worst at clearing hordes: reaching minute 30 is the real challenge.'}[ht]
-    e = p.get('evidence') or {}; src = (f" Backed by its {e['nj']} real runs plus the prediction." if e.get('nj', 0) >= 10 else ' Mostly a prediction: few real runs.' if e.get('nj') else ' A prediction: no real Judgment runs of it.')
+    e = p.get('evidence') or {}; n = e.get('n', e.get('nj', 0)); src = (f" Backed by its {n} real runs plus the prediction." if n >= 8 else ' Mostly a prediction: few real runs.' if n else ' A prediction: no real runs of it.')
     if b['tier'] == 'S': return 'Among the longest-lasting in the Judgment.' + src + h
     if b['tier'] == 'A': return 'Lasts very well in the Judgment.' + src + h
     if b['tier'] == 'B': return 'Lasts a while in the Judgment, but others do it better with less effort.' + src + h
@@ -272,7 +280,7 @@ def index_page(lang):
         row = dict(dex=p['dex'], slug=slug(p), name=name(p, lang), alt=p['nameEn'] if lang == 'es' else p['name'], types=p['types'], leg=p['leg'], hp=p['stats']['hp'], spd=p['stats']['spd'], hordes=p['hordes']['rank'],
                    sc=p['base']['score'], abs={int(k): v for k, v in p['abil_scores'].items()}, ab=p['abils'])
         for k in ('base', 'shop'):
-            v = p[k]; row[k] = dict(pos=v['pos'], tier=v['tier'], e=round(v['est']), c=v['comp'], slow=v['slow'], stun=v['stun'], regen=bool(v['heal']) or v['ability'] in ('regenerator', 'natural-cure', 'healer', 'shed-skin'))
+            v = p[k]; row[k] = dict(pos=v['pos'], tier=v['tier'], e=round(v['est']) if v.get('est', 0) >= 1 or 'tot' not in v else round(v['tot'] - 1800), c=v['comp'], slow=v['slow'], stun=v['stun'], regen=bool(v['heal']) or v['ability'] in ('regenerator', 'natural-cure', 'healer', 'shed-skin'))
         data['list'].append(row)
     data['an'] = {a: aname(a, lang) for p in P for a in p['abils'] if a}
     # ataques: índices en una lista común (compacto) para buscar por ataque y para las MT de hoy
@@ -382,7 +390,7 @@ def pokemon_page(p, lang, prev, nxt):
 <div class="hd"><div class="sub"><h1>{esc(N)}</h1><span>{'Nº' if lang == 'es' else 'No.'} {p['dex']:03d}</span>{''.join(typechip(t, lang) for t in p['types'])}{'<span class="pill c">' + ('Legendario' if lang == 'es' else 'Legendary') + '</span>' if p['leg'] else ''}<span class="tier {b['tier']}">TIER {b['tier']}</span></div>
 <div class="ranks"><div class="rank"><span class="l">{U['rank_base']}</span><span class="v">{b['pos']} <span class="small muted">/ 966</span></span></div>
 <div class="rank shop"><span class="l">{U['rank_shop']}</span><span class="v">{s['pos']} <span class="small muted">/ 966 · {U['tier']} {s['tier']}</span></span></div>
-<div class="rank est"><span class="l">{U['est']}</span><span class="v">{round(b['est'])} s</span><span class="ev">{evidence_txt(p, lang)}</span></div>
+<div class="rank est"><span class="l">{U['est']}</span><span class="v">{est_label(b, lang)}</span><span class="ev">{evidence_txt(p, lang)}</span></div>
 <div class="rank ext"><span class="l">{U['rank_hordes']}</span><span class="v">{hordes['rank'] or '—'} <span class="small muted">/ 966 · {U['tier']} {hordes['tier']}</span></span></div></div>
 <div class="verdict"><b class="up" style="color:var(--yellow)">{U['verdict']}:</b> {verdict(p, lang)}</div>
 <section id="me" class="panel me" hidden data-dex="{p['dex']}" data-pos="{b['pos']}" data-sc="{b['score']}" data-scores="../../../assets/scores.json" data-abils="{esc(json.dumps(p['abils']))}" data-names="{esc(json.dumps([aname(a, lang) if a else '' for a in p['abils']], ensure_ascii=False))}" data-abs="{esc(json.dumps({int(k): v for k, v in p['abil_scores'].items()}))}" data-natures="{esc(json.dumps([dict(id=n['id'], n=nname(n['id'], lang)) for n in NAT_BY.values()], ensure_ascii=False))}" data-t="{esc(json.dumps(dict(title=U['meBlock'], owned=U['owned'], notOwned=U['notOwned'], upgrades=U['upgrades'], ability=U['meAbility'], hidden=U['hidden_ab'].lower(), nature=U['meNature'], loading=U['loading'], rank=U['meRank']), ensure_ascii=False))}"></section></div></section>

@@ -51,7 +51,7 @@ def main():
     P = doc['pokemon']
     bench_path = os.path.join(ROOT, 'data', 'bench', 'bench.json')
     bench = json.load(open(bench_path, encoding='utf-8'))['pokemon'] if os.path.exists(bench_path) else {}
-    surv = pct([math.log(max(1, p['base']['est'])) for p in P])
+    surv = pct([p['base'].get('tot', 1800 + p['base']['est']) for p in P])   # segundos totales: separa también a los que no llegan al 30
     farm_model = pct([group_farm(p) for p in P])
     if bench:
         kpm = [bench.get(str(p['dex']), {}).get('kpm') for p in P]

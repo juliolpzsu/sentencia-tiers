@@ -1,119 +1,119 @@
 {
  "min_marcas": 10,
- "n": 195,
- "records_source": "Firestore lbs/s_all4_p<dex>: top 50 en solitario de cada Pokémon, histórico all4 (desde el 23-10-2026), leído el 2026-10-24. Solo agregados, sin datos de jugadores.",
+ "n": 322,
+ "records_source": "Firestore lbs/s_all4_p<dex>: top 50 en solitario de cada Pokémon, histórico all4 (desde el 23-10-2026), releído el 2026-10-28. Solo agregados, sin datos de jugadores.",
  "spearman": {
-  "modelo": 0.084,
+  "modelo": 0.153,
   "modelo_ic95": [
-   -0.044,
-   0.213
+   0.046,
+   0.257
   ],
-  "tienda": 0.113,
-  "hordas": 0.118,
+  "tienda": 0.144,
+  "hordas": 0.188,
   "hordas_ic95": [
-   -0.021,
-   0.255
+   0.073,
+   0.295
   ],
-  "popularidad": -0.048,
-  "nivel": 0.638,
-  "ataque": 0.24,
-  "simulador": 0.093
+  "popularidad": -0.152,
+  "nivel": 0.738,
+  "ataque": 0.33,
+  "simulador": 0.197
  },
  "parcial_popularidad": {
-  "modelo": 0.095,
-  "hordas": 0.126
+  "modelo": 0.177,
+  "hordas": 0.185
  },
  "componentes": {
-  "T": -0.07,
-  "U": 0.071,
-  "A": 0.076,
-  "D": 0.178,
-  "S": 0.07,
-  "Z": 0.151,
-  "V": 0.118
+  "T": 0.212,
+  "U": 0.005,
+  "A": -0.03,
+  "D": 0.261,
+  "S": 0.283,
+  "Z": 0.012,
+  "V": 0.188
  },
  "sobrevalorados": [
   {
-   "name": "Baxcalibur",
-   "pos": 939,
-   "med": 51
+   "name": "Poliwrath",
+   "pos": 201,
+   "med": 44
+  },
+  {
+   "name": "Arctozolt",
+   "pos": 420,
+   "med": 54
+  },
+  {
+   "name": "Golisopod",
+   "pos": 504,
+   "med": 19
   },
   {
    "name": "Gyarados",
-   "pos": 950,
-   "med": 33
+   "pos": 174,
+   "med": 34
   },
   {
-   "name": "Aggron",
-   "pos": 681,
-   "med": 82
+   "name": "Lapras",
+   "pos": 185,
+   "med": 89
   },
   {
-   "name": "Gallade",
-   "pos": 845,
-   "med": 57
+   "name": "Walrein",
+   "pos": 254,
+   "med": 93
   },
   {
-   "name": "Phione",
-   "pos": 940,
-   "med": 45
+   "name": "Kleavor",
+   "pos": 250,
+   "med": 46
   },
   {
-   "name": "Empoleon",
-   "pos": 731,
-   "med": 79
-  },
-  {
-   "name": "Buzzwole",
-   "pos": 944,
-   "med": 35
-  },
-  {
-   "name": "Swampert",
-   "pos": 881,
-   "med": 64
+   "name": "Quaquaval",
+   "pos": 507,
+   "med": 76
   }
  ],
  "infravalorados": [
   {
    "name": "Gengar",
-   "pos": 4,
-   "med": 289
-  },
-  {
-   "name": "Dunsparce",
-   "pos": 65,
-   "med": 184
+   "pos": 27,
+   "med": 341
   },
   {
    "name": "Porygon-Z",
-   "pos": 22,
-   "med": 183
-  },
-  {
-   "name": "Spectrier",
-   "pos": 7,
-   "med": 248
-  },
-  {
-   "name": "Naganadel",
-   "pos": 30,
-   "med": 179
+   "pos": 56,
+   "med": 242
   },
   {
    "name": "Slaking",
-   "pos": 36,
-   "med": 172
+   "pos": 24,
+   "med": 250
   },
   {
    "name": "Arceus",
-   "pos": 32,
-   "med": 179
+   "pos": 6,
+   "med": 240
   },
   {
    "name": "Ferropolilla",
-   "pos": 42,
-   "med": 159
+   "pos": 99,
+   "med": 194
+  },
+  {
+   "name": "Naganadel",
+   "pos": 73,
+   "med": 218
+  },
+  {
+   "name": "Spectrier",
+   "pos": 9,
+   "med": 300
+  },
+  {
+   "name": "Regigigas",
+   "pos": 21,
+   "med": 194
   }
  ]
 }
