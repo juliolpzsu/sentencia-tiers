@@ -179,12 +179,13 @@ table.stats td:last-child { text-align: right; color: var(--yellow); }
 .tabs button.on.red { background: var(--red); color: #fff; border-color: var(--red); }
 .tab-panel { display: none; padding-top: 10px; }
 .tab-panel.on { display: block; }
-.moves { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; padding-right: 6px; }
-.move { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--tc, var(--line2)); padding: 8px 10px; display: grid; gap: 4px; align-content: start; }
-.move .slot { font-family: var(--font-mono); color: var(--dim); font-size: .75rem; letter-spacing: .15em; }
+.moves { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; padding-right: 6px; }
+.move { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--tc, var(--line2)); padding: 8px 10px; display: grid; grid-template-columns: 32px 1fr; gap: 4px 10px; align-content: start; }
+.move .slot { font-family: var(--font-mono); color: var(--dim); font-size: .7rem; letter-spacing: .12em; margin-left: auto; font-weight: 400; }
+.move .tg { display: flex; gap: 4px; flex-wrap: wrap; margin: 3px 0; }
 .move .n { font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: .95rem; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .move .d { color: var(--muted); font-size: .84rem; }
-.move .why { border-top: 1px dashed var(--line2); padding-top: 4px; font-size: .84rem; line-height: 1.38; }
+.move .why { font-size: .84rem; line-height: 1.35; color: var(--muted); }
 .move .why b { color: var(--yellow); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; display: block; margin-bottom: 2px; }
 .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: .88rem; margin: 0; }
 .kv dt { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; padding-top: 3px; }
@@ -192,7 +193,17 @@ table.stats td:last-child { text-align: right; color: var(--yellow); }
 ol.cards, ul.plain { margin: .2rem 0; padding-left: 1.1rem; font-size: .86rem; line-height: 1.38; }
 ol.cards li, ul.plain li { margin: .18rem 0; }
 .items { display: grid; gap: 9px; padding: 0 4px 4px 0; }
-.item { border: 1px solid var(--line); padding: 6px 8px; display: grid; gap: 1px; font-size: .9rem; }
+.item { border: 1px solid var(--line); padding: 6px 8px; display: flex; gap: 10px; align-items: center; font-size: .9rem; }
+.item > div { display: grid; gap: 1px; }
+ol.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; counter-reset: c; font-size: .85rem; }
+ol.tiles li { counter-increment: c; display: grid; grid-template-columns: 14px 24px 1fr; grid-template-rows: auto auto; column-gap: 6px; align-items: center; border: 1px solid var(--line); padding: 4px 6px; }
+ol.tiles li::before { content: counter(c); grid-row: span 2; color: var(--yellow); font-family: var(--font-mono); font-size: .75rem; }
+ol.tiles li img { grid-row: span 2; }
+ol.tiles li b { font-weight: 600; line-height: 1.1; } ol.tiles li span { color: var(--muted); font-size: .76rem; line-height: 1.1; }
+.tab-panel .g3 { align-items: start; }
+.shoprow { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 14px 6px 0 0; }
+.shoprow > div { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--red); box-shadow: var(--sh-r); padding: 6px 10px; font-size: .9rem; }
+.shoprow .l { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; font-family: var(--font-mono); }
 .item.rec { border-color: var(--yellow); }
 .item .n { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
 .price { font-family: var(--font-mono); color: var(--yellow); }
@@ -203,6 +214,13 @@ ol.cards li, ul.plain li { margin: .18rem 0; }
 
 /* prose pages */
 .prose { max-width: 78ch; }
+.prose.wide { max-width: none; }
+.prose.wide > p.muted { max-width: 110ch; }
+.jd { margin-top: 10px; align-items: start; }
+.jd table { display: table; margin-bottom: 8px; font-size: .8rem; }
+.jd ul.plain, .jd ol.plain { padding-left: 1rem; }
+.jd li { margin: .3rem 0; }
+.jd td + td { white-space: nowrap; }
 .prose h2 { margin-top: 2.2rem; }
 .prose li { margin: .3rem 0; }
 .prose table { border-collapse: collapse; width: 100%; font-size: .9rem; display: block; overflow-x: auto; }
@@ -265,7 +283,10 @@ section.me h3 { color: var(--red); }
 .tmday .tm b { color: var(--yellow); font-weight: 400; }
 .tmday .tm.hot { color: var(--ink); border-color: var(--red); }
 .tmday .tm i { font-style: normal; color: #fff; background: var(--red); padding: 0 4px; margin-left: 2px; }
-.tmday .note8 { color: var(--dim); font-size: .7rem; flex-basis: 100%; }
+.tmday .note8 { color: var(--dim); cursor: help; padding: 0 4px; }
+.shopday { display: flex; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--red); box-shadow: var(--sh-r); padding: 8px 12px; margin: 0 6px 16px 0; }
+.shopday:has(.tmday:empty) { display: none; }
+img.pix { image-rendering: pixelated; vertical-align: middle; flex: none; }
 
 /* ---- novedades del parche ---- */
 .card .dl { margin-left: 6px; font-family: var(--font-mono); font-size: .7rem; padding: 0 4px; }
@@ -276,3 +297,9 @@ table.moves-t td, table.moves-t th { border: 1px solid var(--line); padding: 4px
 table.moves-t td.up { color: #58f08a; } table.moves-t td.down { color: var(--red); }
 .rank.est .v { color: #58f08a; flex-wrap: wrap; } .rank.est .v::before { content: none; }
 .rank.est { box-shadow: 5px 5px 0 0 #58f08a; }
+.teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 14px; padding-right: 6px; }
+.team { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 14px; align-items: start; }
+.mem { display: grid; grid-template-columns: 56px 1fr; gap: 10px; }
+.mem .pic img { display: block; image-rendering: pixelated; border: 1px solid var(--line2); background: #0d0d12; }
+.mem .nm { font-weight: 700; text-transform: uppercase; letter-spacing: .05em; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.mem .mvs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }

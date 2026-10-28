@@ -6,27 +6,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css"><meta property="og:type" content="website"><meta property="og:site_name" content="Sentencia Tiers"><meta property="og:title" content="The Judgment · Sentencia Tiers"><meta property="og:description" content="PokéSurvivor tier list for Arceus’ Judgment"><meta property="og:url" content="https://juliolpzsu.github.io/sentencia-tiers/en/sentencia/"><meta property="og:image" content="https://juliolpzsu.github.io/sentencia-tiers/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="The Judgment · Sentencia Tiers"><meta name="twitter:description" content="PokéSurvivor tier list for Arceus’ Judgment"><meta name="twitter:image" content="https://juliolpzsu.github.io/sentencia-tiers/og.png"><link rel="canonical" href="https://juliolpzsu.github.io/sentencia-tiers/en/sentencia/"><link rel="alternate" hreflang="en" href="https://juliolpzsu.github.io/sentencia-tiers/en/sentencia/"><link rel="alternate" hreflang="es" href="https://juliolpzsu.github.io/sentencia-tiers/es/sentencia/">
 </head><body>
-<header class="top"><div class="wrap"><a class="logo" href="../../en/">SENTENCIA<b>//</b>TIERS</a><nav class="nav"><a href="../../en/" class="">Tiers</a><a href="../../en/sentencia/" class="on">The Judgment</a><a href="../../en/metodo/" class="">Method</a><a href="../../en/cambios/" class="">Changes</a><a href="../../en/cooperativo/" class="rp">Co-op</a><a href="https://chromewebstore.google.com/detail/glehijclpafhcajjdcmmcaepkjeianlo" rel="noopener" title="Chrome extension: marks in game which card to take according to the Judgment build">Advisor</a><a class="rp" href="https://github.com/juliolpzsu/sentencia-tiers" rel="noopener">Source</a></nav>
+<header class="top"><div class="wrap"><a class="logo" href="../../en/">SENTENCIA<b>//</b>TIERS</a><nav class="nav"><a href="../../en/" class="">Tiers</a><a href="../../en/sentencia/" class=" on">The Judgment</a><a href="../../en/cambios/" class="rp">Changes</a><a href="../../en/cooperativo/" class="">Co-op</a><a href="https://chromewebstore.google.com/detail/glehijclpafhcajjdcmmcaepkjeianlo" rel="noopener" title="Chrome extension: marks in game which card to take according to the Judgment build">Advisor</a><a class="rp" href="https://github.com/juliolpzsu/sentencia-tiers" rel="noopener">Source</a></nav>
 <div class="lang"><a href="../../es/" class="" data-l="es">ES</a><a href="../../en/" class="on" data-l="en">EN</a></div></div></header>
-<main class="wrap"><article class="prose"><h1>How Arceus’ Judgment works</h1><p class="muted">Everything here comes from the game’s code (systems/judgment.js and friends), not from anyone’s impressions.</p>
-<h2>What happens at minute 30</h2><p>The normal run ends. Arceus takes you to the Ruins of Judgment, a round arena 768 px in radius (24 tiles) nobody can leave. Arceus is invincible, carries a random Plate that sets its type, and every 5 seconds a legendary shows up. The ranking has two halves: how long you last and how much damage you deal to Arceus.</p>
-<h2>Arceus</h2><ul>
-<li><b>You cannot outrun it.</b> Its speed is relative to yours: it starts at 74% and after 37 s it runs at 1.22× your speed. After 5 minutes of Judgment it accelerates without limit.</li>
-<li><b>Soft speed cap:</b> anything above 130 counts only 25%. Fully stacked you end up around 170 instead of 290.</li>
-<li><b>Its pauses are your distance.</b> Every cast freezes it for 1.05–1.45 s, and between casts it only walks 1.4 s. If you always move away you gain about 100 px per cycle until minute 35.</li>
-<li><b>Its damage is a percentage of HP and pure:</b> it ignores types, defense, Armor and abilities. Pillars 30%, cross beams 35%, shockwave 40%, touch 40% (rising to 100% between minutes 37 and 40). Only regeneration, dodging and the Focus Sash offset it.</li>
-<li><b>Pillars (the Judgment):</b> 4 to 10, radius 44 px, 1.25 s warning; the first one lands exactly where you stand. After the first hit you get 0.45 s of invulnerability that absorbs the rest of the volley.</li>
-<li><b>Cross beams:</b> 4, and 8 after 30 s, 34 px wide with a 1.1 s warning, sweeping the whole arena. At 300 px from Arceus the gap between beams is about 200 px; right next to it there is no gap.</li>
-<li><b>Shockwave:</b> only if you are closer than 210 px, radius 170, 0.85 s warning. Never get that close.</li>
-<li><b>Minute 35:</b> Arceus breaks everyone’s item (Focus Sash included).</li></ul>
-<h2>The legendaries</h2><ul>
-<li>One every 5 s, random among the game’s 86. Each has 25% more HP and 15% more damage than the previous one.</li>
-<li><b>The first one’s HP is 3 s of your own single-target damage</b> (measured before minute 30). That is why your DPS barely matters: from the third one on they pile up no matter what.</li>
-<li>They run at least at 80% of your speed. Psychic, Electric, Ghost, Fairy, Fire, Water, Ice or Dragon types shoot from 300 px; the rest charge.</li>
-<li>Their damage does go through your types, your defense (physical or special, by their strong side), Armor (80% cap) and your ability. Contact: 126 × 1.15ⁿ at minute 30.</li>
-<li>They give experience (nothing else): each one levels you up, and the Zidra Berry heals 45%.</li></ul>
-<div class="callout"><b>The only things that work on them:</b> <b>slows</b> land at 100% (Ice Beam drops them to 30% speed and with reduced cooldowns it is permanent; with Serene Grace, 20%) and <b>stuns</b> last 35%, but with Reflexes they chain, and a stunned legendary neither attacks nor hurts you on contact. Knockback does nothing, whirlpools only pull 25%, and poison and burn deal a flat 1.5.</div>
-<h2>Damage to Arceus</h2><p>Only 5% of what you deal counts, decaying to 1% after 10 minutes, and your attacks only target it when no legendary is alive. It is the second ranking; it does nothing for lasting longer.</p>
-<h2>What to do</h2><ol><li>Stay 250–400 px from Arceus and run wide circles along the edge. Gain distance during its pauses.</li><li>When the legendaries bunch up, stun and slow the group; do not try to kill them after the third.</li><li>Hold Leftovers (or a Focus Sash), stack Reflexes, Armor and Synthesis, and Sprint only up to the 130 cap.</li><li>Before the run: Ban Tackle, Quick Attack and Body Slam, and use Starting Move + Repertoire to open with your slow and your stun.</li></ol></article></main>
-<footer class="wrap"><div>Data and rules: PokéSurvivor source code (JPTER78) · Horde ranking: SurvivorTiers (@fildotai) · Portraits: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.</div><div><a href="../../en/cooperativo/">Co-op</a> · Non-profit fan project, unaffiliated with the game’s authors or Nintendo. · Generated on 2026-10-27 · Game patch: a45019a (2026-10-23) · <a href="https://github.com/juliolpzsu/sentencia-tiers" rel="noopener">GitHub</a></div></footer>
+<main class="wrap"><article class="prose wide"><h1>Arceus’ Judgment</h1><p class="muted">Minute 30: Arceus takes you to a round arena (768 px radius) you cannot leave. It is invincible and a legendary shows up every 5 s. Your time and your damage to it count. Everything comes from the game’s code.</p>
+<div class="g3 jd">
+<div class="panel"><h3>Arceus</h3>
+<table class="moves-t"><tr><th>Attack</th><th>Damage</th><th>Warning</th></tr>
+<tr><td>Pillars (4–10, 44 px radius)</td><td>30%</td><td>1.25 s</td></tr>
+<tr><td>Cross beams (4, then 8)</td><td>35%</td><td>1.1 s</td></tr>
+<tr><td>Shockwave (within 210 px)</td><td>40%</td><td>0.85 s</td></tr>
+<tr><td>Touch</td><td>40 → 100%</td><td>—</td></tr></table>
+<ul class="plain small">
+<li><b>Pure % HP damage:</b> ignores types, defense, Armor, ability and invulnerability. Only dodging, regeneration and the Focus Sash offset it.</li>
+<li><b>You cannot outrun it:</b> it starts at 74% of your speed and after 37 s runs at ×1.22. After 5 min it accelerates without limit.</li>
+<li><b>Soft cap at 130:</b> anything above counts 25%.</li>
+<li><b>Its pauses</b> (1–1.5 s after each attack) are your distance.</li>
+<li><b>Minute 35:</b> it breaks your item.</li></ul></div>
+<div class="panel"><h3>The legendaries</h3><ul class="plain small">
+<li>One every 5 s out of 86, each with <b>+25% HP</b> and <b>+15% damage</b> over the previous one.</li>
+<li>The first one’s HP is <b>3 s of your damage</b>: your DPS barely matters; from the third on they pile up.</li>
+<li>They run at least at 80% of your speed. Psychic, Electric, Ghost, Fairy, Fire, Water, Ice and Dragon shoot from 300 px; the rest charge.</li>
+<li>Their damage does go through your types, defense, Armor (80% cap) and ability.</li>
+<li><b>Slows</b> land at 100%, <b>stuns</b> at 35% (a stunned one deals no contact damage). Knockback does nothing.</li>
+<li>Quick Attack leaves you 0.3 s invulnerable to their hits (not to Arceus’).</li></ul>
+<h3 style="margin-top:12px">Damage to Arceus</h3><p class="small">5% of it counts (1% after 10 min) and you only target it with no legendary alive. It does not extend the Judgment.</p></div>
+<div class="panel"><h3>What to do</h3><ol class="plain small">
+<li><b>Arrive with levels:</b> farm before minute 30. Every extra level gives uncapped Vigor or Synthesis, and it explains survival most.</li>
+<li><b>Keep moving:</b> leave every circle as soon as it appears and gain distance during its pauses.</li>
+<li><b>Distance:</b> 250–400 px from Arceus (~200 px gap between beams) and off the edge.</li>
+<li><b>Legendaries on you:</b> Quick Attack through them; slow or stun the group, do not try to kill them after the third.</li>
+<li><b>Cards:</b> Reflexes, Armor, Vigor and Synthesis; Sprint only up to 130.</li>
+<li><b>Item:</b> Quick Claw, Leftovers or Focus Sash (until minute 35).</li></ol></div>
+</div></article></main>
+<footer class="wrap"><div>Data and rules: PokéSurvivor source code (JPTER78) · Horde ranking: SurvivorTiers (@fildotai) · Portraits: PMD SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK.</div><div><a href="../../en/cambios/">Changes</a> · Non-profit fan project, unaffiliated with the game’s authors or Nintendo. · Generated on 2026-10-28 · Game patch: a45019a (2026-10-23) · <a href="https://github.com/juliolpzsu/sentencia-tiers" rel="noopener">GitHub</a></div></footer>
 </body></html>

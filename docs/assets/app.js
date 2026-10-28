@@ -86,7 +86,7 @@
     $('#tmday').innerHTML = `<span class="lbl">${T.tmToday.replace('{d}', date)}</span>` + today.list.map(id => {
       const n = use(id), nm = DATA.tmIdx[id] >= 0 ? MV[DATA.tmIdx[id]] : id;
       return `<span class="tm${n ? ' hot' : ''}" title="${T.tmFor.replace('{n}', n)}">${nm} <b>${DATA.tmPrice[id]}</b>${n ? ` <i>${n}</i>` : ''}</span>`;
-    }).join('') + (save && save.partner ? '' : `<span class="note8" title="${T.tm8}">* ${T.tm8}</span>`);
+    }).join('') + (save && save.partner ? '' : `<span class="note8" title="${T.tm8}">*</span>`);
   }
   computeToday();
   $('#me-load').addEventListener('click', () => { computeToday(); render(); }); $('#me-clear').addEventListener('click', () => { computeToday(); render(); });

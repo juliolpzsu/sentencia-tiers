@@ -1,6 +1,6 @@
 # El modelo: cómo se ordenan los 966 Pokémon
 
-Este documento explica con detalle qué calcula `build/rank.py`, de dónde sale cada número y qué supuestos hace. La versión corta está en la página **Método** de la web.
+Este documento explica con detalle qué calcula `build/rank.py`, de dónde sale cada número y qué supuestos hace. La web no tiene página de método: este es el sitio.
 
 ## 1. Qué se mide
 
@@ -45,7 +45,7 @@ Tiers por puesto: S 1–30, A 31–120, B 121–320, C 321–620, D 621–966 (l
 ## 5. Las dos variantes
 
 - **Por defecto**: habilidad 1 (a cada cuenta le toca al azar la 1 o la 2; la oculta 1 de cada 20), naturaleza neutra, solo los movimientos de sus tipos más el pool Normal común.
-- **Tienda Kecleon**: se prueban todas sus habilidades (Cápsula Habilidad para la 2, Cápsula Habilidad Oculta para la oculta), las naturalezas que suben Defensa, Defensa Especial o Velocidad y bajan el ataque que no usa (Menta), y las MT que aprende en los juegos y vende la tienda. Se queda la combinación con mayor puntuación. La normalización es la de la pasada por defecto, para que ambas variantes se comparen en la misma escala.
+- **Tienda Kecleon**: se prueban todas sus habilidades (Cápsula Habilidad para la 2, Cápsula Habilidad Oculta para la oculta), las naturalezas que bajan el ataque que no usa y suben el que usa, la Defensa, la Defensa Especial o la Velocidad (Menta; la de Velocidad solo si con Zancada al máximo no llega al tope de 130), y las MT que aprende en los juegos y vende la tienda. Desde el 28-10-2026 se queda la combinación que más **segundos estimados** da (la predicción del apartado 10), no la de mayor puntuación de componentes; la versión por defecto también es candidata, así que la tienda nunca aguanta menos. La normalización es la de la pasada por defecto, para que ambas variantes se comparen en la misma escala.
 
 ## 6. La build recomendada
 

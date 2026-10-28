@@ -15,6 +15,7 @@ RANK = os.path.join(ROOT, 'data', 'ranking.json')
 RAW = 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/'
 FILES = {f'js_data_{n}.js': f'js/data/{n}.js' for n in ('pokedex', 'moves', 'abilities', 'ability-fx', 'natures', 'tms', 'sprites-meta', 'lang-en', 'types', 'items', 'upgrades')}
 FILES['survivortiers-index.json'] = 'https://survivortiers.pages.dev/data/pokemon-index.json'
+FILES['js_ui_icons.js'] = 'js/ui/icons.js'          # iconos pixel art (build/icons.py)
 # Ficheros del juego cuyas reglas replica rank.py: si cambian, avisar en el changelog para revisar el modelo a mano.
 RULES = ['js/systems/judgment.js', 'js/systems/combat.js', 'js/entities/enemy.js', 'js/entities/player.js', 'js/systems/stats.js']
 
