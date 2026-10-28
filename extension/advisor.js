@@ -152,6 +152,7 @@
         note: 'Letra amarilla, abajo a la izquierda: tier en la Sentencia de Arceus' },
       jd: { title: 'Sentencia', arceus: 'Arceus', near: 'demasiado cerca: zona de su onda', close: 'cerca', good: 'buena distancia', far: 'lejos',
         legs: (n) => `${n} legendario${n === 1 ? '' : 's'} cerca`, use: (m, k) => `activa ${m} (${k})` },
+      rift: { title: 'Grieta', skip: 'build completa: no entres (fusionar libera huecos y vuelven a salir ataques nuevos en vez de mejoras)' },
     },
     en: {
       best: 'RECOMMENDED', least: 'LEAST BAD', ok: 'also fine', bad: 'avoid',
@@ -210,6 +211,7 @@
         note: 'Yellow letter, bottom left: tier in Arceus’ Judgment' },
       jd: { title: 'Judgment', arceus: 'Arceus', near: 'too close: shockwave range', close: 'close', good: 'good distance', far: 'far',
         legs: (n) => `${n} legendar${n === 1 ? 'y' : 'ies'} nearby`, use: (m, k) => `switch to ${m} (${k})` },
+      rift: { title: 'Rift', skip: 'build complete: skip it (fusing frees slots and new moves come back instead of upgrades)' },
     },
   };
   const T = () => TXT[lang()];
@@ -395,6 +397,8 @@
 .sta-dex b{color:#fcee0a}.sta-dex small{color:#9fb1c9;margin-right:4px}.sta-dex .sta-k{color:#00e5ff;text-decoration:none;margin-left:6px}
 #sta-jd{position:fixed;bottom:168px;left:50%;transform:translateX(-50%);z-index:40;pointer-events:none;display:flex;gap:10px;align-items:center;white-space:nowrap;padding:4px 10px;background:rgba(0,0,0,.62);border-left:3px solid #fcee0a;font:12px/1.4 system-ui,sans-serif;color:#e8eef8;text-shadow:none}
 #sta-jd .sta-jd-h{font-weight:700;color:#fcee0a;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+#sta-rift{position:fixed;bottom:168px;left:50%;transform:translateX(-50%);z-index:40;pointer-events:none;display:flex;gap:10px;align-items:center;padding:4px 10px;background:rgba(0,0,0,.62);border-left:3px solid #ff003c;font:12px/1.4 system-ui,sans-serif;color:#e8eef8;text-shadow:none}
+#sta-rift .sta-jd-h{font-weight:700;color:#ff003c;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
 #sta-jd .ok{color:#7dff9a}#sta-jd .mid{color:#ffd23f}#sta-jd .bad{color:#ff5a7a;font-weight:700}
 #sta-jd .sta-jd-t{color:#000;background:#00e5ff;padding:1px 6px;font-weight:700;display:inline-block}
 #dex-grid .sta-tb{position:absolute;bottom:6px;left:6px;z-index:1;pointer-events:auto;min-width:16px;height:16px;box-sizing:border-box;padding:0 3px;display:inline-grid;place-items:center;font:800 11px/1 system-ui,sans-serif;background:#fcee0a;color:#000;box-shadow:2px 2px 0 #000;text-shadow:none}
@@ -652,6 +656,33 @@
     jdEl.hidden = false;
   }
 
+  // ---------------- grietas ----------------
+  // Con el grupo del hueco 1 ya fusionado en un solo hueco (los de la build que puede aprender), otra
+  // grieta no renta: cada fusión libera huecos y LevelUp.candidates vuelve a ofrecer ataques nuevos.
+  function buildComplete(pl) {
+    const B = buildFor(pl);
+    if (!B || !pl || !pl.slots) return false;
+    let pool = null;
+    try { pool = new Set(ns().Moves.poolFor(pl.mon)); } catch (_) { /* sin pool */ }
+    const g1 = B.b.m.filter(([id, , slot]) => slot === 1 && (!pool || pool.has(id))).map(([id]) => id);
+    return g1.length >= 2 && pl.slots.some((g) => g1.every((id) => g.some((m) => m.id === id)));
+  }
+  let riftEl = null;
+  function riftTick() {
+    const N = ns(), Rf = N && N.Rift, pl = N && N.Game && N.Game.player;
+    const on = enabled && Rf && Rf.rift && !Rf.inArena && !(N.Judgment && N.Judgment.active) && pl && !pl.dead && buildComplete(pl);
+    if (!on) { if (riftEl) riftEl.hidden = true; return; }
+    if (!riftEl) {
+      css();
+      riftEl = document.createElement('div');
+      riftEl.id = 'sta-rift';
+      document.body.appendChild(riftEl);
+    }
+    const t = T().rift;
+    riftEl.innerHTML = `<div class="sta-jd-h">${t.title}</div><div>${esc(t.skip)}</div>`;
+    riftEl.hidden = false;
+  }
+
   // ---------------- registro local de partidas ----------------
   // Para ajustar los pesos con partidas reales: en cada carta, qué salió, qué recomendó el
   // Consejero y qué elegiste; al acabar, cuánto duró. Solo en este navegador (sta:runs, las
@@ -736,7 +767,7 @@
     watch('dex-grid', decorateGrid);
     decorateGrid();
     // Ayuda durante la Sentencia (5 veces por segundo; no dibuja en el lienzo del juego).
-    setInterval(() => { try { judgmentTick(); } catch (err) { log(err); } }, 200);
+    setInterval(() => { try { judgmentTick(); riftTick(); } catch (err) { log(err); } }, 200);
     // Cada vez que el juego pinta las cartas (nivel nuevo o cambiar cartas), se marcan.
     const box = document.getElementById('cards');
     new MutationObserver(() => decorate()).observe(box, { childList: true });
@@ -753,7 +784,7 @@
   }
 
   // Para las pruebas (tests/advisor.test.mjs): el cálculo sin pantalla.
-  window.__stAdvisorCore = { advise, itemScore, judgmentTick, decorateGrid, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
+  window.__stAdvisorCore = { advise, itemScore, judgmentTick, riftTick, buildComplete, decorateGrid, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
 
   waitFor(() => { const N = ns(); return N && N.LevelUp && N.LevelUp.offer && N.RunUI && document.getElementById('cards'); }, setup);
 })();

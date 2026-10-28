@@ -234,3 +234,20 @@ test('un potenciador solo en su hueco no se sube; fusionado, sí', () => {
   const fused = magnezone([ts, np]); fused.slots = [[ts, np]];
   assert.equal(advise([card('up:nasty-plot'), card('stat:hp')], fused).best, 0);
 });
+
+test('grieta: con el grupo del hueco 1 fusionado avisa de no entrar; sin fusionar, nada', () => {
+  const g1 = ['thunder-shock', 'nasty-plot', 'thunderbolt', 'hyper-voice'].map((id) => mv(id));
+  const qa = mv('quick-attack');
+  const fused = magnezone([...g1, qa], { x: 0, y: 0, dead: false }); fused.slots = [g1, [qa]];
+  const loose = magnezone([...g1, qa], { x: 0, y: 0, dead: false }); loose.slots = [[g1[0], g1[1]], [g1[2]], [g1[3]], [qa]];
+  assert.ok(S.core.buildComplete(fused));
+  assert.ok(!S.core.buildComplete(loose));
+  Object.assign(S.NS, { Rift: { rift: { x: 10, y: 10 }, inArena: false }, Judgment: { active: false } });
+  S.NS.Game = { st: { time: 900 }, state: 'playing', player: fused };
+  S.core.riftTick();
+  assert.match(S.ctx.__jd.innerHTML, /no entres/);
+  assert.equal(S.ctx.__jd.hidden, false);
+  S.NS.Game.player = loose;
+  S.core.riftTick();
+  assert.equal(S.ctx.__jd.hidden, true);
+});

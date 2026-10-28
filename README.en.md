@@ -13,7 +13,7 @@ A **PokéSurvivor** tier list for **Arceus' Judgment**: all 966 Pokémon ranked 
 
 ## Why
 
-PokéSurvivor tier lists rank Pokémon by how they fare against the hordes. At minute 30 the game changes: Arceus descends into the arena, is invincible, outruns you, and every five seconds a stronger legendary shows up. What matters there is not damage (legendary HP scales with your own damage) but **slowing them, stunning them, surviving their hits and regenerating** Arceus' percentage damage. This site ranks by that.
+PokéSurvivor tier lists rank Pokémon by how they fare against the hordes. At minute 30 the game changes: Arceus descends into the arena, is invincible, outruns you, deals damage as a percentage of your HP, and every five seconds a stronger legendary shows up. According to real records, what explains survival there most is the **level you arrive with** (how well it farms before) and how easily it **dodges**. This site ranks by that.
 
 Everything is computed from the **game's source code**, not from anyone's impressions: the Judgment rules, the softened type chart, defenses, abilities and moves are replicated as programmed.
 
@@ -25,6 +25,7 @@ Everything is computed from the **game's source code**, not from anyone's impres
 - **My save** (optional): paste your account's save and the site marks the Pokémon you own, their bought upgrades, the ability and nature you rolled, and your approximate rank with that ability. It stays in your browser; nothing is sent anywhere.
 - **TMs on sale today**: the site computes the Kecleon Shop's 8 daily TMs with the game's own formula (checked against the real shop), shows how many builds use each and filters the Pokémon whose build asks for one of today's.
 - Search also matches **moves** (from the build or learnable by TM) and **abilities**.
+- A **Co-op** page: a tier list for group play (farming, control and speed count too) and teams of 2, 3 and 4 with their builds.
 - A **Changes** page with the history of automatic updates.
 - Filters, sorting and variant live in the **URL**, so any view can be shared as a link; every page carries a preview card for Discord, WhatsApp or X.
 - **The Judgment** page: the full mechanics, with numbers, on one screen. The method lives in [MODELO.md](MODELO.md) (Spanish).
@@ -35,18 +36,13 @@ Everything is computed from the **game's source code**, not from anyone's impres
 
 ## How it is computed
 
-Rank follows the **estimated seconds** a good player lasts in the Judgment: the median of each Pokémon's real records, blended with a prediction for all (out-of-sample rank correlation 0.29, versus 0.09 for the old score). The prediction uses attack, size, horde rank and these components computed from the game's code:
+Rank follows the **estimated seconds** a good player lasts in the Judgment:
 
-| Component | Weight | What it measures |
-|---|---|---|
-| Toughness vs legendaries | 36% | Effective HP against the average damage of the 86-legendary pool (types, defenses, ability) |
-| Control | 32% | Slows (land at 100% on bosses) and stuns (×0.35 but chainable) |
-| Regeneration | 10% | The only thing that offsets Arceus' percentage damage |
-| Damage to one legendary | 10% | Best ranged same-side attack |
-| Effective speed | 8% | With the soft cap of 130 the Judgment imposes |
-| Size | 4% | Collision radius: smaller is easier to dodge with |
+1. **Real records**: the median of each Pokémon's best runs in the game's public tables.
+2. **Prediction** for all 966: a regression fitted on those with records, from attack, special side, size, horde rank, HP, speed and six components computed from the game's code (toughness against legendaries, control, regeneration, damage, effective speed and size). Out of sample it gets the order right with a 0.39 correlation.
+3. They are blended on a log scale: the more real runs a Pokémon has, the more they weigh.
 
-Reaching minute 30 **does not score**: how good or bad a Pokémon is at clearing hordes is shown on its page (SurvivorTiers rank) and in the verdict. The full detail, with the formulas and the game files each rule comes from, is in [MODELO.md](MODELO.md) (Spanish).
+The **Kecleon Shop** variant picks the ability, nature and TMs with the most estimated seconds. Full detail, with formulas and the game files each rule comes from, is in [MODELO.md](MODELO.md) (Spanish).
 
 ## Repository layout
 
