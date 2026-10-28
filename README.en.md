@@ -5,7 +5,7 @@
 [![MIT licence](https://img.shields.io/badge/licence-MIT-ff003c?labelColor=07070a)](LICENSE)
 ![No dependencies](https://img.shields.io/badge/dependencies-none-00e5ff?labelColor=07070a)
 
-A **PokéSurvivor** tier list for **Arceus' Judgment**: all 966 Pokémon ranked by how long they last after minute 30, with a page per Pokémon (build, abilities, items and strategy) in Spanish and English.
+A **PokéSurvivor** tier list for the **Judgment of Arceus**: all 966 Pokémon ranked by how long they last after minute 30, with a page per Pokémon (build, abilities, items and strategy) in Spanish and English.
 
 **→ https://juliolpzsu.github.io/sentencia-tiers/en/** · [README en español](README.md)
 

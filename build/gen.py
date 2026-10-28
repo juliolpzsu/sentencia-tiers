@@ -26,7 +26,7 @@ STAT = {'es': dict(hp='Vida', spd='Velocidad', pa='Ataque', sa='At. Especial', d
 KIND = {'es': dict(projectile='proyectil', melee='cuerpo a cuerpo', beam='rayo', orbit='orbes', nova='ráfaga radial', aura='aura', buff='potenciador', boomerang='bumerán', chain='cadena',
                    mine='minas', meteor='meteoros', turret='torreta', dash='embestida', trail='rastro', cone='abanico', homing='perseguidor', bounce='rebote', charge='carga', spin='giro',
                    quake='onda sísmica', vortex='remolino', shove='empujón', stun='aturdimiento'),
-        'en': dict(projectile='projectile', melee='melee', beam='beam', orbit='orbit', nova='nova', aura='aura', buff='buff', boomerang='boomerang', chain='chain', mine='mines',
+        'en': dict(projectile='projectile', melee='melee', beam='beam', orbit='orbit', nova='nova', aura='aura', buff='boost', boomerang='boomerang', chain='chain', mine='mines',
                    meteor='meteors', turret='turret', dash='dash', trail='trail', cone='cone', homing='homing', bounce='bounce', charge='charge', spin='spin', quake='quake',
                    vortex='vortex', shove='shove', stun='stun')}
 CAT = {'es': dict(physical='Físico', special='Especial'), 'en': dict(physical='Physical', special='Special')}
@@ -39,10 +39,10 @@ COMP = {'es': dict(V=('Llegar al minuto 30', 'ranking en hordas de SurvivorTiers
 
 UI = {
  'es': dict(title='Sentencia Tiers', tagline='Tier list de PokéSurvivor para la Sentencia de Arceus', nav_tiers='Tiers', nav_judg='La Sentencia', nav_method='Método', nav_repo='Código', nav_coop='Cooperativo', nav_adv='Consejero', nav_adv_t='Extensión para Chrome: marca en el juego qué carta coger según la build de la Sentencia',
-            intro='Los 966 Pokémon ordenados por los segundos que aguantan en la Sentencia de Arceus (minuto 30). La estimación combina los récords reales del juego (las mejores partidas de cada Pokémon) con un modelo hecho a partir de su código: frenazos, aturdimientos, defensas frente a los 86 legendarios, regeneración, ataque, velocidad y tamaño.',
+            intro='Los 966 Pokémon ordenados por los segundos que aguantan en la Sentencia de Arceus (minuto 30). La estimación junta los récords reales del juego (las mejores partidas de cada Pokémon) con una predicción hecha a partir del código del juego: ataque, tamaño, lo bien que limpia hordas, aguante ante los legendarios, control y velocidad.',
             updated='Parche del juego', pokemon='Pokémon', legs='Legendarios', nonlegs='No legendarios', all='Todos', tier='Tier', sort='Ordenar por', group='Agrupar por',
             mode_base='Por defecto', mode_shop='Tienda Kecleon', count='{n} de {m} Pokémon', none='Ningún Pokémon cumple los filtros.', shuffle='Al azar', filters='Filtros', types='Tipos',
-            sort_opts=[('pos', 'Puesto'), ('name', 'Nombre'), ('dex', 'Nº Pokédex'), ('hordes', 'Ranking en hordas'), ('T', 'Aguante'), ('U', 'Control'), ('A', 'Regeneración'), ('D', 'Daño'), ('S', 'Velocidad'), ('Z', 'Tamaño'), ('hp', 'Vida'), ('spd', 'Velocidad base'), ('rnd', 'Al azar')],
+            sort_opts=[('pos', 'Puesto'), ('name', 'Nombre'), ('dex', 'Nº Pokédex'), ('hordes', 'Ranking en hordas'), ('T', 'Aguante'), ('U', 'Control'), ('A', 'Regeneración'), ('D', 'Daño'), ('S', 'Velocidad efectiva'), ('Z', 'Tamaño'), ('hp', 'Vida'), ('spd', 'Velocidad base'), ('rnd', 'Al azar')],
             group_opts=[('tier', 'Tier'), ('type', 'Tipo'), ('leg', 'Legendarios'), ('none', 'Sin agrupar')],
             flag_leg='Solo legendarios', flag_slow='Con frenazo', flag_stun='Con aturdimiento', flag_regen='Con regeneración', slow='Frenazo', stun='Aturdimiento', regen='Regeneración', slowS='SLOW', stunS='STUN', regenS='REGEN',
             mode_help='Por defecto: habilidad 1, naturaleza neutra y solo sus ataques naturales. Tienda Kecleon: la mejor habilidad (Cápsula), la mejor naturaleza (Menta) y las MT que le sirven.',
@@ -64,11 +64,11 @@ UI = {
             meLoaded='Partida de {name}: {n} Pokémon.', mine='Mis Pokémon', owned='Lo tienes', notOwned='No lo tienes', ownedS='TUYO', upgrades='Mejoras compradas', yourRank='Tu puesto con tu habilidad y tu naturaleza', you='tú',
             sort_you='Tu puesto', meBlock='Tu partida ({name})', meAbility='Tu habilidad', meNature='Tu naturaleza', loading='Calculando tu puesto…',
             meRank='Con tu habilidad y tu naturaleza quedaría en el puesto <b>{n}</b> de 966 (puesto general: {base}). Las mejoras y cartas se suponen al máximo; las MT que ya le enseñaste no se cuentan.'),
- 'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source', nav_coop='Co-op', nav_adv='Advisor', nav_adv_t='Chrome extension: marks in game which card to take according to the Judgment build',
-            intro='All 966 Pokémon ranked by the seconds they last in Arceus’ Judgment (minute 30). The estimate combines the game’s real records (the best runs of each Pokémon) with a model built from its code: slows, stuns, defenses against the 86 legendaries, regeneration, attack, speed and size.',
+ 'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for the Judgment of Arceus', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source', nav_coop='Co-op', nav_adv='Advisor', nav_adv_t='Chrome extension: marks in game which card to take according to the Judgment build',
+            intro='All 966 Pokémon ranked by the seconds they last in the Judgment of Arceus (minute 30). The estimate blends the game’s real records (each Pokémon’s best runs) with a prediction built from the game’s code: attack, size, how well it clears hordes, toughness against the legendaries, control and speed.',
             updated='Game patch', pokemon='Pokémon', legs='Legendaries', nonlegs='Non-legendaries', all='All', tier='Tier', sort='Sort by', group='Group by',
             mode_base='Default', mode_shop='Kecleon Shop', count='{n} of {m} Pokémon', none='No Pokémon matches the filters.', shuffle='Shuffle', filters='Filters', types='Types',
-            sort_opts=[('pos', 'Rank'), ('name', 'Name'), ('dex', 'Dex number'), ('hordes', 'Horde ranking'), ('T', 'Toughness'), ('U', 'Control'), ('A', 'Regeneration'), ('D', 'Damage'), ('S', 'Speed'), ('Z', 'Size'), ('hp', 'HP'), ('spd', 'Base speed'), ('rnd', 'Random')],
+            sort_opts=[('pos', 'Rank'), ('name', 'Name'), ('dex', 'Dex number'), ('hordes', 'Horde ranking'), ('T', 'Toughness'), ('U', 'Control'), ('A', 'Regeneration'), ('D', 'Damage'), ('S', 'Effective speed'), ('Z', 'Size'), ('hp', 'HP'), ('spd', 'Base speed'), ('rnd', 'Random')],
             group_opts=[('tier', 'Tier'), ('type', 'Type'), ('leg', 'Legendaries'), ('none', 'No grouping')],
             flag_leg='Legendaries only', flag_slow='Has a slow', flag_stun='Has a stun', flag_regen='Has regeneration', slow='Slow', stun='Stun', regen='Regeneration', slowS='SLOW', stunS='STUN', regenS='REGEN',
             mode_help='Default: ability 1, neutral nature and natural moves only. Kecleon Shop: best ability (Capsule), best nature (Mint) and the TMs that help.',
@@ -100,7 +100,7 @@ ITEMS = {'es': dict(quickclaw=('Garra Rápida', '−20 % de recarga: más daño 
                     focussash=('Focus Sash', 'A lethal hit leaves you at 1 HP (every 60 s). Saves you from a pillar or an Arceus touch until minute 35, when Arceus breaks your item.'),
                     assaultvest=('Assault Vest', '−20% damage taken. Helps reach minute 30; in the Judgment it becomes redundant once Armor hits the 80% cap.'))}
 CARDS = {'es': dict(cd='Reflejos', spd='Carrera', def_='Coraza', hp='Vigor', rgn='Síntesis', atk='Potencia', heal='Baya Zidra', mag='Imán', xp='Aprendizaje'),
-         'en': dict(cd='Reflexes', spd='Sprint', def_='Armor', hp='Vigor', rgn='Synthesis', atk='Power', heal='Zidra Berry', mag='Magnet', xp='Learning')}
+         'en': dict(cd='Reflexes', spd='Sprint', def_='Armor', hp='Vigor', rgn='Synthesis', atk='Power', heal='Sitrus Berry', mag='Magnet', xp='Learning')}
 NEED = {'es': NEED_NAME, 'en': {k: en(v) for k, v in NEED_NAME.items()}}
 
 def slugify(s):
@@ -118,6 +118,10 @@ def nname(nid, lang):
     n = NAT_BY[nid]; return n['n'][0] if lang == 'es' else n['n'][1]
 def fmt(n, lang): return f'{n:,}'.replace(',', '.') if lang == 'es' else f'{n:,}'
 def pct(x): return f'{round(x * 100)} %'
+def dec(x, lang, nd=2): return f'{x:.{nd}f}'.replace('.', ',') if lang == 'es' else f'{x:.{nd}f}'
+def andjoin(xs, lang):
+    xs = list(xs); y = ' y ' if lang == 'es' else ' and '
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + y + xs[-1] if xs else ''
 def typechip(t, lang): return f'<span class="type" style="--tc:{TC[t]}">{TYPE_NAME[lang][t]}</span>'
 
 # ---------------- textos generados ----------------
@@ -125,10 +129,10 @@ def reason(m, p, var, lang):
     """Por qué va en la build, en una línea."""
     c = m['code']; es = lang == 'es'
     side = (('Ataque' if m.get('side') == 'physical' else 'At. Esp.') if es else ('Attack' if m.get('side') == 'physical' else 'Sp. Atk'))
-    t = {'primary': ('Ataque principal: el que más farmea de su lado.', 'Main attack: farms best on its side.'),
-         'second': ('Farmea junto al principal: fusiónalos en una grieta.', 'Farms with the main attack: fuse them at a rift.'),
-         'buff': (f'Sube su {side}; solo sirve fusionado con el grupo.', f'Raises {side}; only useful fused with the group.'),
-         'dash': ('0,3 s invulnerable por embestida: úsalo cuando te rodeen.', '0.3 s invulnerable per dash: use it when surrounded.'),
+    t = {'primary': ('Ataque principal: el que mejor farmea.', 'Main attack: your best farming move.'),
+         'second': ('Farmea con el principal: fusiónalos en una grieta.', 'Farms alongside the main attack: fuse them at a rift.'),
+         'buff': (f'Sube el {side}; solo sirve fusionado con el grupo.', f'Boosts {side}; only useful fused with the group.'),
+         'dash': ('Cada embestida te deja 0,3 s invulnerable: úsalo cuando te rodeen.', 'Each dash makes you invulnerable for 0.3 s: use it when surrounded.'),
          'slow': (f"Frena un {m.get('pct')} % a los legendarios (no a Arceus).", f"Slows legendaries by {m.get('pct')}% (not Arceus)."),
          'stun': (f"Aturde a los legendarios {str(m.get('secs')).replace('.', ',')} s (no a Arceus).", f"Stuns legendaries for {m.get('secs')} s (not Arceus)."),
          'aquaring': ('Regenera hasta ~19 PS/s con sus mejoras.', 'Regenerates up to ~19 HP/s with its upgrades.'),
@@ -160,7 +164,7 @@ def cards_text(p, var, lang):
 def card_tiles(p, var, lang):
     tiles = ''.join(f'<li><img class="pix" src="../../../img/i/{STAT_ICON[k]}.svg" width="24" height="24" alt=""><b>{CARDS[lang][k]}</b><span>{note}</span></li>' for k, note in cards_text(p, var, lang))
     ev = group_evos(var['build'])
-    evo = (f'<p class="small muted" style="margin:6px 0 0">{"Evolucionan con 1 carta" if lang == "es" else "Evolve with 1 card"}: ' + ' · '.join(f'{", ".join(esc(mname(m, lang)) for m in mvs)} → <b>{NEED[lang][need]}</b>' for need, mvs in ev.items()) + '</p>') if ev else ''
+    evo = (f'<p class="small muted" style="margin:6px 0 0">{"Evolución (basta con coger la carta una vez)" if lang == "es" else "Evolution (take the card once)"}: ' + ' · '.join(f'{", ".join(esc(mname(m, lang)) for m in mvs)} → <b>{NEED[lang][need]}</b>' for need, mvs in ev.items()) + '</p>') if ev else ''
     return f'<ol class="tiles">{tiles}</ol>{evo}'
 
 def strategy(p, lang):
@@ -175,26 +179,28 @@ def strategy(p, lang):
     sp = b['build']['spd_cards']
     if es:
         via = {'S': 'llega al minuto 30 sobrado', 'A': 'llega al minuto 30 sin problema', 'B': 'llega al minuto 30 si la partida va limpia', 'C': 'le cuesta llegar al minuto 30', 'D': 'llegar al minuto 30 ya es un reto'}[ht]
-        w = f" Le castigan {', '.join(f'{tn(t)} (×{num(v)})' for t, v in worst)}." if worst else ''
-        r = f" Aguanta bien {', '.join(f'{tn(t)} (×{num(v)})' for t, v in reversed(best))}." if best else ''
+        w = f" Le castigan {andjoin((f'{tn(t)} (×{num(v)})' for t, v in worst), lang)}." if worst else ''
+        r = f" Aguanta bien {andjoin((f'{tn(t)} (×{num(v)})' for t, v in reversed(best)), lang)}." if best else ''
         out = [f"Tier {b['tier']} en la Sentencia y {ht} en hordas: {via}.{w}{r}",
-               f"Antes del minuto 30, farmea: el nivel con el que llegas es lo que más alarga la Sentencia. Fusiona {', '.join(mname(x, lang) for x in g1)} en el hueco 1 en cada grieta; Ataque Rápido aparte para cuando te rodeen"
-               + (f"; {' y '.join(mname(x, lang) for x in ctl)} en los huecos que quedan" if ctl else '') + ". Con el grupo completo, no entres en más grietas.",
+               f"Antes del minuto 30, farmea: el nivel con el que llegas es lo que más alarga la Sentencia. Fusiona {andjoin((mname(x, lang) for x in g1), lang)} en el hueco 1 en cada grieta; Ataque Rápido, en su propio hueco, para cuando te rodeen"
+               + (f"; {andjoin((mname(x, lang) for x in ctl), lang)} en los huecos que quedan" if ctl else '') + ". Con el grupo completo, no entres en más grietas.",
                ('Ya llega al tope de velocidad de 130' if sp == 0 else f"Necesita {'una carta' if sp == 1 else f'{sp} cartas'} de Carrera para el tope de 130")
                + f". {'Pequeño: le cuesta menos esquivar los pilares.' if p['r'] <= 11 else 'Grande: le cuesta más salir de los pilares.' if p['r'] >= 17 else ''}"]
-        changes = ', '.join([f"{mname(t['id'], lang)} (MT)" for t in s['tms']] + ([f"Menta {nname(s['nature'], lang)}"] if s['nature'] else []) + ([f"habilidad {aname(s['ability'], lang)}"] if s['ability'] != b['ability'] else []))
-        if changes: out.append(f"Tienda Kecleon: {changes} → puesto {s['pos']}.")
+        changes = andjoin([f"{mname(t['id'], lang)} (MT)" for t in s['tms']] + ([f"Menta {nname(s['nature'], lang)}"] if s['nature'] else []) + ([f"habilidad {aname(s['ability'], lang)}"] if s['ability'] != b['ability'] else []), lang)
+        gain = round(s['est'] - b['est'])
+        if changes: out.append(f"Tienda Kecleon: {changes}" + (f" (+{gain} s en la Sentencia)." if gain > 0 else ' (apenas cambia lo que aguanta).'))
     else:
         via = {'S': 'reaches minute 30 with ease', 'A': 'reaches minute 30 without trouble', 'B': 'reaches minute 30 if the run goes cleanly', 'C': 'struggles to reach minute 30', 'D': 'reaching minute 30 is already a challenge'}[ht]
-        w = f" Weak to {', '.join(f'{tn(t)} (×{num(v)})' for t, v in worst)}." if worst else ''
-        r = f" Resists {', '.join(f'{tn(t)} (×{num(v)})' for t, v in reversed(best))}." if best else ''
+        w = f" Weak to {andjoin((f'{tn(t)} (×{num(v)})' for t, v in worst), lang)}." if worst else ''
+        r = f" Resists {andjoin((f'{tn(t)} (×{num(v)})' for t, v in reversed(best)), lang)}." if best else ''
         out = [f"Judgment tier {b['tier']} and horde tier {ht}: it {via}.{w}{r}",
-               f"Before minute 30, farm: the level you arrive with is what extends the Judgment most. Fuse {', '.join(mname(x, lang) for x in g1)} in slot 1 at every rift; Quick Attack apart for when you get surrounded"
-               + (f"; {' and '.join(mname(x, lang) for x in ctl)} in the remaining slots" if ctl else '') + ". With the group complete, skip further rifts.",
+               f"Before minute 30, farm: the level you arrive with is what extends the Judgment most. Fuse {andjoin((mname(x, lang) for x in g1), lang)} in slot 1 at every rift; keep Quick Attack in its own slot for when you get surrounded"
+               + (f"; {andjoin((mname(x, lang) for x in ctl), lang)} in the remaining slots" if ctl else '') + ". Once the group is complete, skip further rifts.",
                ('Already at the 130 speed cap' if sp == 0 else f"Needs {'one Sprint card' if sp == 1 else f'{sp} Sprint cards'} for the 130 cap")
                + f". {'Small: pillars have less room to catch it.' if p['r'] <= 11 else 'Big: it takes longer to leave a pillar.' if p['r'] >= 17 else ''}"]
-        changes = ', '.join([f"{mname(t['id'], lang)} (TM)" for t in s['tms']] + ([f"{nname(s['nature'], lang)} Mint"] if s['nature'] else []) + ([f"{aname(s['ability'], lang)} ability"] if s['ability'] != b['ability'] else []))
-        if changes: out.append(f"Kecleon Shop: {changes} → rank {s['pos']}.")
+        changes = andjoin([f"{mname(t['id'], lang)} (TM)" for t in s['tms']] + ([f"{nname(s['nature'], lang)} Mint"] if s['nature'] else []) + ([f"{aname(s['ability'], lang)} ability"] if s['ability'] != b['ability'] else []), lang)
+        gain = round(s['est'] - b['est'])
+        if changes: out.append(f"Kecleon Shop: {changes}" + (f" (+{gain} s in the Judgment)." if gain > 0 else ' (barely changes how long it lasts).'))
     return out
 
 def evidence_txt(p, lang):
@@ -310,7 +316,7 @@ def bars(p, lang):
     for k in ('T', 'U', 'A', 'D', 'S', 'Z', 'V'):
         if not R['weights'].get(k): continue
         b = p['base']['comp'][k]; s = p['shop']['comp'][k]; label, hint = COMP[lang][k]
-        out.append(f'<div class="bar" title="{esc(hint)}"><span class="l">{label} </span><span class="track"><span class="fill base" style="width:{b * 100:.0f}%"></span><span class="fill shop" style="width:{s * 100:.0f}%"></span></span><span class="v">{b:.2f} <em>{s:.2f}</em></span></div>')
+        out.append(f'<div class="bar" title="{esc(hint)}"><span class="l">{label} </span><span class="track"><span class="fill base" style="width:{b * 100:.0f}%"></span><span class="fill shop" style="width:{s * 100:.0f}%"></span></span><span class="v">{dec(b, lang)} <em>{dec(s, lang)}</em></span></div>')
     out.append(f'</div><div class="legend"><span><i style="background:var(--yellow)"></i>{U["mode_base"]}</span><span><i style="background:var(--red)"></i>{U["mode_shop"]}</span><span class="muted">{"0–1 entre los 966" if lang == "es" else "0–1 across the 966"}</span></div>')
     return ''.join(out)
 
@@ -320,7 +326,7 @@ def build_panel(p, var, key, lang):
     cards = []
     for i, m in enumerate(b['moves']):
         mv = MOVES[m['id']]; isTM = any(t['id'] == m['id'] for t in var.get('tms', []))
-        tag = f'<span class="pill y" title="{CAT[lang].get(mv["cat"], "")}">{KIND[lang][mv["kind"]]}</span>' + ('<span class="pill r">MT</span>' if isTM else '')
+        tag = f'<span class="pill y" title="{CAT[lang].get(mv["cat"], "")}">{KIND[lang][mv["kind"]]}</span>' + (f'<span class="pill r">{"MT" if lang == "es" else "TM"}</span>' if isTM else '')
         cards.append(f'<article class="move" style="--tc:{TC[mv["type"]]}" title="{esc(mdesc(m["id"], lang))}">{icon("m-" + m["id"], 32)}<div><div class="n">{esc(mname(m["id"], lang))}</div>'
                      f'<div class="tg">{typechip(mv["type"], lang)}{tag}<span class="slot">{U["slot"]} {m.get("slot", i + 1)}</span></div><div class="why">{reason(m, p, var, lang)}</div></div></article>')
     shop_html = ''
@@ -330,14 +336,14 @@ def build_panel(p, var, key, lang):
             nat = f"<b>{nname(var['nature'], lang)}</b> <span class=muted>+{STAT[lang][nb['up']]} −{STAT[lang][nb['down']]}</span>"
         else: nat = '<span class=muted>' + ('Ninguna: deja la que te tocó' if es else 'None: keep the one you rolled') + '</span>'
         if var['capsule']:
-            ab = f"<b>{aname(var['ability'], lang)}</b> <span class=muted>{('Cápsula Oculta · 5.000' if es else 'Hidden Capsule · 5,000') if var['capsule'] == 'caph' else ('Cápsula · 1.500' if es else 'Capsule · 1,500')}</span>"
+            ab = f"<b>{aname(var['ability'], lang)}</b> <span class=muted>{('Cápsula Habilidad Oculta · 5.000' if es else 'Hidden Ability Capsule · 5,000') if var['capsule'] == 'caph' else ('Cápsula Habilidad · 1.500' if es else 'Ability Capsule · 1,500')}</span>"
         else: ab = '<span class=muted>' + ('No hace falta: la 1 ya es la mejor' if es else 'Not needed: ability 1 is already best') + '</span>'
         if var['tms']:
             tms = ', '.join(f'<b>{esc(mname(t["id"], lang))}</b> <span class="price">{fmt(t["price"], lang)}</span>' for t in var['tms'])
         else: tms = '<span class=muted>' + ('Ninguna' if es else 'None') + '</span>'
         shop_html = (f'<div class="shoprow"><div>{icon("mint")}<span class="l">{"Menta" if es else "Mint"}</span>{nat}</div>'
                      f'<div>{icon("capsuleh" if var["capsule"] == "caph" else "capsule")}<span class="l">{"Habilidad" if es else "Ability"}</span>{ab}</div>'
-                     f'<div>{icon("tm")}<span class="l">MT</span>{tms}</div></div>')
+                     f'<div>{icon("tm")}<span class="l">{"MT" if es else "TM"}</span>{tms}</div></div>')
     items = ''.join(f'<div class="item {"rec" if i == 0 else ""}">{icon(it, 32)}<div><span class="n">{ITEMS[lang][it][0]}</span><span class="small muted">{ITEM_SHORT[lang][it]}</span></div></div>' for i, it in enumerate(b['items']))
     na = U['not_available']
     kv = [(U['start'], esc(mname(b['start'], lang)) if b['start'] else na),
@@ -360,13 +366,13 @@ def pokemon_page(p, lang, prev, nxt):
         if not aid or (i == 1 and aid == p['abils'][0]): continue
         tags = (f'<span class="pill y">{U["default_ab"]}</span>' if i == 0 else '') + (f'<span class="pill c">{U["hidden_ab"]}</span>' if i == 2 else '') + (f'<span class="pill r">{U["rec_ab"]}</span>' if aid == s['ability'] and s['ability'] != b['ability'] else '')
         abil_html.append(f'<div class="a {"rec" if aid == s["ability"] else ""}"><span class="n">{esc(aname(aid, lang))} {tags}</span><span class="small muted">{esc(adesc(aid, p["types"], lang))}</span></div>')
-    inc = ''.join(f'<div class="r"><span class="type" style="--tc:{TC[t]}">{tn[t]}</span><span class="track"><span class="fill" style="--tc:{TC[t]};width:{min(100, v / 2.4 * 100):.0f}%"></span></span><span class="v {"bad" if v > 1.05 else "good" if v < 0.75 else ""}">×{v:.2f}</span></div>' for t, v in p['incoming'].items())
+    inc = ''.join(f'<div class="r"><span class="type" style="--tc:{TC[t]}">{tn[t]}</span><span class="track"><span class="fill" style="--tc:{TC[t]};width:{min(100, v / 2.4 * 100):.0f}%"></span></span><span class="v {"bad" if v > 1.05 else "good" if v < 0.75 else ""}">×{dec(v, lang)}</span></div>' for t, v in p['incoming'].items())
     hordes = p['hordes']
-    stats = [(STAT[lang]['hp'], f"{st['hp']}"), (STAT[lang]['spd'], f"{st['spd']} <span class=muted>→ {b['S']}</span>"), (STAT[lang]['pa'], f"×{st['pa']:.2f}"), (STAT[lang]['sa'], f"×{st['sa']:.2f}"),
-             (STAT[lang]['df'], f"{st['df']} <span class=muted>(×{p['guard']['p']:.2f})</span>"), (STAT[lang]['sd'], f"{st['sd']} <span class=muted>(×{p['guard']['s']:.2f})</span>"), (U['radius'], f"{p['r']} {U['px']}")]
-    body = f'''<nav class="crumbs"><a href="../../">{U['back']}</a><span>/</span><span>Nº {p['dex']:03d}</span></nav>
+    stats = [(STAT[lang]['hp'], f"{st['hp']}"), (STAT[lang]['spd'], f"{st['spd']} <span class=muted>→ {b['S']}</span>"), (STAT[lang]['pa'], f"×{dec(st['pa'], lang)}"), (STAT[lang]['sa'], f"×{dec(st['sa'], lang)}"),
+             (STAT[lang]['df'], f"{st['df']} <span class=muted>(×{dec(p['guard']['p'], lang)})</span>"), (STAT[lang]['sd'], f"{st['sd']} <span class=muted>(×{dec(p['guard']['s'], lang)})</span>"), (U['radius'], f"{dec(p['r'], lang, 1)} {U['px']}")]
+    body = f'''<nav class="crumbs"><a href="../../">{U['back']}</a><span>/</span><span>{'Nº' if lang == 'es' else 'No.'} {p['dex']:03d}</span></nav>
 <section class="head"><div class="pic cut"><img class="px" src="../../../img/p/{p['dex']}.png" alt="{esc(N)}" width="120" height="120"></div>
-<div class="hd"><div class="sub"><h1>{esc(N)}</h1><span>Nº {p['dex']:03d}</span>{''.join(typechip(t, lang) for t in p['types'])}{'<span class="pill c">' + ('Legendario' if lang == 'es' else 'Legendary') + '</span>' if p['leg'] else ''}<span class="tier {b['tier']}">TIER {b['tier']}</span></div>
+<div class="hd"><div class="sub"><h1>{esc(N)}</h1><span>{'Nº' if lang == 'es' else 'No.'} {p['dex']:03d}</span>{''.join(typechip(t, lang) for t in p['types'])}{'<span class="pill c">' + ('Legendario' if lang == 'es' else 'Legendary') + '</span>' if p['leg'] else ''}<span class="tier {b['tier']}">TIER {b['tier']}</span></div>
 <div class="ranks"><div class="rank"><span class="l">{U['rank_base']}</span><span class="v">{b['pos']} <span class="small muted">/ 966</span></span></div>
 <div class="rank shop"><span class="l">{U['rank_shop']}</span><span class="v">{s['pos']} <span class="small muted">/ 966 · {U['tier']} {s['tier']}</span></span></div>
 <div class="rank est"><span class="l">{U['est']}</span><span class="v">{round(b['est'])} s</span><span class="ev">{evidence_txt(p, lang)}</span></div>
@@ -385,7 +391,7 @@ def pokemon_page(p, lang, prev, nxt):
 <nav class="pager">{f'<a href="../{slug(prev)}/">← #{prev["base"]["pos"]} {esc(name(prev, lang))}</a>' if prev else '<span></span>'}<a href="../../">{U['back']}</a>{f'<a href="../{slug(nxt)}/">#{nxt["base"]["pos"]} {esc(name(nxt, lang))} →</a>' if nxt else '<span></span>'}</nav>
 <script src="../../../assets/save.js"></script><script src="../../../assets/page.js"></script>'''
     title = f"{N} · {U['title']}: tier {b['tier']}, {'puesto' if lang == 'es' else 'rank'} {b['pos']}"
-    desc = (f"{N} en la Sentencia de Arceus: tier {b['tier']} (puesto {b['pos']} de 966), build, habilidades, objetos y estrategia." if lang == 'es' else f"{N} in Arceus’ Judgment: tier {b['tier']} (rank {b['pos']} of 966), build, abilities, items and strategy.")
+    desc = (f"{N} en la Sentencia de Arceus: tier {b['tier']} (puesto {b['pos']} de 966), build, habilidades, objetos y estrategia." if lang == 'es' else f"{N} in the Judgment of Arceus: tier {b['tier']} (rank {b['pos']} of 966), build, abilities, items and strategy.")
     return layout(lang, title, body, None, 3, desc, path=f'{lang}/pokemon/{slug(p)}/')
 
 def prose_page(lang, key, title, html_body, path, wide=False):
@@ -394,7 +400,7 @@ def prose_page(lang, key, title, html_body, path, wide=False):
 def judgment_text(lang):
     """La Sentencia en una pantalla: tres columnas (Arceus, legendarios, qué hacer). Todo sale de judgment.js y compañía."""
     if lang == 'es':
-        return '''<h1>La Sentencia de Arceus</h1><p class="muted">Minuto 30: Arceus te lleva a una arena redonda (768 px de radio) de la que no se sale. Es invencible y cada 5 s acude un legendario. Cuenta el tiempo que aguantas y el daño que le haces. Todo sale del código del juego.</p>
+        return '''<h1>La Sentencia de Arceus</h1><p class="muted">Minuto 30: Arceus te lleva a una arena redonda (768 px de radio) de la que no se sale. Es invencible y cada 5 s acude un legendario. El ranking cuenta el tiempo que aguantas y el daño que le haces. Todo lo de aquí sale del código del juego.</p>
 <div class="g3 jd">
 <div class="panel"><h3>Arceus</h3>
 <table class="moves-t"><tr><th>Ataque</th><th>Daño</th><th>Aviso</th></tr>
@@ -424,7 +430,7 @@ def judgment_text(lang):
 <li><b>Cartas:</b> Reflejos, Coraza, Vigor y Síntesis; Carrera solo hasta 130.</li>
 <li><b>Objeto:</b> Garra Rápida, Restos o Banda Focus (hasta el minuto 35).</li></ol></div>
 </div>'''
-    return '''<h1>Arceus’ Judgment</h1><p class="muted">Minute 30: Arceus takes you to a round arena (768 px radius) you cannot leave. It is invincible and a legendary shows up every 5 s. Your time and your damage to it count. Everything comes from the game’s code.</p>
+    return '''<h1>The Judgment of Arceus</h1><p class="muted">Minute 30: Arceus takes you to a round arena (768 px radius) you cannot leave. It is invincible and a legendary shows up every 5 s. The ranking counts how long you last and how much damage you deal to it. Everything here comes from the game’s code.</p>
 <div class="g3 jd">
 <div class="panel"><h3>Arceus</h3>
 <table class="moves-t"><tr><th>Attack</th><th>Damage</th><th>Warning</th></tr>
@@ -447,7 +453,7 @@ def judgment_text(lang):
 <li>Quick Attack leaves you 0.3 s invulnerable to their hits (not to Arceus’).</li></ul>
 <h3 style="margin-top:12px">Damage to Arceus</h3><p class="small">5% of it counts (1% after 10 min) and you only target it with no legendary alive. It does not extend the Judgment.</p></div>
 <div class="panel"><h3>What to do</h3><ol class="plain small">
-<li><b>Arrive with levels:</b> farm before minute 30. Every extra level gives uncapped Vigor or Synthesis, and it explains survival most.</li>
+<li><b>Arrive high-level:</b> farm before minute 30. Every extra level gives uncapped Vigor or Synthesis, and your level is what explains survival most.</li>
 <li><b>Keep moving:</b> leave every circle as soon as it appears and gain distance during its pauses.</li>
 <li><b>Distance:</b> 250–400 px from Arceus (~200 px gap between beams) and off the edge.</li>
 <li><b>Legendaries on you:</b> Quick Attack through them; slow or stun the group, do not try to kill them after the third.</li>
@@ -456,7 +462,7 @@ def judgment_text(lang):
 </div>'''
 
 ROOT_INDEX = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sentencia Tiers</title>
-<meta name="description" content="Tier list de PokéSurvivor para la Sentencia de Arceus · PokéSurvivor tier list for Arceus' Judgment"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest">
+<meta name="description" content="Tier list de PokéSurvivor para la Sentencia de Arceus · PokéSurvivor tier list for the Judgment of Arceus"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest">
 <link rel="alternate" hreflang="es" href="{SITE}/es/"><link rel="alternate" hreflang="en" href="{SITE}/en/"><link rel="alternate" hreflang="x-default" href="{SITE}/es/">
 <link rel="stylesheet" href="assets/style.css"><script>var l=(navigator.language||'es').slice(0,2);location.replace((l==='es'?'es':'en')+'/'+location.hash);</script></head>
 <body><main class="wrap" style="padding-top:60px"><h1 style="color:var(--yellow)">SENTENCIA//TIERS</h1><p><a href="es/">Español</a> · <a href="en/">English</a></p></main></body></html>'''
@@ -468,10 +474,11 @@ def coop_text(lang):
     C = json.load(open(path, encoding='utf-8'))
     PB = {p['dex']: p for p in R['pokemon']}
     es = lang == 'es'
-    ROLE = {'portador': ('portador', 'carry'), 'farmeo': ('farmeo', 'farmer'), 'control': ('control', 'control')}
-    BRIEF = {'portador': ('Aguanta: tira del grupo en la Sentencia.', 'Lasts: carries the group in the Judgment.'),
+    ROLE = {'portador': ('portador', 'carry'), 'farmeo': ('farmeo', 'farmer'), 'control': ('control', 'control'), 'apoyo': ('apoyo', 'support')}
+    BRIEF = {'portador': ('Aguanta: tira del grupo en la Sentencia.', 'Survives: anchors the group in the Judgment.'),
              'farmeo': ('Limpia hordas: sube el nivel de todos.', 'Clears hordes: levels up everyone.'),
-             'control': ('Frena y aturde a los legendarios.', 'Slows and stuns the legendaries.')}
+             'control': ('Frena y aturde a los legendarios.', 'Slows and stuns the legendaries.'),
+             'apoyo': ('Rápido: revive a los caídos y abre los cofres.', 'Fast: revives fallen allies and grabs chests.')}
     rl = lambda r: ' '.join(f'<span class="pill">{ROLE[x][0 if es else 1]}</span>' for x in r)
     link = lambda d: f'<a href="../pokemon/{slug(PB[d])}/">{esc(name(PB[d], lang))}</a>'
     pc = lambda v: f'{round(v * 100)}'
@@ -480,13 +487,13 @@ def coop_text(lang):
         brief = BRIEF[role][0 if es else 1] if role else ('Un poco de todo.' if es else 'A bit of everything.')
         mv = ''.join(f'<img class="pix" src="../../img/i/m-{m["id"]}.svg" width="24" height="24" alt="{esc(mname(m["id"], lang))}" title="{esc(mname(m["id"], lang))}">' for m in p['base']['build']['moves'])
         return (f'<div class="mem"><a class="pic" href="../pokemon/{slug(p)}/"><img class="px" src="../../img/p/{d}.png" alt="" width="56" height="56" loading="lazy"></a>'
-                f'<div><div class="nm">{link(d)} <span class="tier {r["tier"]}">{r["tier"]}</span>{rl([role]) if role else ""}</div><div class="small muted">{brief}</div><div class="mvs">{mv}</div></div></div>')
+                f'<div><div class="nm">{link(d)} <span class="tier {r["tier"]}">{r["tier"]}</span>{rl(([role] if role else []) + [x for x in r['roles'] if x != role])}</div><div class="small muted">{brief}</div><div class="mvs">{mv}</div></div></div>')
     def roles_of(t):
         # un papel por miembro: primero los que solo uno del equipo cubre (control, farmeo, portador)
         out, used = {}, set()
         for d in sorted(t['members'], key=lambda d: len(C['pokemon'][str(d)]['roles'])):
             rs = C['pokemon'][str(d)]['roles']
-            out[d] = next((x for x in ('control', 'farmeo', 'portador') if x in rs and x not in used), rs[0] if rs else None)
+            out[d] = next((x for x in ('control', 'apoyo', 'farmeo', 'portador') if x in rs and x not in used), rs[0] if rs else None)
             used.add(out[d])
         return out
     def teams(n):
@@ -500,10 +507,10 @@ def coop_text(lang):
     hd = ('<tr><th>#</th><th>Tier</th><th>Pokémon</th><th>Puesto solo</th><th>Aguante</th><th>Farmeo</th><th>Control</th><th>Velocidad</th><th>Papel</th></tr>' if es else
           '<tr><th>#</th><th>Tier</th><th>Pokémon</th><th>Solo rank</th><th>Survival</th><th>Farm</th><th>Control</th><th>Speed</th><th>Role</th></tr>')
     if es:
-        return f'''<h1>Cooperativo</h1><p class="muted">En grupo la experiencia es de todos (un compañero que mata como tú = +25 % de ritmo), el control protege a todos, un caído se revive en 3 s a su lado y Arceus persigue al más cercano: separarse reparte la presión. Por eso aquí también cuentan farmear, controlar y la velocidad, no solo aguantar.</p>
+        return f'''<h1>Cooperativo</h1><p class="muted">En grupo la experiencia es de todos (con un compañero que mata tanto como tú, el equipo sube de nivel un 25 % más rápido), el control protege a todos, a un caído lo levantas quedándote 3 s a su lado y Arceus persigue al más cercano, así que separarse reparte la presión. Por eso aquí también cuentan farmear, controlar y la velocidad: antes del minuto 30 no hay tope, y un Pokémon rápido hace de apoyo, llegando antes a revivir y a los cofres.</p>
 <h2>Equipos recomendados</h2>{tabs([(2, 'Dúos'), (3, 'Tríos'), (4, 'De cuatro')])}
 <h2>Los 120 mejores en grupo</h2><p class="small muted">Percentiles entre los 966 (100 = el mejor).</p><div class="scroll"><table class="moves-t">{hd}{rows}</table></div>'''
-    return f'''<h1>Co-op</h1><p class="muted">In a group experience is shared (a partner who kills like you = +25% pace), control protects everyone, a downed partner is revived in 3 s next to them and Arceus chases the nearest player: splitting up spreads the pressure. That is why farming, control and speed count here too, not just survival.</p>
+    return f'''<h1>Co-op</h1><p class="muted">In a group, experience is shared (with a partner who kills as much as you, the team levels up 25% faster), control protects everyone, a downed partner gets back up after you stand next to them for 3 s, and Arceus chases the nearest player, so splitting up spreads the pressure. That is why farming, control and speed count here too: before minute 30 there is no speed cap, and a fast Pokémon plays support, first to revive and to the chests.</p>
 <h2>Recommended teams</h2>{tabs([(2, 'Duos'), (3, 'Trios'), (4, 'Fours')])}
 <h2>Top 120 in a group</h2><p class="small muted">Percentiles across the 966 (100 = best).</p><div class="scroll"><table class="moves-t">{hd}{rows}</table></div>'''
 
