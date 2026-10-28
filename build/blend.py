@@ -17,14 +17,20 @@ MIN_FIT = 10      # marcas en Sentencia para entrar en el ajuste
 COMPS = ('T', 'U', 'A', 'D', 'S', 'Z')
 
 SIM = {}
+# Banco del bot (28-10-2026): enemigos por minuto medidos en partidas en una copia local del juego
+# (data/bench/bench.json). Miden lo que farmea cada Pokémon; con ellos la validación cruzada pasa de 0,40 a 0,42.
+_BP = os.path.join(ROOT, 'data', 'bench', 'bench.json')
+BENCH = json.load(open(_BP, encoding='utf-8'))['pokemon'] if os.path.exists(_BP) else {}
+_BMED = sorted(v['kpm'] for v in BENCH.values())[len(BENCH) // 2] if BENCH else 0
 def feats(p, comp):
     s = p['stats']
     extra = [math.log(max(1.0, SIM[str(p['dex'])]['mean']))] if SIM else []
     # Lado especial (27-10-2026): en los récords los especiales aguantan más (ataques a distancia y en área:
     # farmean más y llegan con más nivel). Con estas dos variables la validación cruzada pasa de 0,28 a 0,39.
     side = [1.0 if s['sa'] > s['pa'] else 0.0, math.log(s['sa'] / s['pa'])]
-    return extra + [s['atk'], math.log(max(p['r'], 1)), p['hordes']['surv'], s['hp'], s['spd'], p['bst'] / 100, 1.0 if p['leg'] else 0.0] + side + [comp[k] for k in COMPS]
-NAMES = ['ataque', 'log radio', 'hordas', 'vida', 'velocidad', 'BST', 'legendario', 'especial', 'log AtEsp/Ataque'] + [f'comp {k}' for k in COMPS]
+    bench = [math.log(1 + BENCH.get(str(p['dex']), {}).get('kpm', _BMED))] if BENCH else []
+    return extra + bench + [s['atk'], math.log(max(p['r'], 1)), p['hordes']['surv'], s['hp'], s['spd'], p['bst'] / 100, 1.0 if p['leg'] else 0.0] + side + [comp[k] for k in COMPS]
+NAMES = (['log enemigos/min (banco)'] if BENCH else []) + ['ataque', 'log radio', 'hordas', 'vida', 'velocidad', 'BST', 'legendario', 'especial', 'log AtEsp/Ataque'] + [f'comp {k}' for k in COMPS]
 
 def _solve(A, b):
     n = len(A); M = [row[:] + [b[i]] for i, row in enumerate(A)]
