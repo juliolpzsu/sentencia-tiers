@@ -3,14 +3,17 @@
   const DATA = JSON.parse(document.getElementById('data').textContent);
   const T = DATA.t, L = DATA.list, TYPES = DATA.types, TC = DATA.typeColors, AN = DATA.an, NAT = DATA.natures, MV = DATA.mv;
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-  const state = { q: '', mode: 'base', sort: 'pos', dir: 1, group: 'tier', types: new Set(), tiers: new Set(), leg: false, slow: false, stun: false, regen: false, mine: false, tmday: false };
+  const state = { q: '', mode: 'base', sort: 'pos', dir: 1, group: 'tier', types: new Set(), tiers: new Set(), leg: false, slow: false, stun: false, regen: false, mine: false, tmday: false, view: 'grid' };
   let save = ST.load();
   const byDex = new Map(L.map(p => [p.dex, p]));
 
   // ---- estado ⇄ URL ----
   function readUrl() {
     const u = new URLSearchParams(location.search);
-    if (!u.toString()) { try { const s = JSON.parse(localStorage.getItem('st.state') || 'null'); if (s && s.mode) Object.assign(state, { mode: s.mode, group: s.group || 'tier', sort: s.sort || 'pos' }); } catch (e) {} return; }
+    let saved = null; try { saved = JSON.parse(localStorage.getItem('st.state') || 'null'); } catch (e) {}
+    if (saved && saved.view === 'list') state.view = 'list';
+    if (u.get('v') === 'list') state.view = 'list';
+    if (!u.toString()) { if (saved && saved.mode) Object.assign(state, { mode: saved.mode, group: saved.group || 'tier', sort: saved.sort || 'pos' }); return; }
     if (u.get('q')) state.q = u.get('q');
     if (u.get('m') === 'shop') state.mode = 'shop';
     if (u.get('s')) state.sort = u.get('s');
@@ -30,9 +33,10 @@
     if (state.types.size) u.set('t', [...state.types].join(','));
     if (state.tiers.size) u.set('tier', [...state.tiers].join(','));
     const f = ['leg', 'slow', 'stun', 'regen', 'mine', 'tmday'].filter(k => state[k]); if (f.length) u.set('f', f.join(','));
+    if (state.view === 'list') u.set('v', 'list');
     const qs = u.toString();
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
-    try { localStorage.setItem('st.state', JSON.stringify({ mode: state.mode, group: state.group, sort: state.sort })); } catch (e) {}
+    try { localStorage.setItem('st.state', JSON.stringify({ mode: state.mode, group: state.group, sort: state.sort, view: state.view })); } catch (e) {}
   }
   readUrl();
 
@@ -48,6 +52,9 @@
   for (const b of $$('#tiers .chip')) { toggle(b, state.tiers.has(b.dataset.tier)); b.onclick = () => { const t = b.dataset.tier; state.tiers.has(t) ? state.tiers.delete(t) : state.tiers.add(t); toggle(b, state.tiers.has(t)); render(); }; }
   for (const b of $$('#flags .chip')) { toggle(b, !!state[b.dataset.f]); b.onclick = () => { state[b.dataset.f] = !state[b.dataset.f]; toggle(b, state[b.dataset.f]); render(); }; }
   for (const b of $$('#mode button')) b.onclick = () => { state.mode = b.dataset.m; $$('#mode button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); render(); };
+  const setView = () => $$('#view button').forEach(x => { x.classList.toggle('on', x.dataset.v === state.view); x.setAttribute('aria-pressed', x.dataset.v === state.view); });
+  for (const b of $$('#view button')) b.onclick = () => { state.view = b.dataset.v; setView(); render(); };
+  setView();
   $('#q').value = state.q;
   $('#q').oninput = e => { state.q = e.target.value.trim(); render(); };
   $('#sort').onchange = e => { state.sort = e.target.value; render(); };
@@ -147,6 +154,16 @@
       <span class="types">${p.types.map(t => `<span class="type" style="--tc:${TC[t]}">${T.types[t]}</span>`).join('')}</span>
       <span class="tools">${tools}</span>${you}</a>`;
   }
+  // Vista de lista: una fila por Pokémon (retrato, puesto, tier, nombre, tipos, control y segundos estimados).
+  function row(p) {
+    const m = v(p);
+    const lazy = drawn++ < 40 ? 'eager' : 'lazy';
+    const tools = [m.slow ? `<span class="tool slow" title="${T.slow}">${T.slowS}</span>` : '', m.stun ? `<span class="tool stun" title="${T.stun}">${T.stunS}</span>` : '', m.regen ? `<span class="tool regen" title="${T.regen}">${T.regenS}</span>` : ''].join('');
+    const mine = save && save.owned.includes(p.dex) ? `<span class="tool own" title="${T.owned}">${T.ownedS}</span>` : '';
+    return `<a class="lrow" href="pokemon/${p.slug}/"><span class="pos">${m.pos}</span><img class="px" loading="${lazy}" src="../img/p/${p.dex}.png" alt="" width="32" height="32"><span class="tier ${m.tier}">${m.tier}</span>
+      <span class="name">${p.name}</span><span class="types">${p.types.map(t => `<span class="type" style="--tc:${TC[t]}">${T.types[t]}</span>`).join('')}</span>
+      <span class="tools">${mine}${tools}</span><span class="est">${m.e} s</span></a>`;
+  }
   function render() {
     computeYouRank();
     const list = filtered();
@@ -160,7 +177,7 @@
     drawn = 0;
     for (const k of order) {
       const g = groups.get(k); if (!g) continue;
-      html += `<section class="group"><div class="group-h"><h2>${title(k)}</h2><span class="n">${g.length}</span></div><div class="grid">${g.map(card).join('')}</div></section>`;
+      html += `<section class="group"><div class="group-h"><h2>${title(k)}</h2><span class="n">${g.length}</span></div>${state.view === 'list' ? `<div class="rows">${g.map(row).join('')}</div>` : `<div class="grid">${g.map(card).join('')}</div>`}</section>`;
     }
     $('#out').innerHTML = html || `<div class="empty">${state.tmday && list.length === 0 ? T.tmNone : T.none}</div>`;
     writeUrl();

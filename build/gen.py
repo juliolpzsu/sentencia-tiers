@@ -1,5 +1,6 @@
 """Genera la web estática (docs/) a partir de data/ranking.json. Uso: python -I gen.py"""
 import json, os, re, sys, html, shutil, unicodedata, time
+from urllib.parse import urlencode
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gamedata import ROOT, MOVES, NAT_BY, ABIL_NAMES, TYPE_ES, TYPE_EN, TYPES, EVO, NEED_NAME, en, TM_PRICE, TM_MOVES
 from abilfx import describe
@@ -236,13 +237,13 @@ def verdict(p, lang):
     return 'Among the shortest-lasting in the Judgment. Play it for fun, not for the ranking.' + src + h
 
 # ---------------- plantillas ----------------
-def layout(lang, title, body, active, depth, desc='', extra_head='', path=''):
+def layout(lang, title, body, active, depth, desc='', extra_head='', path='', img='og.png'):
     U = UI[lang]; root = '../' * depth
     other = 'en' if lang == 'es' else 'es'
     url = f'{SITE}/{path}'
     extra_head += (f'<meta property="og:type" content="website"><meta property="og:site_name" content="Sentencia Tiers"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc or U["tagline"])}">'
-                   f'<meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="{"es_ES" if lang == "es" else "en_US"}">'
-                   f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc or U["tagline"])}"><meta name="twitter:image" content="{SITE}/og.png">'
+                   f'<meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}/{img}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="{"es_ES" if lang == "es" else "en_US"}">'
+                   f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc or U["tagline"])}"><meta name="twitter:image" content="{SITE}/{img}">'
                    f'<link rel="canonical" href="{url}"><link rel="alternate" hreflang="{lang}" href="{url}"><link rel="alternate" hreflang="{other}" href="{SITE}/{path.replace(lang + "/", other + "/", 1)}">')
     # en móvil (≤720 px) las de clase rp se ocultan para que la barra quepa en una fila; Cambios queda en el pie
     nav = ''.join(f'<a href="{root}{lang}/{h}" class="{c}{" on" if k == active else ""}">{U[k]}</a>' for k, h, c in (('nav_tiers', '', ''), ('nav_judg', 'sentencia/', ''), ('changes', 'cambios/', 'rp')))
@@ -271,7 +272,7 @@ def index_page(lang):
         row = dict(dex=p['dex'], slug=slug(p), name=name(p, lang), alt=p['nameEn'] if lang == 'es' else p['name'], types=p['types'], leg=p['leg'], hp=p['stats']['hp'], spd=p['stats']['spd'], hordes=p['hordes']['rank'],
                    sc=p['base']['score'], abs={int(k): v for k, v in p['abil_scores'].items()}, ab=p['abils'])
         for k in ('base', 'shop'):
-            v = p[k]; row[k] = dict(pos=v['pos'], tier=v['tier'], c=v['comp'], slow=v['slow'], stun=v['stun'], regen=bool(v['heal']) or v['ability'] in ('regenerator', 'natural-cure', 'healer', 'shed-skin'))
+            v = p[k]; row[k] = dict(pos=v['pos'], tier=v['tier'], e=round(v['est']), c=v['comp'], slow=v['slow'], stun=v['stun'], regen=bool(v['heal']) or v['ability'] in ('regenerator', 'natural-cure', 'healer', 'shed-skin'))
         data['list'].append(row)
     data['an'] = {a: aname(a, lang) for p in P for a in p['abils'] if a}
     # ataques: índices en una lista común (compacto) para buscar por ataque y para las MT de hoy
@@ -295,7 +296,7 @@ def index_page(lang):
 <div class="seg" id="mode" title="{esc(U['mode_help'])}"><button type="button" data-m="base" class="on">{U['mode_base']}</button><button type="button" data-m="shop" class="red">{U['mode_shop']}</button></div>
 <button type="button" class="chip more" id="more" aria-expanded="false">{U['filters']} ▾</button>
 <label class="adv">{U['sort']}<span style="display:flex;gap:4px"><select id="sort">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['sort_opts'])}<option value="you">{U['sort_you']}</option></select><button type="button" class="chip" id="dir" title="asc/desc">↓</button><button type="button" class="chip" id="shuffle">{U['shuffle']}</button></span></label>
-<label class="adv">{U['group']}<select id="group">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['group_opts'])}</select></label><span class="count" id="count"></span></div>
+<label class="adv">{U['group']}<select id="group">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['group_opts'])}</select></label><span class="seg view" id="view"><button type="button" data-v="grid" class="on" aria-pressed="true">{'Cartas' if lang == 'es' else 'Cards'}</button><button type="button" data-v="list" aria-pressed="false">{'Lista' if lang == 'es' else 'List'}</button></span><span class="count" id="count"></span></div>
 <div class="row adv"><label>{U['tier']}<span class="chips" id="tiers">{''.join(f'<button type="button" class="chip" data-tier="{t}">{t}</button>' for t in 'SABCD')}</span></label>
 <label>{U['filters']}<span class="chips" id="flags"><button type="button" class="chip" data-f="leg">{U['flag_leg']}</button><button type="button" class="chip" data-f="slow">{U['flag_slow']}</button><button type="button" class="chip" data-f="stun">{U['flag_stun']}</button><button type="button" class="chip" data-f="regen">{U['flag_regen']}</button><button type="button" class="chip" data-f="tmday" title="{esc(U['tmHint'])}">{U['flag_tm']}</button><button type="button" class="chip" data-f="mine" id="flag-mine" hidden>{U['mine']}</button><button type="button" class="chip me" id="me-btn">{U['me']}</button></span></label>
 <label>{U['types']}<span class="chips" id="types"></span></label></div>
@@ -359,6 +360,12 @@ def build_panel(p, var, key, lang):
 </div>
 </div>'''
 
+def report_url(p, lang):
+    """Incidencia con la plantilla «Error en una ficha» ya rellenada (Pokémon, idioma y parche)."""
+    q = dict(template='ficha.yml', title=f"[Ficha] {name(p, lang)}", pokemon=f"{name(p, lang)} · {p['dex']:03d}",
+             idioma='Español' if lang == 'es' else 'English', version=R['game_commit'])
+    return f"{REPO}/issues/new?{urlencode(q)}"
+
 def pokemon_page(p, lang, prev, nxt):
     U = UI[lang]; N = name(p, lang); b = p['base']; s = p['shop']; st = p['stats']; tn = TYPE_NAME[lang]
     abil_html = []
@@ -389,10 +396,11 @@ def pokemon_page(p, lang, prev, nxt):
 <div class="tabs"><h2 style="margin:0;align-self:end;padding-right:14px">{U['build']}</h2><button data-tab="base">{U['tab_base']}</button><button data-tab="shop" class="red">{U['tab_shop']}</button></div>
 {build_panel(p, b, 'base', lang)}{build_panel(p, s, 'shop', lang)}
 <nav class="pager">{f'<a href="../{slug(prev)}/">← #{prev["base"]["pos"]} {esc(name(prev, lang))}</a>' if prev else '<span></span>'}<a href="../../">{U['back']}</a>{f'<a href="../{slug(nxt)}/">#{nxt["base"]["pos"]} {esc(name(nxt, lang))} →</a>' if nxt else '<span></span>'}</nav>
+<p class="report"><a href="{esc(report_url(p, lang))}" rel="noopener" target="_blank">{'¿Algo no cuadra en esta ficha? Avísanos' if lang == 'es' else 'Something off on this page? Let us know'} ↗</a></p>
 <script src="../../../assets/save.js"></script><script src="../../../assets/page.js"></script>'''
     title = f"{N} · {U['title']}: tier {b['tier']}, {'puesto' if lang == 'es' else 'rank'} {b['pos']}"
     desc = (f"{N} en la Sentencia de Arceus: tier {b['tier']} (puesto {b['pos']} de 966), build, habilidades, objetos y estrategia." if lang == 'es' else f"{N} in the Judgment of Arceus: tier {b['tier']} (rank {b['pos']} of 966), build, abilities, items and strategy.")
-    return layout(lang, title, body, None, 3, desc, path=f'{lang}/pokemon/{slug(p)}/')
+    return layout(lang, title, body, None, 3, desc, path=f'{lang}/pokemon/{slug(p)}/', img=f"img/og/{p['dex']}.png")
 
 def prose_page(lang, key, title, html_body, path, wide=False):
     return layout(lang, f"{title} · {UI[lang]['title']}", f'<article class="prose{" wide" if wide else ""}">{html_body}</article>', key, 2, path=path)
@@ -561,6 +569,7 @@ def main():
     t0 = time.time()
     import coop; coop.main()          # data/coop.json (página Cooperativo)
     import icons; icons.main()        # docs/img/i: iconos del juego (objetos, cartas, ataques)
+    import og; og.main()              # docs/img/og: tarjeta para compartir de cada Pokémon
     for lang in LANGS:
         shutil.rmtree(os.path.join(DOCS, lang), ignore_errors=True)
     write(os.path.join(DOCS, 'index.html'), ROOT_INDEX)
