@@ -339,7 +339,9 @@
       }
       case 'def': {
         if (typeof pl.dmgReduce === 'number') {
-          const gain = Math.min(DEF_CAP, pl.dmgReduce + 0.06) - pl.dmgReduce;
+          // Tope de las cartas: 70 %. Desde el 27-10-2026 (#340) el Chaleco Asalto va aparte (itemReduce), pero el total
+          // de reducción sigue con tope del 80 %: con Chaleco, las cartas suman como mucho hasta el 60 %.
+          const gain = Math.max(0, Math.min(Math.min(DEF_CAP, pl.dmgReduce + 0.06), 0.8 - (pl.itemReduce || 0)) - pl.dmgReduce);
           if (gain < 0.005) return count({ s: 3, why: S.defCap });
           if (gain < 0.0599) return count({ s: Math.round(20 + 41 * gain / 0.06), why: S.defPart(Math.round(gain * 100)) });
         }

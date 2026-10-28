@@ -114,6 +114,9 @@ test('Coraza no se recomienda cuando ya no suma (tope del 70 %)', () => {
   // A medias: con un 68 % solo suma un 2 %.
   const part = advise(cards, cloyster([mv('ice-beam')], { dmgReduce: 0.68 }));
   assert.ok(part.out[0].s < 55 && part.out[0].s > 10);
+  // Con Chaleco Asalto (itemReduce 0,2, aparte desde #340) el total tope 80 % deja las cartas en el 60 %.
+  const vest = advise(cards, cloyster([mv('ice-beam')], { dmgReduce: 0.6, itemReduce: 0.2 }));
+  assert.ok(vest.out[0].s < 10);
 });
 
 test('Carrera según la velocidad real y su tope suave', () => {
