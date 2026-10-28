@@ -13,7 +13,7 @@ Tier list de **PokéSurvivor** para la **Sentencia de Arceus**: los 966 Pokémon
 
 ## Por qué existe
 
-Las tier lists de PokéSurvivor ordenan por lo que un Pokémon aguanta contra las hordas. Pero en el minuto 30 el juego cambia: Arceus baja a la arena, es invencible, corre más que tú y cada cinco segundos acude un legendario más fuerte. Lo que importa ahí no es el daño (la vida de los legendarios se ajusta a tu propio daño), sino **frenarlos, aturdirlos, aguantar sus golpes y regenerar** el daño porcentual de Arceus. Esta web ordena por eso.
+Las tier lists de PokéSurvivor ordenan por lo que un Pokémon aguanta contra las hordas. Pero en el minuto 30 el juego cambia: Arceus baja a la arena, es invencible, corre más que tú, su daño es un porcentaje de tu vida y cada cinco segundos acude un legendario más fuerte. Lo que más explica cuánto aguanta cada Pokémon ahí, según los récords reales, es el **nivel con el que llega** (lo bien que farmea antes) y lo fácil que le resulta **esquivar**. Esta web ordena por eso.
 
 Todo el cálculo sale del **código fuente del juego**, no de la experiencia de nadie: se replican las reglas de la Sentencia, la tabla de tipos suavizada, las defensas, las habilidades y los movimientos tal y como están programados.
 
@@ -25,6 +25,7 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 - **Mi partida** (opcional): pegas el guardado de tu cuenta y la web marca los Pokémon que tienes, sus mejoras compradas, la habilidad y naturaleza que te tocaron y tu puesto aproximado con esa habilidad. Se queda en tu navegador; no se envía a ningún sitio.
 - **MT a la venta hoy**: la web calcula las 8 MT diarias de la Tienda Kecleon con la misma fórmula que el juego (verificado contra la tienda real), marca cuántas builds usan cada una y filtra los Pokémon a los que su build les pide una de hoy.
 - El buscador encuentra también por **ataque** (de la build o aprendible por MT) y por **habilidad**.
+- Página **Cooperativo**: tier list para jugar en grupo (cuentan también farmear, controlar y la velocidad) y equipos de 2, 3 y 4 con sus builds.
 - Página **Cambios** con el historial de las actualizaciones automáticas.
 - Los filtros, el orden y la variante viajan en la **URL**, así que cualquier vista se puede compartir con un enlace; cada página lleva su tarjeta de vista previa para Discord, WhatsApp o X.
 - Página **La Sentencia**: la mecánica completa, con números, en una pantalla. El método está en [MODELO.md](MODELO.md).
@@ -35,18 +36,13 @@ Todo el cálculo sale del **código fuente del juego**, no de la experiencia de 
 
 ## Cómo se calcula
 
-El puesto lo dan los **segundos estimados** que aguanta un buen jugador en la Sentencia: la mediana de los récords reales de cada Pokémon, mezclada con una predicción para todos (acierta el orden fuera de muestra con 0,29, frente a 0,09 de la puntuación antigua). La predicción usa el ataque, el tamaño, el ranking en hordas y estos componentes calculados desde el código del juego:
+El puesto lo dan los **segundos estimados** que aguanta un buen jugador en la Sentencia:
 
-| Componente | Peso | Qué mide |
-|---|---|---|
-| Aguante ante legendarios | 36 % | Vida efectiva frente al daño medio del pool de 86 legendarios (tipos, defensas, habilidad) |
-| Control | 32 % | Frenazos (entran al 100 % en jefes) y aturdimientos (×0,35 pero encadenables) |
-| Regeneración | 10 % | Lo único que compensa el daño porcentual de Arceus |
-| Daño a un legendario | 10 % | Mejor ataque a distancia de su lado bueno |
-| Velocidad efectiva | 8 % | Con el tope suave de 130 que impone la Sentencia |
-| Tamaño | 4 % | Radio de colisión: más pequeño, más fácil esquivar |
+1. **Récords reales**: la mediana de las mejores partidas de cada Pokémon en las tablas públicas del juego.
+2. **Predicción** para los 966: una regresión ajustada con los que tienen récords, a partir del ataque, el lado especial, el tamaño, el ranking en hordas, la vida, la velocidad y seis componentes calculados desde el código del juego (aguante ante los legendarios, control, regeneración, daño, velocidad efectiva y tamaño). Acierta el orden fuera de muestra con una correlación de 0,39.
+3. Se mezclan en escala logarítmica: cuantas más partidas reales tiene un Pokémon, más pesan.
 
-Llegar al minuto 30 **no puntúa**: lo bueno o malo que sea limpiando hordas se indica en cada ficha (ranking de SurvivorTiers) y en el veredicto. El detalle completo, con las fórmulas y los ficheros del juego de los que sale cada regla, está en [MODELO.md](MODELO.md).
+La variante **Tienda Kecleon** elige la habilidad, la naturaleza y las MT que más segundos estiman. El detalle completo, con las fórmulas y los ficheros del juego de los que sale cada regla, está en [MODELO.md](MODELO.md).
 
 ## Estructura del repositorio
 
@@ -58,6 +54,8 @@ Llegar al minuto 30 **no puntúa**: lo bueno o malo que sea limpiando hordas se 
 │   ├── rank.py            El modelo: calcula data/ranking.json (la guía)
 │   ├── gen.py             Genera la web estática (docs/) en ES y EN
 │   ├── advisor.py         Datos del Consejero (docs/assets/advisor.json y extension/data.js)
+│   ├── coop.py            Tier list del cooperativo y equipos (data/coop.json)
+│   ├── icons.py           Iconos pixel art del juego en SVG (docs/img/i)
 │   ├── fetch_portraits.py Descarga los retratos (PMD SpriteCollab)
 │   └── update.py          Comprueba si el juego cambió y, si afecta al ranking, lo actualiza
 ├── data/
