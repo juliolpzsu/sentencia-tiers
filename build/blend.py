@@ -81,7 +81,11 @@ def cv(X, y, alpha, folds=5, reps=6, seed=3):
     return sum(out) / len(out)
 
 MIN_N = 5          # marcas (con o sin Sentencia) para que la fuerza real entre en el ajuste
-K_F = 8            # marcas "equivalentes" que vale la predicción frente a la fuerza real
+# Marcas "equivalentes" que vale la predicción: K = SIGMA²/tau² (≈2), calculada en apply_force. Hasta el 28-10 era 8 a ojo;
+# prediciendo una mitad de las marcas con la otra, K≈2 deja la mitad de error (0,053 → 0,026; scratchpad/analysis/kcheck.py).
+LAM_P = 3.0        # encogimiento de la fuerza en ../_ext/analisis-records.py: se deshace antes de mezclar
+SIGMA = 0.43       # ruido de una marca en log(segundos totales), top 50 releído el 28-10
+Z80 = 1.2816       # intervalo del 80 %
 
 def apply_force(doc, tiers, rec, pick=None):
     """Récords del 28-10-2026: fuerza de cada Pokémon = efecto en log(segundos totales) de un modelo
@@ -111,7 +115,7 @@ def apply_force(doc, tiers, rec, pick=None):
     # (Pokémon con ≥10 marcas). Una recta única encogía hacia el centro: Pokémon con sus 50 marcas pasado el minuto 30
     # salían por debajo. Así se conserva el orden de la fuerza y los segundos son los que de verdad se ven en los récords.
     qa = [p for p in P if rec.get(str(p['dex']), {}).get('n', 0) >= 10 and rec[str(p['dex'])].get('tmed')]
-    qf = sorted(rec[str(p['dex'])]['force'] for p in qa); qt = sorted(math.log(rec[str(p['dex'])]['tmed']) for p in qa)
+    qf = sorted(rec[str(p['dex'])]['force'] * (rec[str(p['dex'])]['n'] + LAM_P) / rec[str(p['dex'])]['n'] for p in qa); qt = sorted(math.log(rec[str(p['dex'])]['tmed']) for p in qa)
     def total(f):
         if f <= qf[0]: return math.exp(qt[0] + (f - qf[0]))
         if f >= qf[-1]: return math.exp(qt[-1] + (f - qf[-1]))
@@ -119,6 +123,19 @@ def apply_force(doc, tiers, rec, pick=None):
         u = (f - qf[k]) / (qf[k + 1] - qf[k]) if qf[k + 1] > qf[k] else 0.0
         return math.exp(qt[k] + u * (qt[k + 1] - qt[k]))
     b0 = math.log(statistics.median(math.exp(t) for t in qt)) - statistics.median(qf); b1 = 1.0; cal = qa
+    # Margen (28-10-2026): error típico de la fuerza mezclada. Ruido por marca SIGMA (log segundos, sin separar al
+    # jugador; con mitades al azar de las marcas sale igual: scratchpad/analysis/sigma.py). Error de la predicción tau:
+    # residuos fuera de muestra de la ridge, quitando el ruido de la fuerza real con que se comparan.
+    oof = {}
+    rnd = random.Random(7); idx = list(range(len(fit))); rnd.shuffle(idx)
+    for f in range(5):
+        te = idx[f::5]; tes = set(te)
+        m = Ridge().fit([X[i] for i in range(len(fit)) if i not in tes], [y[i] for i in range(len(fit)) if i not in tes], alpha)
+        for i in te: oof[i] = m.predict(X[i])
+    nn = [rec[str(p['dex'])]['n'] for p in fit]
+    tau2 = max(0.01, statistics.fmean((oof[i] - y[i]) ** 2 for i in range(len(fit))) - statistics.fmean(SIGMA ** 2 / k for k in nn))
+    se_of = lambda n: math.sqrt(1.0 / (n / SIGMA ** 2 + 1.0 / tau2))
+    K_F = SIGMA ** 2 / tau2
     secs = lambda f: round(max(0.0, total(f) - 1800), 1)
     for p in P:
         r = rec.get(str(p['dex']), {}); n = r.get('n', 0) or 0; nj = r.get('nj', 0) or 0
@@ -127,12 +144,16 @@ def apply_force(doc, tiers, rec, pick=None):
         # Se elige por la puntuación de mecánicas y su ganancia se pasa a fuerza con la pendiente k de los récords.
         if pick: pick(p, None)
         pb = model.predict(feats(p, p['base']['comp'])); ps = pb + k_score * (p['shop']['score'] - p['base']['score'])
-        real = r.get('force') if n >= 1 and 'force' in r else None
+        real = r['force'] * (n + LAM_P) / n if n >= 1 and 'force' in r else None
         fb = (n * real + K_F * pb) / (n + K_F) if real is not None else pb
         p['base']['force'] = round(fb, 6); p['shop']['force'] = round(fb + (ps - pb), 6)
         p['base']['est'] = secs(fb); p['shop']['est'] = secs(fb + (ps - pb))
         p['base']['tot'] = round(total(fb)); p['shop']['tot'] = round(total(fb + (ps - pb)))   # segundos totales
         p['base']['pred'] = secs(pb)
+        p['base']['pf'] = round(pb, 4)   # fuerza predicha (sin récords)
+        se = se_of(n if real is not None else 0)
+        for key, f in (('base', fb), ('shop', fb + (ps - pb))):
+            p[key]['lo'] = secs(f - Z80 * se); p[key]['hi'] = secs(f + Z80 * se)
         p['evidence'] = dict(n=n, nj=nj, real=r.get('med'), lv=r.get('lv'), kpm=r.get('kpm'), players=r.get('players'), weight=round(n / (n + K_F), 2))
     for key in ('base', 'shop'):
         order = sorted(P, key=lambda p: (-p[key]['force'], -p[key]['score'], p['dex']))
@@ -140,7 +161,7 @@ def apply_force(doc, tiers, rec, pick=None):
             p[key]['pos'] = i + 1; p[key]['tier'] = next(t for lim, t in tiers if i + 1 <= lim)
     info = dict(target='fuerza ajustada por jugador (log segundos totales)', alpha=alpha, cv_spearman=round(scores[alpha], 3),
                 cv_by_alpha={str(a): round(v, 3) for a, v in scores.items()}, n_fit=len(fit), K=K_F,
-                weights={nm: round(w, 3) for nm, w in zip(NAMES, model.w)}, seconds_line=dict(method='cuantiles de la mediana del tiempo total', b0=round(b0, 4), b1=round(b1, 4), n=len(cal)), shop_k=round(k_score, 4),
+                weights={nm: round(w, 3) for nm, w in zip(NAMES, model.w)}, seconds_line=dict(method='cuantiles de la mediana del tiempo total', b0=round(b0, 4), b1=round(b1, 4), n=len(cal)), margin=dict(level=0.8, sigma=SIGMA, tau=round(math.sqrt(tau2), 4), k_equiv=round(SIGMA ** 2 / tau2, 1)), shop_k=round(k_score, 4),
                 with_records=sum(1 for p in P if p['evidence']['n']), model_only_cv=round(cv([[p['base']['score']] for p in fit], y, 1), 3))
     doc['blend'] = info
     return info

@@ -209,6 +209,12 @@ def est_label(v, lang):
     if v.get('est', 0) >= 1 or 'tot' not in v: return f"{round(v['est'])} s"
     return (f"hasta el min {max(1, round(v['tot'] / 60))}" if lang == 'es' else f"to min {max(1, round(v['tot'] / 60))}")
 
+def est_range(v, lang):
+    """Margen del 80 % de los segundos estimados (blend.py: ruido de las marcas y error de la predicción)."""
+    if 'hi' not in v or v['hi'] < 1: return ''
+    t = 'margen del 80 %: lo que se estima con las marcas reales y la predicción' if lang == 'es' else '80% range: what the real runs and the prediction allow'
+    return f'<span class="rg" title="{t}">80 %: {round(v["lo"])}–{round(v["hi"])} s</span>'
+
 def evidence_txt(p, lang):
     e = p.get('evidence') or {}
     n = e.get('n', e.get('nj', 0))
@@ -392,7 +398,7 @@ def pokemon_page(p, lang, prev, nxt):
 <div class="hd"><div class="sub"><h1>{esc(N)}</h1><span>{'Nº' if lang == 'es' else 'No.'} {p['dex']:03d}</span>{''.join(typechip(t, lang) for t in p['types'])}{'<span class="pill c">' + ('Legendario' if lang == 'es' else 'Legendary') + '</span>' if p['leg'] else ''}<span class="tier {b['tier']}">TIER {b['tier']}</span></div>
 <div class="ranks"><div class="rank"><span class="l">{U['rank_base']}</span><span class="v">{b['pos']} <span class="small muted">/ 966</span></span></div>
 <div class="rank shop"><span class="l">{U['rank_shop']}</span><span class="v">{s['pos']} <span class="small muted">/ 966 · {U['tier']} {s['tier']}</span></span></div>
-<div class="rank est"><span class="l">{U['est']}</span><span class="v">{est_label(b, lang)}</span><span class="ev">{evidence_txt(p, lang)}</span></div>
+<div class="rank est"><span class="l">{U['est']}</span><span class="v">{est_label(b, lang)}{est_range(b, lang)}</span><span class="ev">{evidence_txt(p, lang)}</span></div>
 <div class="rank ext"><span class="l">{U['rank_hordes']}</span><span class="v">{hordes['rank'] or '—'} <span class="small muted">/ 966 · {U['tier']} {hordes['tier']}</span></span></div></div>
 <div class="verdict"><b class="up" style="color:var(--yellow)">{U['verdict']}:</b> {verdict(p, lang)}</div>
 <section id="me" class="panel me" hidden data-dex="{p['dex']}" data-pos="{b['pos']}" data-sc="{b['score']}" data-scores="../../../assets/scores.json" data-abils="{esc(json.dumps(p['abils']))}" data-names="{esc(json.dumps([aname(a, lang) if a else '' for a in p['abils']], ensure_ascii=False))}" data-abs="{esc(json.dumps({int(k): v for k, v in p['abil_scores'].items()}))}" data-natures="{esc(json.dumps([dict(id=n['id'], n=nname(n['id'], lang)) for n in NAT_BY.values()], ensure_ascii=False))}" data-t="{esc(json.dumps(dict(title=U['meBlock'], owned=U['owned'], notOwned=U['notOwned'], upgrades=U['upgrades'], ability=U['meAbility'], hidden=U['hidden_ab'].lower(), nature=U['meNature'], loading=U['loading'], rank=U['meRank']), ensure_ascii=False))}"></section></div></section>
