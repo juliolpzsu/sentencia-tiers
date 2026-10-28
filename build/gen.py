@@ -38,7 +38,7 @@ COMP = {'es': dict(V=('Llegar al minuto 30', 'ranking en hordas de SurvivorTiers
                    D=('Damage to one legendary', 'best same-side attack against the pool'), S=('Effective speed', 'with the soft cap at 130'), Z=('Size', 'collision radius: smaller is easier to dodge with'))}
 
 UI = {
- 'es': dict(title='Sentencia Tiers', tagline='Tier list de PokéSurvivor para la Sentencia de Arceus', nav_tiers='Tiers', nav_judg='La Sentencia', nav_method='Método', nav_repo='Código', nav_adv='Consejero', nav_adv_t='Extensión para Chrome: marca en el juego qué carta coger según la build de la Sentencia',
+ 'es': dict(title='Sentencia Tiers', tagline='Tier list de PokéSurvivor para la Sentencia de Arceus', nav_tiers='Tiers', nav_judg='La Sentencia', nav_method='Método', nav_repo='Código', nav_coop='Cooperativo', nav_adv='Consejero', nav_adv_t='Extensión para Chrome: marca en el juego qué carta coger según la build de la Sentencia',
             intro='Los 966 Pokémon ordenados por los segundos que aguantan en la Sentencia de Arceus (minuto 30). La estimación combina los récords reales del juego (las mejores partidas de cada Pokémon) con un modelo hecho a partir de su código: frenazos, aturdimientos, defensas frente a los 86 legendarios, regeneración, ataque, velocidad y tamaño.',
             updated='Parche del juego', pokemon='Pokémon', legs='Legendarios', nonlegs='No legendarios', all='Todos', tier='Tier', sort='Ordenar por', group='Agrupar por',
             mode_base='Por defecto', mode_shop='Tienda Kecleon', count='{n} de {m} Pokémon', none='Ningún Pokémon cumple los filtros.', shuffle='Al azar', filters='Filtros', types='Tipos',
@@ -64,7 +64,7 @@ UI = {
             meLoaded='Partida de {name}: {n} Pokémon.', mine='Mis Pokémon', owned='Lo tienes', notOwned='No lo tienes', ownedS='TUYO', upgrades='Mejoras compradas', yourRank='Tu puesto con tu habilidad y tu naturaleza', you='tú',
             sort_you='Tu puesto', meBlock='Tu partida ({name})', meAbility='Tu habilidad', meNature='Tu naturaleza', loading='Calculando tu puesto…',
             meRank='Con tu habilidad y tu naturaleza quedaría en el puesto <b>{n}</b> de 966 (puesto general: {base}). Las mejoras y cartas se suponen al máximo; las MT que ya le enseñaste no se cuentan.'),
- 'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source', nav_adv='Advisor', nav_adv_t='Chrome extension: marks in game which card to take according to the Judgment build',
+ 'en': dict(title='Sentencia Tiers', tagline='PokéSurvivor tier list for Arceus’ Judgment', nav_tiers='Tiers', nav_judg='The Judgment', nav_method='Method', nav_repo='Source', nav_coop='Co-op', nav_adv='Advisor', nav_adv_t='Chrome extension: marks in game which card to take according to the Judgment build',
             intro='All 966 Pokémon ranked by the seconds they last in Arceus’ Judgment (minute 30). The estimate combines the game’s real records (the best runs of each Pokémon) with a model built from its code: slows, stuns, defenses against the 86 legendaries, regeneration, attack, speed and size.',
             updated='Game patch', pokemon='Pokémon', legs='Legendaries', nonlegs='Non-legendaries', all='All', tier='Tier', sort='Sort by', group='Group by',
             mode_base='Default', mode_shop='Kecleon Shop', count='{n} of {m} Pokémon', none='No Pokémon matches the filters.', shuffle='Shuffle', filters='Filters', types='Types',
@@ -276,6 +276,7 @@ def layout(lang, title, body, active, depth, desc='', extra_head='', path=''):
                    f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc or U["tagline"])}"><meta name="twitter:image" content="{SITE}/og.png">'
                    f'<link rel="canonical" href="{url}"><link rel="alternate" hreflang="{lang}" href="{url}"><link rel="alternate" hreflang="{other}" href="{SITE}/{path.replace(lang + "/", other + "/", 1)}">')
     nav = ''.join(f'<a href="{root}{lang}/{h}" class="{"on" if k == active else ""}">{U[k]}</a>' for k, h in (('nav_tiers', ''), ('nav_judg', 'sentencia/'), ('nav_method', 'metodo/'), ('changes', 'cambios/')))
+    nav += f'<a href="{root}{lang}/cooperativo/" class="rp{" on" if active == "nav_coop" else ""}">{U["nav_coop"]}</a>'
     nav += f'<a href="{STORE}" rel="noopener" title="{U["nav_adv_t"]}">{U["nav_adv"]}</a>'
     nav += f'<a class="rp" href="{REPO}" rel="noopener">{U["nav_repo"]}</a>'
     return f'''<!doctype html>
@@ -289,7 +290,7 @@ def layout(lang, title, body, active, depth, desc='', extra_head='', path=''):
 <header class="top"><div class="wrap"><a class="logo" href="{root}{lang}/">SENTENCIA<b>//</b>TIERS</a><nav class="nav">{nav}</nav>
 <div class="lang"><a href="{root}es/{'' if depth == 1 else ''}" class="{'on' if lang == 'es' else ''}" data-l="es">ES</a><a href="{root}en/" class="{'on' if lang == 'en' else ''}" data-l="en">EN</a></div></div></header>
 <main class="wrap">{body}</main>
-<footer class="wrap"><div>{U['footer_data']}</div><div>{U['footer_fan']} · {U['generated']} {R['generated']} · {U['updated']}: {R['game_commit']} · <a href="{REPO}" rel="noopener">GitHub</a></div></footer>
+<footer class="wrap"><div>{U['footer_data']}</div><div><a href="{root}{lang}/cooperativo/">{U['nav_coop']}</a> · {U['footer_fan']} · {U['generated']} {R['generated']} · {U['updated']}: {R['game_commit']} · <a href="{REPO}" rel="noopener">GitHub</a></div></footer>
 </body></html>'''
 
 def index_page(lang):
@@ -547,6 +548,54 @@ ROOT_INDEX = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><met
 <body><main class="wrap" style="padding-top:60px"><h1 style="color:var(--yellow)">SENTENCIA//TIERS</h1><p><a href="es/">Español</a> · <a href="en/">English</a></p></main></body></html>'''
 FAVICON = None   # docs/favicon.svg (Poké Ball en la rueda de Arceus) y sus PNG se mantienen a mano; gen.py no los toca.
 
+def coop_text(lang):
+    path = os.path.join(ROOT, 'data', 'coop.json')
+    if not os.path.exists(path): return '<p>—</p>'
+    C = json.load(open(path, encoding='utf-8'))
+    PB = {p['dex']: p for p in R['pokemon']}
+    es = lang == 'es'
+    ROLE = {'portador': ('portador', 'carry'), 'farmeo': ('farmeo', 'farmer'), 'control': ('control', 'control')}
+    rl = lambda r: ' '.join(f'<span class="pill">{ROLE[x][0 if es else 1]}</span>' for x in r)
+    link = lambda d: f'<a href="../pokemon/{slug(PB[d])}/">{esc(name(PB[d], lang))}</a>'
+    pc = lambda v: f'{round(v * 100)}'
+    rows = ''.join(f'<tr><td>{r["pos"]}</td><td><span class="tier {r["tier"]}">{r["tier"]}</span></td><td>{link(r["dex"])}</td><td>{r["solo"]}</td><td>{pc(r["c"]["surv"])}</td><td>{pc(r["c"]["farm"])}</td><td>{pc(r["c"]["ctl"])}</td><td>{pc(r["c"]["spd"])}</td><td>{rl(r["roles"])}</td></tr>'
+                   for r in (C['pokemon'][str(d)] for d in C['order'][:120]))
+    hd = ('<tr><th>#</th><th>Tier</th><th>Pokémon</th><th>Puesto solo</th><th>Aguante</th><th>Farmeo</th><th>Control</th><th>Velocidad</th><th>Papel</th></tr>' if es else
+          '<tr><th>#</th><th>Tier</th><th>Pokémon</th><th>Solo rank</th><th>Survival</th><th>Farm</th><th>Control</th><th>Speed</th><th>Role</th></tr>')
+    def teams(n):
+        out = []
+        for t in C['teams'][str(n)]:
+            mem = ' + '.join(link(d) for d in t['members'])
+            out.append(f'<li>{mem} <span class="muted small">· {rl(t["roles"])}</span></li>')
+        return '<ul>' + ''.join(out) + '</ul>'
+    w = C['weights']
+    W = {k: round(v * 100) for k, v in w.items()}
+    if es:
+        bench = ', mezclado con los enemigos por minuto medidos en partidas del bot' if C.get('bench') else ''
+        return f'''<h1>Cooperativo</h1><p class="muted">La tier list de la portada es para jugar solo. En grupo cuentan más cosas: esta página las valora y propone equipos.</p>
+<h2>Qué cambia en grupo</h2><ul>
+<li><b>La experiencia es del equipo.</b> Hay un solo nivel para todos: lo que mata cualquiera sube a todos. Con dos jugadores cada enemigo da un 62,5 % de lo que daría solo (se reparte entre 1 + 0,6 por jugador extra), así que un compañero que mata tanto como tú hace que el equipo suba un 25 % más deprisa que tú solo. Y el nivel con el que se llega al minuto 30 es lo que más explica cuánto se aguanta en la Sentencia.</li>
+<li><b>El control protege a todos.</b> Un enemigo frenado o aturdido lo está para todo el equipo, y uno aturdido no hace daño al tocar.</li>
+<li><b>Revivir.</b> Un compañero caído se levanta si estás 3 s a su lado: morir no es el final mientras otro siga en pie, y la velocidad ayuda a llegar.</li>
+<li><b>Más enemigos.</b> Tienen más vida y salen más cuantos más seáis.</li>
+<li><b>En la Sentencia</b> Arceus persigue al más cercano y la lluvia de pilares cae sobre cada uno: separarse reparte la presión.</li></ul>
+<h2>Cómo se valora</h2><p>Puntuación = {W["surv"]} % aguante propio (los segundos estimados de la tier list) + {W["farm"]} % farmeo en área (daño a hordas del grupo del primer hueco{bench}) + {W["ctl"]} % control (frenazos y aturdimientos) + {W["spd"]} % velocidad (llegar a revivir, hacer de cebo). Cada parte, en percentil entre los 966 (100 = el mejor). Así, un Pokémon que solo no destaca pero limpia mucho o controla bien sube aquí; uno que solo aguanta pero no aporta al grupo baja algo. El peso del apoyo ({W["farm"] + W["ctl"]} % entre farmeo y control) es una estimación razonada con las reglas del juego, no una medida: no se pueden simular partidas en grupo.</p>
+<h2>Equipos recomendados</h2><p class="muted">Entre los 40 mejores, combinaciones con buena puntuación, alguien que aguante, alguien que farmee y alguien que controle, y con debilidades de tipo repartidas (los ataques de los legendarios tienen tipo).</p>
+<h3>Dúo</h3>{teams(2)}<h3>Trío</h3>{teams(3)}<h3>Cuatro</h3>{teams(4)}
+<h2>Los 120 mejores en grupo</h2><div class="scroll"><table class="moves-t">{hd}{rows}</table></div>'''
+    bench = ', blended with enemies per minute measured in bot runs' if C.get('bench') else ''
+    return f'''<h1>Co-op</h1><p class="muted">The front-page tier list is for playing solo. In a group more things count: this page weighs them and suggests teams.</p>
+<h2>What changes in a group</h2><ul>
+<li><b>Experience is shared.</b> There is a single team level: whatever anyone kills levels everyone. With two players each enemy gives 62.5% of the solo amount (split by 1 + 0.6 per extra player), so a partner who kills as much as you makes the team level 25% faster than you alone. And the level you reach minute 30 with is what explains Judgment survival most.</li>
+<li><b>Control protects everyone.</b> A slowed or stunned enemy is so for the whole team, and a stunned one does no contact damage.</li>
+<li><b>Revives.</b> A downed partner gets up if you stand next to them for 3 s: dying is not the end while someone stands, and speed helps to get there.</li>
+<li><b>More enemies.</b> They have more HP and spawn more the more of you there are.</li>
+<li><b>In the Judgment</b> Arceus chases the nearest player and the pillar rain falls on each one: splitting up spreads the pressure.</li></ul>
+<h2>How it is scored</h2><p>Score = {W["surv"]}% own survival (the tier list’s estimated seconds) + {W["farm"]}% area farming (horde damage of the slot-1 group{bench}) + {W["ctl"]}% control (slows and stuns) + {W["spd"]}% speed (reaching revives, acting as bait). Each part as a percentile across the 966 (100 = best). A Pokémon that is average solo but clears or controls well rises here; one that only survives but adds little to the team drops a bit. The support weight ({W["farm"] + W["ctl"]}% between farming and control) is an estimate reasoned from the game rules, not a measurement: group runs cannot be simulated.</p>
+<h2>Recommended teams</h2><p class="muted">Among the top 40, combinations with a good score, someone who lasts, someone who farms and someone who controls, and spread-out type weaknesses (legendary attacks are typed).</p>
+<h3>Duo</h3>{teams(2)}<h3>Trio</h3>{teams(3)}<h3>Four</h3>{teams(4)}
+<h2>Top 120 in a group</h2><div class="scroll"><table class="moves-t">{hd}{rows}</table></div>'''
+
 def changes_text(lang):
     """Historial de data/CHANGELOG.md (lo escribe update.py, en español)."""
     path = os.path.join(ROOT, 'data', 'CHANGELOG.md')
@@ -604,6 +653,7 @@ def main():
         write(os.path.join(DOCS, lang, 'sentencia', 'index.html'), prose_page(lang, 'nav_judg', UI[lang]['nav_judg'], judgment_text(lang), f'{lang}/sentencia/')); urls.append(f'{SITE}/{lang}/sentencia/')
         write(os.path.join(DOCS, lang, 'metodo', 'index.html'), prose_page(lang, 'nav_method', UI[lang]['nav_method'], method_text(lang), f'{lang}/metodo/')); urls.append(f'{SITE}/{lang}/metodo/')
         write(os.path.join(DOCS, lang, 'cambios', 'index.html'), prose_page(lang, 'changes', UI[lang]['changes'], changes_text(lang), f'{lang}/cambios/')); urls.append(f'{SITE}/{lang}/cambios/')
+        write(os.path.join(DOCS, lang, 'cooperativo', 'index.html'), prose_page(lang, 'nav_coop', UI[lang]['nav_coop'], coop_text(lang), f'{lang}/cooperativo/')); urls.append(f'{SITE}/{lang}/cooperativo/')
         for i, p in enumerate(order):
             prev = order[i - 1] if i > 0 else None; nxt = order[i + 1] if i + 1 < len(order) else None
             write(os.path.join(DOCS, lang, 'pokemon', slug(p), 'index.html'), pokemon_page(p, lang, prev, nxt)); urls.append(f'{SITE}/{lang}/pokemon/{slug(p)}/')
