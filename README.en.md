@@ -27,7 +27,7 @@ Everything is computed from the **game's source code**, not from anyone's impres
 - Search also matches **moves** (from the build or learnable by TM) and **abilities**.
 - A **Changes** page with the history of automatic updates.
 - Filters, sorting and variant live in the **URL**, so any view can be shared as a link; every page carries a preview card for Discord, WhatsApp or X.
-- **The Judgment** (the full mechanics, with numbers) and **Method** (weights, assumptions, legendary pool and credits) pages.
+- **The Judgment** page: the full mechanics, with numbers, on one screen. The method lives in [MODELO.md](MODELO.md) (Spanish).
 - *Night City* look, readable on phones and tablets, no dependencies or trackers.
 - **Advisor** ([Chrome Web Store](https://chromewebstore.google.com/detail/glehijclpafhcajjdcmmcaepkjeianlo) · [source](extension/README.md)): a browser extension that, in game, marks which level-up card to take according to the build on the Pokémon's page, also recommends items and bonds and helps during the Judgment. Works alongside PokeSurvivor Plus.
 

@@ -74,7 +74,7 @@ def cv(X, y, alpha, folds=5, reps=6, seed=3):
             out.append(spearman([m.predict(X[i]) for i in te], [y[i] for i in te]))
     return sum(out) / len(out)
 
-def apply(doc, tiers):
+def apply(doc, tiers, pick=None):
     path = os.path.join(ROOT, 'data', 'records', 'records.json')
     if not os.path.exists(path): return None
     rec = json.load(open(path, encoding='utf-8'))['pokemon']
@@ -97,6 +97,7 @@ def apply(doc, tiers):
     model = Ridge().fit(X, y, alpha)
     for p in P:
         r = rec.get(str(p['dex']), {}); nj = r.get('nj', 0) or 0
+        if pick: pick(p, lambda comp: model.predict(feats(p, comp)))     # Tienda Kecleon: la combinación que más segundos estima
         pb = model.predict(feats(p, p['base']['comp'])); ps = model.predict(feats(p, p['shop']['comp']))
         real = math.log(r['med']) if nj and r.get('med') else None
         lb = (nj * real + K * pb) / (nj + K) if real is not None else pb

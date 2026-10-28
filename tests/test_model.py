@@ -82,7 +82,15 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(d['mons']['91']['b']['m'][0][1], 'primary')
         self.assertIn(['quick-attack', 'dash', 2], d['mons']['91']['b']['m'])
     def test_shop_never_worse(self):
-        for p in self.P: self.assertGreaterEqual(p['shop']['score'], p['base']['score'] - 1e-9, p['name'])
+        """La Tienda elige habilidad, naturaleza y MT por segundos estimados: nunca aguanta menos que por defecto."""
+        for p in self.P: self.assertGreaterEqual(p['shop']['est'], p['base']['est'], p['name'])
+    def test_no_wasted_speed_nature(self):
+        """Ninguna Menta de +Velocidad para quien ya llega al tope suave de 130 con Zancada al máximo."""
+        import rank
+        for p in self.P:
+            n = p['shop']['nature']
+            if n and G.NATURES[[x['id'] for x in G.NATURES].index(n)]['up'] == 'spd':
+                self.assertLess(p['stats']['spd'] * rank.UPG_SPD, 130, p['name'])
     def test_known_facts(self):
         by = {p['name']: p for p in self.P}
         self.assertLess(by['Dialga']['base']['T_mult'], by['Snom']['base']['T_mult'])          # Acero/Dragón aguanta más que Bicho/Hielo

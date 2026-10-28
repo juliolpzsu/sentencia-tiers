@@ -284,9 +284,12 @@ def choose_build(dex, ab, nat, pool, raw, natural=None):
 NAT_CANDIDATES = None
 def nature_candidates(mon):
     weak = 'pa' if mon['sa'] > mon['pa'] else 'sa'            # el lado de ataque que no usa
+    strong = 'sa' if weak == 'pa' else 'pa'
+    # +Velocidad solo si con Zancada al máximo no llega al tope suave de 130 (si ya llega, sobra: mejor su ataque)
+    ups = ('df', 'sd', strong) + (('spd',) if mon['spd'] * UPG_SPD < 130 else ())
     out = [None]
     for n in NATURES:
-        if n['up'] in ('df', 'sd', 'spd') and n['down'] == weak: out.append(n)
+        if n['up'] in ups and n['down'] == weak: out.append(n)
     return out
 
 def evaluate(dex, norm=None):
@@ -317,19 +320,36 @@ def evaluate(dex, norm=None):
     out['abil_scores'] = {str(slot): round(norm.score(raw_components(dex, ab, None, pool_nat))[0], 4) for slot, ab in ab_opts}
     # y con cada naturaleza (orden de G.NATURES), en enteros ×10000: "Tu puesto" con la habilidad y la naturaleza de cada cuenta
     out['an_scores'] = {str(slot): [round(norm.score(raw_components(dex, ab, n if (n['up'] or n['down']) else None, pool_nat))[0] * 10000) for n in NATURES] for slot, ab in ab_opts}
+    # Candidatos de la Tienda Kecleon (habilidad × naturaleza, con MT). blend.py elige el que más segundos predice;
+    # sin récords, el de mayor puntuación. El primero es la versión por defecto: la tienda nunca empeora.
+    cands = [(sc, comp, 0, base_ab, None, raw, pool_nat)]
     for slot, ab in ab_opts:
         for nat in nature_candidates(mon_with_nature(dex, None)):
             r2 = raw_components(dex, ab, nat, pool_shop, natural=pool_nat)
             s2, c2 = norm.score(r2)
-            if best is None or s2 > best[0]: best = (s2, c2, slot, ab, nat, r2)
-    s2, c2, slot, ab, nat, r2 = best
-    bld = choose_build(dex, ab, nat, pool_shop, r2, natural=pool_nat)
-    used_tm = [t for t in out['tm'] if t['id'] in [m['id'] for m in bld['moves']]]
-    out['shop'] = dict(score=round(s2, 4), comp={k: round(v, 3) for k, v in c2.items()}, ability=ab, abilitySlot=slot, nature=nat['id'] if nat else None,
-                       capsule=None if slot == 0 else ('caph' if slot == 2 else 'cap'),
-                       T_mult=round(r2['T_mult'], 3), ehp=round(r2['ehp']), S=round(r2['S']), slow=r2['slow'], slow_v=round(r2['slow_v'], 2), stun=r2['stun'], stun_v=round(r2['stun_v'], 2),
-                       heal=r2['heal'], dmv=r2['dmv'], build=bld, tms=used_tm)
+            cands.append((s2, c2, slot, ab, nat, r2, pool_shop))
+    out['_cands'] = cands
+    out['_pools'] = pool_nat
+    out['shop'] = shop_entry(dex, out, max(cands, key=lambda c: c[0]))
     return out
+
+def shop_entry(dex, out, cand):
+    s2, c2, slot, ab, nat, r2, pool = cand
+    bld = choose_build(dex, ab, nat, pool, r2, natural=out['_pools'])
+    used_tm = [t for t in out['tm'] if t['id'] in [m['id'] for m in bld['moves']]]
+    return dict(score=round(s2, 4), comp={k: round(v, 3) for k, v in c2.items()}, ability=ab, abilitySlot=slot, nature=nat['id'] if nat else None,
+                capsule=None if slot == 0 else ('caph' if slot == 2 else 'cap'),
+                T_mult=round(r2['T_mult'], 3), ehp=round(r2['ehp']), S=round(r2['S']), slow=r2['slow'], slow_v=round(r2['slow_v'], 2), stun=r2['stun'], stun_v=round(r2['stun_v'], 2),
+                heal=r2['heal'], dmv=r2['dmv'], build=bld, tms=used_tm)
+
+def pick_shop(p, predict):
+    """Con la predicción ya ajustada (blend.py): la combinación de la tienda que más segundos estima."""
+    cands = p['_cands']
+    preds = [predict({k: round(v, 3) for k, v in c[1].items()}) for c in cands]
+    best = max(range(len(cands)), key=lambda i: (round(preds[i], 9), cands[i][0], -i))
+    model_pos = p['shop'].get('model_pos')
+    p['shop'] = shop_entry(p['dex'], p, cands[best])
+    if model_pos is not None: p['shop']['model_pos'] = model_pos
 
 def main():
     t0 = time.time()
@@ -356,7 +376,8 @@ def main():
     for key in ('base', 'shop'):
         for r in rows: r[key]['model_pos'] = r[key]['pos']
     import blend
-    info = blend.apply(doc, TIERS[:-1] + [(10 ** 6, 'D')])
+    info = blend.apply(doc, TIERS[:-1] + [(10 ** 6, 'D')], pick=pick_shop)
+    for r in rows: r.pop('_cands', None); r.pop('_pools', None)
     if info: print('mezcla empírico+modelo:', info); rows.sort(key=lambda r: r['base']['pos'])
     out = os.path.join(ROOT, 'data', 'ranking.json')
     json.dump(doc, open(out, 'w', encoding='utf-8', newline='\n'), ensure_ascii=False, indent=1)
