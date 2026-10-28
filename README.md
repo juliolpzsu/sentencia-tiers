@@ -56,6 +56,7 @@ La variante **Tienda Kecleon** elige la habilidad, la naturaleza y las MT que m�
 │   ├── advisor.py         Datos del Consejero (docs/assets/advisor.json y extension/data.js)
 │   ├── coop.py            Tier list del cooperativo y equipos (data/coop.json)
 │   ├── icons.py           Iconos pixel art del juego en SVG (docs/img/i)
+│   ├── og.py              Tarjeta para compartir de cada Pokémon (docs/img/og)
 │   ├── fetch_portraits.py Descarga los retratos (PMD SpriteCollab)
 │   └── update.py          Comprueba si el juego cambió y, si afecta al ranking, lo actualiza
 ├── data/
