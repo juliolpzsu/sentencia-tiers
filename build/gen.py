@@ -214,7 +214,9 @@ def evidence_txt(p, lang):
     n = e.get('n', e.get('nj', 0))
     if not n: return 'predicción del modelo (sin partidas reales)' if lang == 'es' else 'model prediction (no real runs)'
     w = round(e['weight'] * 100)
-    sj = (f", mediana de Sentencia {e['real']} s" if e.get('real') else ', sin llegar a la Sentencia') if lang == 'es' else (f", Judgment median {e['real']} s" if e.get('real') else ', not reaching the Judgment')
+    nj = e.get('nj', 0)
+    sj = ((f"; {nj} llegan a la Sentencia (mediana {e['real']} s)" if e.get('real') else '; ninguna llega a la Sentencia') if lang == 'es'
+          else (f"; {nj} reach the Judgment (median {e['real']} s)" if e.get('real') else '; none reaches the Judgment'))
     pl = e.get('players')
     return (f"{n} marcas reales{f' de {pl} jugadores' if pl else ''}{sj}; pesan un {w} %" if lang == 'es'
             else f"{n} real runs{f' by {pl} players' if pl else ''}{sj}; {w}% of the weight")

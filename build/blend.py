@@ -9,7 +9,7 @@ Para cada Pokémon se estima cuántos segundos aguanta en la Sentencia un buen j
   4. Tienda Kecleon: la misma estimación + lo que cambia la predicción con los componentes de su build de tienda.
 rank.py llama a apply(doc) antes de escribir data/ranking.json: fija base/shop.pos, .tier y .est (segundos).
 """
-import json, math, os, random
+import bisect, statistics, json, math, os, random
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 K = 10            # partidas "equivalentes" que vale la predicción
@@ -107,10 +107,19 @@ def apply_force(doc, tiers, rec, pick=None):
                               [sum(z[i] * (yy - y0) for z, yy in zip(Zk, y)) for i in range(len(mk))])[0])
     # segundos de Sentencia = tiempo total estimado (exp(c + fuerza)) - 30 min; c se ajusta con los que llegan casi
     # siempre (≥10 marcas en la Sentencia y al menos el 80 % de sus marcas): c = mediana de log(1800 + mediana) - fuerza
-    cal = sorted(math.log(1800 + rec[str(p['dex'])]['med']) - rec[str(p['dex'])]['force'] for p in P
-                 if rec.get(str(p['dex']), {}).get('nj', 0) >= MIN_FIT and rec[str(p['dex'])].get('med') and rec[str(p['dex'])]['nj'] >= 0.8 * rec[str(p['dex'])]['n'])
-    b0 = cal[len(cal) // 2]; b1 = 1.0
-    secs = lambda f: round(max(0.0, math.exp(b0 + f) - 1800), 1)
+    # Segundos: la fuerza se pasa a segundos totales emparejando cuantiles con las medianas reales del tiempo total
+    # (Pokémon con ≥10 marcas). Una recta única encogía hacia el centro: Pokémon con sus 50 marcas pasado el minuto 30
+    # salían por debajo. Así se conserva el orden de la fuerza y los segundos son los que de verdad se ven en los récords.
+    qa = [p for p in P if rec.get(str(p['dex']), {}).get('n', 0) >= 10 and rec[str(p['dex'])].get('tmed')]
+    qf = sorted(rec[str(p['dex'])]['force'] for p in qa); qt = sorted(math.log(rec[str(p['dex'])]['tmed']) for p in qa)
+    def total(f):
+        if f <= qf[0]: return math.exp(qt[0] + (f - qf[0]))
+        if f >= qf[-1]: return math.exp(qt[-1] + (f - qf[-1]))
+        k = bisect.bisect_right(qf, f) - 1
+        u = (f - qf[k]) / (qf[k + 1] - qf[k]) if qf[k + 1] > qf[k] else 0.0
+        return math.exp(qt[k] + u * (qt[k + 1] - qt[k]))
+    b0 = math.log(statistics.median(math.exp(t) for t in qt)) - statistics.median(qf); b1 = 1.0; cal = qa
+    secs = lambda f: round(max(0.0, total(f) - 1800), 1)
     for p in P:
         r = rec.get(str(p['dex']), {}); n = r.get('n', 0) or 0; nj = r.get('nj', 0) or 0
         # Tienda Kecleon: entre Pokémon, la ridge mezcla los componentes con las estadísticas (colinealidad: p. ej. velocidad
@@ -122,7 +131,7 @@ def apply_force(doc, tiers, rec, pick=None):
         fb = (n * real + K_F * pb) / (n + K_F) if real is not None else pb
         p['base']['force'] = round(fb, 6); p['shop']['force'] = round(fb + (ps - pb), 6)
         p['base']['est'] = secs(fb); p['shop']['est'] = secs(fb + (ps - pb))
-        p['base']['tot'] = round(math.exp(b0 + fb)); p['shop']['tot'] = round(math.exp(b0 + fb + (ps - pb)))   # segundos totales
+        p['base']['tot'] = round(total(fb)); p['shop']['tot'] = round(total(fb + (ps - pb)))   # segundos totales
         p['base']['pred'] = secs(pb)
         p['evidence'] = dict(n=n, nj=nj, real=r.get('med'), lv=r.get('lv'), kpm=r.get('kpm'), players=r.get('players'), weight=round(n / (n + K_F), 2))
     for key in ('base', 'shop'):
@@ -131,7 +140,7 @@ def apply_force(doc, tiers, rec, pick=None):
             p[key]['pos'] = i + 1; p[key]['tier'] = next(t for lim, t in tiers if i + 1 <= lim)
     info = dict(target='fuerza ajustada por jugador (log segundos totales)', alpha=alpha, cv_spearman=round(scores[alpha], 3),
                 cv_by_alpha={str(a): round(v, 3) for a, v in scores.items()}, n_fit=len(fit), K=K_F,
-                weights={nm: round(w, 3) for nm, w in zip(NAMES, model.w)}, seconds_line=dict(b0=round(b0, 4), b1=round(b1, 4), n=len(cal)), shop_k=round(k_score, 4),
+                weights={nm: round(w, 3) for nm, w in zip(NAMES, model.w)}, seconds_line=dict(method='cuantiles de la mediana del tiempo total', b0=round(b0, 4), b1=round(b1, 4), n=len(cal)), shop_k=round(k_score, 4),
                 with_records=sum(1 for p in P if p['evidence']['n']), model_only_cv=round(cv([[p['base']['score']] for p in fit], y, 1), 3))
     doc['blend'] = info
     return info
