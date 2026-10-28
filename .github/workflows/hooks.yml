@@ -36,7 +36,7 @@ jobs:
         run: |
           git config user.name "sentencia-tiers[bot]"
           git config user.email "sentencia-tiers[bot]@users.noreply.github.com"
-          git pull -q --rebase
           git add data/game/HOOKS.sha
           git commit -m "Consejero: huellas del juego actualizadas (ver incidencia)"
+          git pull -q --rebase
           git push

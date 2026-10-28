@@ -310,6 +310,8 @@ section.me h3 { color: var(--red); }
 .tmday .note8 { color: var(--dim); cursor: help; padding: 0 4px; }
 .shopday { display: flex; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--red); box-shadow: var(--sh-r); padding: 8px 12px; margin: 0 6px 16px 0; }
 .shopday:has(.tmday:empty) { display: none; }
+.event { margin: 0 0 10px; padding: 6px 10px; border-left: 3px solid #ff8a2a; background: rgba(255,138,42,.08); font-size: .8rem; color: var(--muted); }
+.event b { color: #ff8a2a; margin-right: 6px; font-weight: 600; }
 img.pix { image-rendering: pixelated; vertical-align: middle; flex: none; }
 
 /* ---- novedades del parche ---- */

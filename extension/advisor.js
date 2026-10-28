@@ -623,7 +623,7 @@
     let arc = null, legs = 0;
     for (const e of (N.EnemyMgr.all() || [])) {
       if (!e || e.dead) continue;
-      if (e.dex === ARCEUS || e.behavior === 'arceus' || (e.def && e.def.dex === ARCEUS)) { arc = e; continue; }
+      if (e.arceus || e.dex === ARCEUS || e.behavior === 'arceus' || (e.def && e.def.dex === ARCEUS)) { arc = e; continue; }
       if (e.boss && Math.hypot(e.x - pl.x, e.y - pl.y) < LEG_R) legs++;
     }
     if (!jdEl) {
@@ -637,7 +637,9 @@
     if (arc) {
       const d = Math.round(Math.hypot(arc.x - pl.x, arc.y - pl.y));
       const [cls, txt] = d < NOVA_R ? ['bad', t.near] : d < GOOD_MIN ? ['mid', t.close] : d <= GOOD_MAX ? ['ok', t.good] : ['mid', t.far];
-      dist = `<div class="sta-jd-d ${cls}"><b>${t.arceus}</b> ${d} px · ${txt}</div>`;
+      // En Halloween (30-10 al 1-11) el jefe es el gran Gengar: su nombre en vez de Arceus.
+      const who = arc.dex === ARCEUS ? t.arceus : esc(arc.name || t.arceus);
+      dist = `<div class="sta-jd-d ${cls}"><b>${who}</b> ${d} px · ${txt}</div>`;
     }
     // El control de la build que ya tienes y no está activo: su tecla es su hueco (1–4).
     let tip = '';

@@ -97,6 +97,14 @@
     }).join('') + (save && save.partner ? '' : `<span class="note8" title="${T.tm8}">*</span>`);
   }
   computeToday();
+  // Halloween del juego (30-10 al 2-11, hora de España): el jefe del minuto 30 es el gran Gengar.
+  const md = +today.date.slice(4);
+  if (md >= 1030 && md <= 1102) {
+    const es = document.documentElement.lang === 'es';
+    ($('#tmday').closest('.shopday') || $('#tmday')).insertAdjacentHTML('beforebegin', `<p class="event">${es
+      ? '<b>Halloween (30-10 al 2-11)</b> En el minuto 30 llega el gran Gengar en vez de Arceus. Ataca igual, así que esta tier list sigue valiendo; antes del minuto 30 salen más Pokémon Fantasma.'
+      : '<b>Halloween (Oct 30 – Nov 2)</b> At minute 30 the giant Gengar comes instead of Arceus. It attacks the same way, so this tier list still holds; before minute 30 there are more Ghost Pokémon.'}</p>`);
+  }
   $('#me-load').addEventListener('click', () => { computeToday(); render(); }); $('#me-clear').addEventListener('click', () => { computeToday(); render(); });
 
   // ---- orden y filtros ----
