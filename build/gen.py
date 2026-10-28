@@ -474,10 +474,11 @@ def coop_text(lang):
     C = json.load(open(path, encoding='utf-8'))
     PB = {p['dex']: p for p in R['pokemon']}
     es = lang == 'es'
-    ROLE = {'portador': ('portador', 'carry'), 'farmeo': ('farmeo', 'farmer'), 'control': ('control', 'control')}
+    ROLE = {'portador': ('portador', 'carry'), 'farmeo': ('farmeo', 'farmer'), 'control': ('control', 'control'), 'apoyo': ('apoyo', 'support')}
     BRIEF = {'portador': ('Aguanta: tira del grupo en la Sentencia.', 'Survives: anchors the group in the Judgment.'),
              'farmeo': ('Limpia hordas: sube el nivel de todos.', 'Clears hordes: levels up everyone.'),
-             'control': ('Frena y aturde a los legendarios.', 'Slows and stuns the legendaries.')}
+             'control': ('Frena y aturde a los legendarios.', 'Slows and stuns the legendaries.'),
+             'apoyo': ('Rápido: revive a los caídos y abre los cofres.', 'Fast: revives fallen allies and grabs chests.')}
     rl = lambda r: ' '.join(f'<span class="pill">{ROLE[x][0 if es else 1]}</span>' for x in r)
     link = lambda d: f'<a href="../pokemon/{slug(PB[d])}/">{esc(name(PB[d], lang))}</a>'
     pc = lambda v: f'{round(v * 100)}'
@@ -486,13 +487,13 @@ def coop_text(lang):
         brief = BRIEF[role][0 if es else 1] if role else ('Un poco de todo.' if es else 'A bit of everything.')
         mv = ''.join(f'<img class="pix" src="../../img/i/m-{m["id"]}.svg" width="24" height="24" alt="{esc(mname(m["id"], lang))}" title="{esc(mname(m["id"], lang))}">' for m in p['base']['build']['moves'])
         return (f'<div class="mem"><a class="pic" href="../pokemon/{slug(p)}/"><img class="px" src="../../img/p/{d}.png" alt="" width="56" height="56" loading="lazy"></a>'
-                f'<div><div class="nm">{link(d)} <span class="tier {r["tier"]}">{r["tier"]}</span>{rl([role]) if role else ""}</div><div class="small muted">{brief}</div><div class="mvs">{mv}</div></div></div>')
+                f'<div><div class="nm">{link(d)} <span class="tier {r["tier"]}">{r["tier"]}</span>{rl(([role] if role else []) + [x for x in r['roles'] if x != role])}</div><div class="small muted">{brief}</div><div class="mvs">{mv}</div></div></div>')
     def roles_of(t):
         # un papel por miembro: primero los que solo uno del equipo cubre (control, farmeo, portador)
         out, used = {}, set()
         for d in sorted(t['members'], key=lambda d: len(C['pokemon'][str(d)]['roles'])):
             rs = C['pokemon'][str(d)]['roles']
-            out[d] = next((x for x in ('control', 'farmeo', 'portador') if x in rs and x not in used), rs[0] if rs else None)
+            out[d] = next((x for x in ('control', 'apoyo', 'farmeo', 'portador') if x in rs and x not in used), rs[0] if rs else None)
             used.add(out[d])
         return out
     def teams(n):
@@ -506,10 +507,10 @@ def coop_text(lang):
     hd = ('<tr><th>#</th><th>Tier</th><th>Pokémon</th><th>Puesto solo</th><th>Aguante</th><th>Farmeo</th><th>Control</th><th>Velocidad</th><th>Papel</th></tr>' if es else
           '<tr><th>#</th><th>Tier</th><th>Pokémon</th><th>Solo rank</th><th>Survival</th><th>Farm</th><th>Control</th><th>Speed</th><th>Role</th></tr>')
     if es:
-        return f'''<h1>Cooperativo</h1><p class="muted">En grupo la experiencia es de todos (con un compañero que mata tanto como tú, el equipo sube de nivel un 25 % más rápido), el control protege a todos, a un caído lo levantas quedándote 3 s a su lado y Arceus persigue al más cercano, así que separarse reparte la presión. Por eso aquí también cuentan farmear, controlar y la velocidad, no solo aguantar.</p>
+        return f'''<h1>Cooperativo</h1><p class="muted">En grupo la experiencia es de todos (con un compañero que mata tanto como tú, el equipo sube de nivel un 25 % más rápido), el control protege a todos, a un caído lo levantas quedándote 3 s a su lado y Arceus persigue al más cercano, así que separarse reparte la presión. Por eso aquí también cuentan farmear, controlar y la velocidad: antes del minuto 30 no hay tope, y un Pokémon rápido hace de apoyo, llegando antes a revivir y a los cofres.</p>
 <h2>Equipos recomendados</h2>{tabs([(2, 'Dúos'), (3, 'Tríos'), (4, 'De cuatro')])}
 <h2>Los 120 mejores en grupo</h2><p class="small muted">Percentiles entre los 966 (100 = el mejor).</p><div class="scroll"><table class="moves-t">{hd}{rows}</table></div>'''
-    return f'''<h1>Co-op</h1><p class="muted">In a group, experience is shared (with a partner who kills as much as you, the team levels up 25% faster), control protects everyone, a downed partner gets back up after you stand next to them for 3 s, and Arceus chases the nearest player, so splitting up spreads the pressure. That is why farming, control and speed count here too, not just survival.</p>
+    return f'''<h1>Co-op</h1><p class="muted">In a group, experience is shared (with a partner who kills as much as you, the team levels up 25% faster), control protects everyone, a downed partner gets back up after you stand next to them for 3 s, and Arceus chases the nearest player, so splitting up spreads the pressure. That is why farming, control and speed count here too: before minute 30 there is no speed cap, and a fast Pokémon plays support, first to revive and to the chests.</p>
 <h2>Recommended teams</h2>{tabs([(2, 'Duos'), (3, 'Trios'), (4, 'Fours')])}
 <h2>Top 120 in a group</h2><p class="small muted">Percentiles across the 966 (100 = best).</p><div class="scroll"><table class="moves-t">{hd}{rows}</table></div>'''
 

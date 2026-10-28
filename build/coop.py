@@ -9,7 +9,7 @@ En cooperativo (net/coop.js, game.js, spawner.js, judgment.js):
 Así, un Pokémon que aguanta peor pero limpia mucho en área (experiencia para todos) o frena y
 aturde (protege a todos) aporta al grupo aunque solo no destaque.
 
-Puntuación = 0,45 aguante propio + 0,25 farmeo en área + 0,20 control + 0,10 velocidad, cada parte
+Puntuación = 0,45 aguante propio + 0,25 farmeo en área + 0,20 control + 0,10 velocidad propia (apoyo: revivir y cofres), cada parte
 en percentil entre los 966. Si existe data/bench/bench.json (banco de partidas del bot), el farmeo
 se mezcla con los enemigos derrotados por minuto medidos.
 python -I build/coop.py
@@ -61,12 +61,14 @@ def main():
     else:
         farm = farm_model
     ctl = pct([p['base']['comp']['U'] for p in P])
-    spd = pct([p['base']['comp']['S'] for p in P])
+    # Velocidad propia (con Zancada), no la de la Sentencia: el tope suave de 130 solo existe en judgment.js,
+    # y antes del minuto 30 el rápido llega antes a revivir a un caído (3 s a su lado) y a los cofres.
+    spd = pct([p['stats']['spd'] for p in P])
     rows = []
     for i, p in enumerate(P):
         c = dict(surv=surv[i], farm=farm[i], ctl=ctl[i], spd=spd[i])
         score = sum(W[k] * c[k] for k in W)
-        roles = [r for r, k, lim in (('portador', 'surv', 0.9), ('farmeo', 'farm', 0.85), ('control', 'ctl', 0.85)) if c[k] >= lim]
+        roles = [r for r, k, lim in (('portador', 'surv', 0.9), ('farmeo', 'farm', 0.85), ('control', 'ctl', 0.85), ('apoyo', 'spd', 0.85)) if c[k] >= lim]
         rows.append(dict(dex=p['dex'], name=p['name'], nameEn=p['nameEn'], types=p['types'], score=round(score, 4), c={k: round(v, 3) for k, v in c.items()},
                          roles=roles, solo=p['base']['pos'], weak=sorted(weak_types(p['types']))))
     rows.sort(key=lambda r: (-r['score'], r['solo'], r['dex']))
@@ -77,7 +79,7 @@ def main():
     def team_score(t):
         base = sum(r['score'] for r in t) / len(t)
         roles = set(x for r in t for x in r['roles'])
-        cover = ('control' in roles) * 0.04 + ('farmeo' in roles) * 0.04 + ('portador' in roles) * 0.02
+        cover = ('control' in roles) * 0.04 + ('farmeo' in roles) * 0.04 + ('portador' in roles) * 0.02 + ('apoyo' in roles) * 0.02
         shared = sum(len(set(a['weak']) & set(b['weak'])) for a, b in itertools.combinations(t, 2)) / max(1, len(t) * (len(t) - 1) / 2)
         same_type = sum(1 for a, b in itertools.combinations(t, 2) if set(a['types']) & set(b['types']))
         return base + cover - 0.012 * shared - 0.02 * same_type
