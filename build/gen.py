@@ -640,6 +640,7 @@ def write(path, text):
 
 def main():
     t0 = time.time()
+    import coop; coop.main()          # data/coop.json (página Cooperativo)
     for lang in LANGS:
         shutil.rmtree(os.path.join(DOCS, lang), ignore_errors=True)
     write(os.path.join(DOCS, 'index.html'), ROOT_INDEX)
