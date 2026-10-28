@@ -63,6 +63,7 @@ p { margin: .3rem 0 .6rem; }
 .kpi b { color: var(--yellow); font-size: 1rem; display: block; }
 
 /* ---- controls ---- */
+.controls .more { display: none; }
 .controls { background: var(--panel); border: 1px solid var(--line); padding: 10px 12px; display: grid; gap: 8px; margin: 8px 6px 16px 0; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .row label { font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); display: grid; gap: 4px; }
@@ -216,6 +217,10 @@ ol.tiles li b { font-weight: 600; line-height: 1.1; } ol.tiles li span { color: 
 .prose { max-width: 78ch; }
 .prose.wide { max-width: none; }
 .prose.wide > p.muted { max-width: 110ch; }
+.movers { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 6px 18px; }
+.movers table { display: table; }
+.movers h3 .up { color: #58f08a; } .movers h3 .down { color: var(--red); }
+.prose.wide > h2, .prose.wide > ul, .prose.wide > p { max-width: 110ch; }
 .jd { margin-top: 10px; align-items: start; }
 .jd table { display: table; margin-bottom: 8px; font-size: .8rem; }
 .jd ul.plain, .jd ol.plain { padding-left: 1rem; }
@@ -241,8 +246,12 @@ footer a { color: var(--muted); }
   .controls .row:first-child { flex-direction: column; align-items: stretch; }
   .controls .row:first-child .seg { display: flex; } .controls .row:first-child .seg button { flex: 1; }
   .count { margin-left: 0; text-align: right; }
-  .head { grid-template-columns: 1fr; }
-  .head .pic { height: 120px; } .head .pic img { width: 96px; height: 96px; }
+  .head { grid-template-columns: 76px 1fr; gap: 10px 12px; align-items: center; }
+  .head .hd { display: contents; }
+  .head .pic { height: 76px; } .head .pic img { width: 64px; height: 64px; }
+  .head .ranks, .head .verdict, .head section.me { grid-column: 1 / -1; }
+  .ranks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rank { min-width: 0; } .rank.est, .rank.ext { grid-column: 1 / -1; } .rank .l { font-size: .62rem; }
   .hero { grid-template-columns: 1fr; align-items: start; }
   .inc { grid-template-columns: 1fr 1fr; }
   .kv2 { grid-template-columns: max-content 1fr; }
@@ -251,8 +260,21 @@ footer a { color: var(--muted); }
   .bar { font-size: .74rem; }
   .bar .l small { display: none; }
   .inc .r { grid-template-columns: 72px 1fr 40px; }
-  .grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
-  .card img { width: 56px; height: 56px; } .card .pic { height: 62px; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .card { padding: 5px 4px 4px; gap: 2px; }
+  .card img { width: 48px; height: 48px; } .card .pic { height: 50px; }
+  .card .pos { font-size: .85rem; top: 3px; left: 5px; } .card .tier { top: 3px; right: 4px; font-size: .7rem; padding: 0 4px; }
+  .card .name { font-size: .72rem; overflow-wrap: anywhere; }
+  .card .dex { display: none; }
+  .card .types, .card .tools { flex-wrap: wrap; gap: 2px; } .card .type, .card .tool { font-size: .56rem; padding: 0 3px; letter-spacing: .04em; }
+  .card .tools { min-height: 0; }
+  .controls:not(.open) .adv { display: none; }
+  .controls .more { display: block; }
+  .kpis { display: none; }
+  .top .wrap { flex-wrap: wrap; } .logo { order: 0; } .lang { order: 1; } .nav { order: 2; flex-basis: 100%; }
+  .shopday { padding: 6px 8px; } .shopday > img { display: none; }
+  .tmday { gap: 4px; font-size: .68rem; } .tmday .tm { padding: 1px 5px; }
+  .hero p { font-size: .85rem; }
   :root { --sh: 4px 4px 0 0 var(--yellow); --sh-r: 4px 4px 0 0 var(--red); }
   .move .why, .move .d { font-size: .82rem; }
   .strat { font-size: .9rem; }
@@ -303,3 +325,6 @@ table.moves-t td.up { color: #58f08a; } table.moves-t td.down { color: var(--red
 .mem .pic img { display: block; image-rendering: pixelated; border: 1px solid var(--line2); background: #0d0d12; }
 .mem .nm { font-weight: 700; text-transform: uppercase; letter-spacing: .05em; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .mem .mvs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+@media (max-width: 960px) {
+  .top .wrap { flex-wrap: wrap; } .logo { order: 0; } .lang { order: 1; margin-left: auto; } .nav { order: 2; flex-basis: 100%; margin-left: 0; }
+}

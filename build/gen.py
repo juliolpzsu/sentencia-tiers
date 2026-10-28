@@ -287,9 +287,10 @@ def index_page(lang):
 <section class="controls cut">
 <div class="row"><input id="q" type="search" placeholder="{U['search']}" aria-label="{U['search']}">
 <div class="seg" id="mode" title="{esc(U['mode_help'])}"><button type="button" data-m="base" class="on">{U['mode_base']}</button><button type="button" data-m="shop" class="red">{U['mode_shop']}</button></div>
-<label>{U['sort']}<span style="display:flex;gap:4px"><select id="sort">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['sort_opts'])}<option value="you">{U['sort_you']}</option></select><button type="button" class="chip" id="dir" title="asc/desc">↓</button><button type="button" class="chip" id="shuffle">{U['shuffle']}</button></span></label>
-<label>{U['group']}<select id="group">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['group_opts'])}</select></label><span class="count" id="count"></span></div>
-<div class="row"><label>{U['tier']}<span class="chips" id="tiers">{''.join(f'<button type="button" class="chip" data-tier="{t}">{t}</button>' for t in 'SABCD')}</span></label>
+<button type="button" class="chip more" id="more" aria-expanded="false">{U['filters']} ▾</button>
+<label class="adv">{U['sort']}<span style="display:flex;gap:4px"><select id="sort">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['sort_opts'])}<option value="you">{U['sort_you']}</option></select><button type="button" class="chip" id="dir" title="asc/desc">↓</button><button type="button" class="chip" id="shuffle">{U['shuffle']}</button></span></label>
+<label class="adv">{U['group']}<select id="group">{''.join(f'<option value="{k}">{v}</option>' for k, v in U['group_opts'])}</select></label><span class="count" id="count"></span></div>
+<div class="row adv"><label>{U['tier']}<span class="chips" id="tiers">{''.join(f'<button type="button" class="chip" data-tier="{t}">{t}</button>' for t in 'SABCD')}</span></label>
 <label>{U['filters']}<span class="chips" id="flags"><button type="button" class="chip" data-f="leg">{U['flag_leg']}</button><button type="button" class="chip" data-f="slow">{U['flag_slow']}</button><button type="button" class="chip" data-f="stun">{U['flag_stun']}</button><button type="button" class="chip" data-f="regen">{U['flag_regen']}</button><button type="button" class="chip" data-f="tmday" title="{esc(U['tmHint'])}">{U['flag_tm']}</button><button type="button" class="chip" data-f="mine" id="flag-mine" hidden>{U['mine']}</button><button type="button" class="chip me" id="me-btn">{U['me']}</button></span></label>
 <label>{U['types']}<span class="chips" id="types"></span></label></div>
 </section>
@@ -517,12 +518,13 @@ def changes_text(lang):
             if not ups and not downs: return ''
             row = lambda v, k: f'<tr><td><a href="../pokemon/{slug(BY[k])}/">{esc(name_(k))}</a></td><td>{BY[k][("base", "shop")[i]]["pos"]}</td><td class="{"up" if v > 0 else "down"}">{"▲" if v > 0 else "▼"} {abs(v)}</td></tr>'
             hd = '<tr><th>Pokémon</th><th>' + ('Puesto' if lang == 'es' else 'Rank') + '</th><th>Δ</th></tr>'
-            return (f'<h3>{title}</h3><div class="g2"><div><table class="moves-t">{hd}{"".join(row(v, k) for v, k in ups) or '<tr><td colspan="3" class="muted">—</td></tr>'}</table></div>'
-                    f'<div><table class="moves-t">{hd}{"".join(row(v, k) for v, k in downs) or '<tr><td colspan="3" class="muted">—</td></tr>'}</table></div></div>')
-        out.append('<h2>' + ('Novedades del último parche' if lang == 'es' else 'Latest patch movers') + '</h2>')
+            empty = '<tr><td colspan="3" class="muted">—</td></tr>'
+            return (f'<div><h3>{title} <span class="up">▲</span></h3><table class="moves-t">{hd}{"".join(row(v, k) for v, k in ups) or empty}</table></div>'
+                    f'<div><h3>{title} <span class="down">▼</span></h3><table class="moves-t">{hd}{"".join(row(v, k) for v, k in downs) or empty}</table></div>')
+        out.append('<h2>' + ('Quién sube y quién baja' if lang == 'es' else 'Who rises and who falls') + '</h2>')
         out.append('<p class="muted">' + (f"Comparado con el ranking del {DELTA['prev']['date']} (juego {esc(DELTA['prev']['game'])}): {len(d)} Pokémon cambian de puesto. En la tier list salen con flecha durante 7 días." if lang == 'es'
                    else f"Compared with the ranking of {DELTA['prev']['date']} (game {esc(DELTA['prev']['game'])}): {len(d)} Pokémon change rank. They carry an arrow in the tier list for 7 days.") + '</p>')
-        out.append(tbl(0, UI[lang]['mode_base']) + tbl(1, UI[lang]['mode_shop']))
+        out.append('<div class="movers">' + tbl(0, UI[lang]['mode_base']) + tbl(1, UI[lang]['mode_shop']) + '</div>')
     ul = 0
     for line in md.splitlines():
         if line.startswith('# '): continue
@@ -561,7 +563,7 @@ def main():
         write(os.path.join(DOCS, lang, 'sentencia', 'index.html'), prose_page(lang, 'nav_judg', UI[lang]['nav_judg'], judgment_text(lang), f'{lang}/sentencia/', wide=True)); urls.append(f'{SITE}/{lang}/sentencia/')
         # el método se explica en el repositorio (MODELO.md); los enlaces antiguos a /metodo/ llevan allí
         write(os.path.join(DOCS, lang, 'metodo', 'index.html'), f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url={REPO}/blob/main/MODELO.md"><link rel="canonical" href="{REPO}/blob/main/MODELO.md"><a href="{REPO}/blob/main/MODELO.md">MODELO.md</a>')
-        write(os.path.join(DOCS, lang, 'cambios', 'index.html'), prose_page(lang, 'changes', UI[lang]['changes'], changes_text(lang), f'{lang}/cambios/')); urls.append(f'{SITE}/{lang}/cambios/')
+        write(os.path.join(DOCS, lang, 'cambios', 'index.html'), prose_page(lang, 'changes', UI[lang]['changes'], changes_text(lang), f'{lang}/cambios/', wide=True)); urls.append(f'{SITE}/{lang}/cambios/')
         write(os.path.join(DOCS, lang, 'cooperativo', 'index.html'), prose_page(lang, 'nav_coop', UI[lang]['nav_coop'], coop_text(lang), f'{lang}/cooperativo/', wide=True)); urls.append(f'{SITE}/{lang}/cooperativo/')
         for i, p in enumerate(order):
             prev = order[i - 1] if i > 0 else None; nxt = order[i + 1] if i + 1 < len(order) else None

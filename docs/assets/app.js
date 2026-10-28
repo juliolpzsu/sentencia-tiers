@@ -53,6 +53,7 @@
   $('#sort').onchange = e => { state.sort = e.target.value; render(); };
   $('#dir').onclick = () => { state.dir = -state.dir; $('#dir').textContent = state.dir > 0 ? '↓' : '↑'; render(); };
   $('#group').onchange = e => { state.group = e.target.value; render(); };
+  $('#more').onclick = () => { const c = $('.controls'), o = c.classList.toggle('open'); $('#more').setAttribute('aria-expanded', o); };
   $('#shuffle').onclick = () => { state.sort = 'rnd'; $('#sort').value = 'rnd'; render(); };
   $$('#mode button').forEach(x => { x.classList.toggle('on', x.dataset.m === state.mode); x.setAttribute('aria-pressed', x.dataset.m === state.mode); });
   $('#sort').value = state.sort; $('#group').value = state.group; $('#dir').textContent = state.dir > 0 ? '↓' : '↑';
