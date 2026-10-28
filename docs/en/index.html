@@ -21,7 +21,7 @@
 <label>Types<span class="chips" id="types"></span></label></div>
 </section>
 <section class="shopday"><img class="pix" src="../img/i/tm.svg" width="24" height="24" alt=""><div class="tmday" id="tmday"></div></section>
-<dialog id="me-dlg" class="panel"><h3>Load your save</h3><p class="small">With your save the site marks the Pokémon you own, their upgrades and the ability and nature you rolled, and estimates your rank with them. Everything stays in this browser: nothing is sent anywhere.</p><p class="small">1. Open pokesurvivor.com with your account. 2. Press F12 and open the “Console” tab. 3. Paste this line and press Enter: it copies your save to the clipboard. 4. Come back here and paste it in the box.</p>
+<dialog id="me-dlg" class="panel"><h3>Load your save</h3><p class="small">With your save the site marks the Pokémon you own, their upgrades and the ability and nature you rolled, and estimates your rank with them. Everything stays in this browser: nothing is sent anywhere.</p><ol class="small steps"><li>Open pokesurvivor.com with your account.</li><li>Press F12 and open the “Console” tab.</li><li>Paste this line and press Enter: it copies your save to the clipboard.</li><li>Come back here and paste it in the box.</li></ol>
 <pre class="snippet"><code>copy(localStorage.getItem(Object.keys(localStorage).find(k =&gt; k.startsWith(&#x27;ps.cloud.&#x27;))))</code></pre>
 <div class="row"><button type="button" class="chip" id="me-copy">Copy the line</button></div>
 <textarea id="me-text" rows="4" placeholder="Paste your save here (it starts with {&quot;stats&quot;:…)"></textarea><p class="small" id="me-err" style="color:var(--red);margin:4px 0"></p>

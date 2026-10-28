@@ -338,3 +338,4 @@ table.moves-t td.up { color: #58f08a; } table.moves-t td.down { color: var(--red
 .ctabs > input:focus-visible + label { outline: 2px solid var(--cyan); }
 .ctabs > .cpanel { order: 1; flex-basis: 100%; display: none; border-top: 2px solid var(--yellow); padding-top: 12px; }
 #ct2:checked ~ .p2, #ct3:checked ~ .p3, #ct4:checked ~ .p4 { display: block; }
+ol.steps { margin: 0 0 8px; padding-left: 1.2rem; } ol.steps li { margin: 2px 0; }

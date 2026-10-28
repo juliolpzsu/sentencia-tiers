@@ -21,7 +21,7 @@
 <label>Tipos<span class="chips" id="types"></span></label></div>
 </section>
 <section class="shopday"><img class="pix" src="../img/i/tm.svg" width="24" height="24" alt=""><div class="tmday" id="tmday"></div></section>
-<dialog id="me-dlg" class="panel"><h3>Cargar tu partida</h3><p class="small">Con tu partida la web marca los Pokémon que tienes, sus mejoras y la habilidad y naturaleza que te tocaron, y calcula tu puesto aproximado con ellas. Todo se queda en este navegador: no se envía a ningún sitio.</p><p class="small">1. Abre pokesurvivor.com con tu cuenta. 2. Pulsa F12 y entra en la pestaña «Console». 3. Pega esta línea y pulsa Intro: copia tu partida al portapapeles. 4. Vuelve aquí y pégala en el cuadro.</p>
+<dialog id="me-dlg" class="panel"><h3>Cargar tu partida</h3><p class="small">Con tu partida la web marca los Pokémon que tienes, sus mejoras y la habilidad y naturaleza que te tocaron, y calcula tu puesto aproximado con ellas. Todo se queda en este navegador: no se envía a ningún sitio.</p><ol class="small steps"><li>Abre pokesurvivor.com con tu cuenta.</li><li>Pulsa F12 y entra en la pestaña «Console».</li><li>Pega esta línea y pulsa Intro: copia tu partida al portapapeles.</li><li>Vuelve aquí y pégala en el cuadro.</li></ol>
 <pre class="snippet"><code>copy(localStorage.getItem(Object.keys(localStorage).find(k =&gt; k.startsWith(&#x27;ps.cloud.&#x27;))))</code></pre>
 <div class="row"><button type="button" class="chip" id="me-copy">Copiar la línea</button></div>
 <textarea id="me-text" rows="4" placeholder="Pega aquí tu partida (empieza por {&quot;stats&quot;:…)"></textarea><p class="small" id="me-err" style="color:var(--red);margin:4px 0"></p>

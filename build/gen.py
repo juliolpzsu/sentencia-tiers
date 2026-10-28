@@ -295,7 +295,7 @@ def index_page(lang):
 <label>{U['types']}<span class="chips" id="types"></span></label></div>
 </section>
 <section class="shopday"><img class="pix" src="../img/i/tm.svg" width="24" height="24" alt=""><div class="tmday" id="tmday"></div></section>
-<dialog id="me-dlg" class="panel"><h3>{U['meTitle']}</h3><p class="small">{U['meIntro']}</p><p class="small">{U['meHow']}</p>
+<dialog id="me-dlg" class="panel"><h3>{U['meTitle']}</h3><p class="small">{U['meIntro']}</p><ol class="small steps">{''.join(f'<li>{esc(x.strip())}</li>' for x in re.split(r'\d\. ', U['meHow']) if x.strip())}</ol>
 <pre class="snippet"><code>{esc("copy(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('ps.cloud.'))))")}</code></pre>
 <div class="row"><button type="button" class="chip" id="me-copy">{U['copy']}</button></div>
 <textarea id="me-text" rows="4" placeholder="{esc(U['mePaste'])}"></textarea><p class="small" id="me-err" style="color:var(--red);margin:4px 0"></p>
