@@ -29,7 +29,7 @@ Extensión de navegador para [PokéSurvivor](https://pokesurvivor.com/). En cada
 
 Está hecha para funcionar junto a PokeSurvivor Plus, en cualquier orden de carga:
 
-- Las dos necesitan el objeto interno del juego. Si PokeSurvivor Plus ya lo ha cogido (`window.__psmodNS`), el Consejero usa ese; si no, lo atrapa con el mismo método **encadenado** con la trampa que hubiera, sin quitársela a nadie.
+- Las dos necesitan el objeto interno del juego. Si PokeSurvivor Plus ya lo ha cogido (`window.__psmodNS`), el Consejero usa ese; si no, lo atrapa ella: envuelve `Object.create` hasta ver nacer ese objeto (el juego lo crea sin prototipo) y lo devuelve a su sitio. Conserva además la trampa anterior en `Object.prototype`, **encadenada** con la que hubiera, sin quitársela a nadie.
 - Solo envuelve `LevelUp.offer` (devuelve la misma lista), el `apply` de cada carta para anotar cuál eliges y `RunUI.showItemChoice` / `RunUI.showBond` para saber qué se ofrece, llamando siempre al original. No reescribe las cartas ni cambia lo que hace elegir una: añade una etiqueta dentro de cada carta (PokeSurvivor Plus les fija el alto) y una línea al final de la caja. Funciona también con el cambio de carta en cooperativo de PokeSurvivor Plus.
 - Todo lo suyo lleva el prefijo `sta-` (clases, ids, `localStorage`). Atajo Alt + J, que PokeSurvivor Plus no usa.
 

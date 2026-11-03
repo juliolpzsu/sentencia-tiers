@@ -5,8 +5,9 @@
 // Convive con PokeSurvivor Plus:
 //  - Las dos necesitan el objeto privado del juego (Camera, LevelUp, RunUI...).
 //    PokeSurvivor Plus lo deja en window.__psmodNS; si no está, esta extensión
-//    lo atrapa con el mismo truco (un setter de un solo uso en Object.prototype),
-//    encadenado con el que hubiera para no quitarle el suyo a nadie.
+//    lo atrapa ella: envuelve Object.create hasta verlo nacer (el juego lo crea
+//    sin prototipo) y conserva el setter de un solo uso en Object.prototype de
+//    las versiones anteriores, encadenados con lo que hubiera sin quitárselo a nadie.
 //  - Solo envuelve G.LevelUp.offer (devuelve la misma lista, sin tocarla) y
 //    nunca reescribe las cartas: añade una etiqueta absoluta dentro de cada una
 //    (PokeSurvivor Plus les fija la altura) y una línea debajo de la caja.
@@ -26,6 +27,25 @@
   // ---------------- el objeto del juego ----------------
   let NS = null;
   const isNS = (o) => o && typeof o === 'object' && 'LIFT' in o && 'U' in o;
+  // El juego crea ahora su objeto con Object.create(null): al no tener prototipo, un setter
+  // en Object.prototype no se entera. Se guardan esos objetos (nacen vacíos) hasta que uno
+  // resulta ser el del juego; entonces Object.create vuelve a ser el de antes.
+  const nullObjs = [];
+  let releaseCreate = () => {};
+  (function trapCreate() {
+    const prev = Object.create;
+    function create(proto, props) {
+      const o = prev.apply(this, arguments);
+      if (proto === null && nullObjs.length < 64) nullObjs.push(o);
+      return o;
+    }
+    releaseCreate = () => {
+      nullObjs.length = 0;
+      if (Object.create === create) Object.create = prev;   // si otro lo envolvió después, no se le quita
+    };
+    try { Object.create = create; } catch (_) { /* queda la trampa de Camera y window.__psmodNS */ }
+  })();
+  const found = (o) => { NS = o; releaseCreate(); return o; };
   (function trapCamera() {
     const prev = Object.getOwnPropertyDescriptor(Object.prototype, 'Camera');
     function set(v) {
@@ -34,7 +54,7 @@
         Object.defineProperty(this, 'Camera', { value: v, writable: true, configurable: true, enumerable: true });
       }
       if (!NS && isNS(this)) {
-        NS = this;
+        found(this);
         // Fuera la trampa (si sigue siendo la nuestra: la de otro no se toca).
         const d = Object.getOwnPropertyDescriptor(Object.prototype, 'Camera');
         if (d && d.set === set) {
@@ -51,7 +71,11 @@
       });
     } catch (_) { /* si no se puede, queda window.__psmodNS */ }
   })();
-  const ns = () => NS || (isNS(window.__psmodNS) ? (NS = window.__psmodNS) : null);
+  const ns = () => {
+    if (NS) return NS;
+    const o = isNS(window.__psmodNS) ? window.__psmodNS : nullObjs.find(isNS);
+    return o ? found(o) : null;
+  };
 
   function waitFor(test, fn, ms = 250, tries = 480) {
     const tick = () => {
@@ -788,7 +812,7 @@
   }
 
   // Para las pruebas (tests/advisor.test.mjs): el cálculo sin pantalla.
-  window.__stAdvisorCore = { advise, itemScore, judgmentTick, riftTick, buildComplete, decorateGrid, bondRank: (m, pl) => bondRank(m, buildFor(pl)), setNS: (n) => { NS = n; }, setData: (d) => { DATA = d; } };
+  window.__stAdvisorCore = { advise, itemScore, judgmentTick, riftTick, buildComplete, decorateGrid, bondRank: (m, pl) => bondRank(m, buildFor(pl)), ns, setNS: found, setData: (d) => { DATA = d; } };
 
   waitFor(() => { const N = ns(); return N && N.LevelUp && N.LevelUp.offer && N.RunUI && document.getElementById('cards'); }, setup);
 })();

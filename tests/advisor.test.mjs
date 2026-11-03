@@ -10,7 +10,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const read = (p) => readFileSync(ROOT + p, 'utf8');
 
 // Un navegador mínimo: el Consejero solo necesita window, localStorage y poco más.
-function sandbox() {
+function sandbox({ bare = false } = {}) {
   const store = new Map();
   const ctx = {
     console, Math, JSON, Date, Set, Map, Object, Array, String, Number, Promise,
@@ -28,6 +28,7 @@ function sandbox() {
   ctx.G = { U: {}, Stats: {} };
   vm.runInContext(read('data/game/js_data_moves.js'), ctx);
   vm.runInContext(read('extension/advisor.js'), ctx);
+  if (bare) return { ctx, core: ctx.__stAdvisorCore };
   const G = ctx.G;
   const NS = {
     LIFT: 1, U: {},
@@ -253,4 +254,23 @@ test('grieta: con el grupo del hueco 1 fusionado avisa de no entrar; sin fusiona
   S.NS.Game.player = loose;
   S.core.riftTick();
   assert.equal(S.ctx.__jd.hidden, true);
+});
+
+test('atrapa el objeto del juego aunque no tenga prototipo (Object.create(null))', () => {
+  const before = Object.create;
+  const { ctx, core } = sandbox({ bare: true });
+  // Como el arranque del juego: primero el objeto vacío, luego sus propiedades.
+  const game = vm.runInContext('var g = Object.create(null); g.BUILT = true; g.LIFT = 18; g.U = {}; g', ctx);
+  assert.equal(core.ns(), game);
+  assert.equal(Object.create, before, 'al encontrarlo deja Object.create como estaba');
+});
+
+test('Object.create sigue funcionando igual mientras espera al juego', () => {
+  const { ctx, core } = sandbox({ bare: true });
+  const proto = { a: 1 };
+  ctx.proto = proto;
+  assert.equal(vm.runInContext('Object.getPrototypeOf(Object.create(proto))', ctx), proto);
+  assert.equal(vm.runInContext("Object.create(proto, { b: { value: 2 } }).b", ctx), 2);
+  assert.equal(core.ns(), null);
+  core.setNS({ LIFT: 1, U: {} });
 });
