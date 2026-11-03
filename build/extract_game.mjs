@@ -14,6 +14,7 @@
 //
 //   node build/extract_game.mjs <app.min.js> <carpeta de salida>
 //   node build/extract_game.mjs <app.min.js> --dump <Módulo>   texto legible del módulo, para leer un diff de reglas (no se sube)
+//   node build/extract_game.mjs <app.min.js> --hooks           JSON con la huella de los módulos que usa el Consejero (build/check_hooks.py)
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -22,6 +23,8 @@ import { parse, tokenizer } from './vendor/acorn.mjs';
 const OPTS = { ecmaVersion: 'latest', sourceType: 'script' };
 // Módulos cuyas reglas replica rank.py a mano (o describe gen.py): si cambian, REVISAR REGLAS.
 const RULE_MODULES = ['Judgment', 'Combat', 'Enemy', 'Player', 'Stats', 'Hazards', 'Items', 'Upgrades'];
+// Módulos a los que se engancha el Consejero (extension/advisor.js): si cambian, build/check_hooks.py avisa.
+const HOOK_MODULES = ['LevelUp', 'RunUI', 'Game', 'Player', 'Moves'];
 
 function fail(msg) { console.error('ERROR extract_game: ' + msg); process.exit(1); }
 function need(cond, msg) { if (!cond) fail(msg); return cond; }
@@ -334,6 +337,15 @@ function main() {
   if (outDir === '--dump') {
     need(st.mods.has(arg), `no aparece G.${arg}`);
     process.stdout.write(decodedText(b, st.mods.get(arg).node).replaceAll(st.G, 'G') + '\n');
+    return;
+  }
+  if (outDir === '--hooks') {
+    const hooks = {};
+    for (const m of HOOK_MODULES) {
+      need(st.mods.has(m), `no aparece el módulo del Consejero ${m}`);
+      hooks[m] = fingerprint(decodedText(b, st.mods.get(m).node));
+    }
+    process.stdout.write(JSON.stringify(hooks) + '\n');
     return;
   }
   let gcache = null;

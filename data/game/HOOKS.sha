@@ -1,8 +1,8 @@
 {
- "js/systems/levelup.js": "eb79c3c9ce24",
- "js/ui/run-ui.js": "d514ae9ae98d",
- "js/game.js": "f55881f2cf7e",
- "js/entities/player.js": "47e39ab872b4",
- "js/data/moves.js": "6d53f8882b95",
+ "LevelUp": "cf695b9b1d43",
+ "RunUI": "d83e9c57344d",
+ "Game": "49eec216141f",
+ "Player": "04bacf843cd8",
+ "Moves": "16f91e771fff",
  "index.html": "951ddc36ade4"
 }

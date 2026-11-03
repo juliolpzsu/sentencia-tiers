@@ -5,37 +5,51 @@ subida de nivel, la pantalla que las pinta y unos campos del jugador). Este scri
 una huella de esas piezas en data/game/HOOKS.sha y avisa si cambian, para revisar la
 extensión antes de que deje de funcionar en silencio. Lo usa .github/workflows/hooks.yml.
 
+Desde el 30-10-2026 el juego solo publica un bundle ofuscado: las huellas de LevelUp, RunUI,
+Game, Player y Moves son de módulos enteros y las calcula build/extract_game.mjs leyendo
+js/app.min.js sin ejecutarlo. Cualquier cambio en un módulo avisa, aunque no toque el enganche.
+Si falla una descarga o la extracción, sale con error y no toca HOOKS.sha: mejor una Action
+en rojo que un vigilante ciego en verde.
+
   python -I build/check_hooks.py            → compara; escribe hooks-changed / hooks-report si cambia
   python -I build/check_hooks.py --update   → además guarda las huellas nuevas
 """
-import hashlib, json, os, re, sys, urllib.request
+import hashlib, json, os, re, shutil, subprocess, sys, tempfile, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHA_PATH = os.path.join(ROOT, 'data', 'game', 'HOOKS.sha')
 RAW = 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/'
+BUNDLE = 'js/app.min.js'
 
-# fichero → None (entero) o una expresión con las líneas que importan (el resto cambia a menudo)
-HOOKS = {
-    'js/systems/levelup.js': None,                       # tipos y claves de las cartas, STATS y sus topes
-    'js/ui/run-ui.js': r'showLevelUp|renderCards|function reroll|function pick|closeLevelUp|className = .card|lvl-reroll|offers',
-    'js/game.js': r'LevelUp\.offer|showLevelUp|get state|get player|const st = ',
-    'js/entities/player.js': r'this\.(mon|dex|moves|slots|maxMoves|statsTaken|dmgReduce|spdMul|cdMul|baseSpd|maxHp|banned) =|get reduction|Math\.max\(0\.12',
-    'js/data/moves.js': r'function (poolFor|instance|evoInfo|levelUp|nextUpText)|G\.Moves = ',
+# fichero fuera del bundle → expresión con las líneas que importan (el resto cambia a menudo)
+PAGE_HOOKS = {
     'index.html': r'id="(scr-levelup|cards|lvl-reroll|lvl-num)"',
 }
 
 
 def fetch(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'sentencia-tiers'}), timeout=30) as r:
-        return r.read().decode('utf-8', 'replace')
+        return r.read()
 
 
 def fingerprint(text, pattern):
     text = text.replace('\r\n', '\n')
-    if pattern:
-        rx = re.compile(pattern)
-        text = '\n'.join(l.strip() for l in text.split('\n') if rx.search(l))
+    rx = re.compile(pattern)
+    text = '\n'.join(l.strip() for l in text.split('\n') if rx.search(l))
     return hashlib.sha256(text.encode('utf-8')).hexdigest()[:12]
+
+
+def module_hooks():
+    """Huella de cada módulo del Consejero, que calcula extract_game.mjs a partir del bundle."""
+    node = shutil.which('node')
+    if not node: raise RuntimeError('no está node')
+    with tempfile.TemporaryDirectory() as tmp:
+        bundle = os.path.join(tmp, 'app.min.js')
+        with open(bundle, 'wb') as f: f.write(fetch(RAW + BUNDLE))
+        r = subprocess.run([node, os.path.join(ROOT, 'build', 'extract_game.mjs'), bundle, '--hooks'],
+                           capture_output=True, text=True, encoding='utf-8')
+    if r.returncode != 0: raise RuntimeError(r.stderr.strip() or f'node salió con {r.returncode}')
+    return json.loads(r.stdout)
 
 
 def out(key, val):
@@ -46,16 +60,14 @@ def out(key, val):
 
 def main():
     old = json.load(open(SHA_PATH, encoding='utf-8')) if os.path.exists(SHA_PATH) else {}
-    new, changed, failed = {}, [], []
-    for path, pattern in HOOKS.items():
-        try: new[path] = fingerprint(fetch(RAW + path), pattern)
-        except Exception as e:
-            failed.append(f'{path} ({e})'); new[path] = old.get(path, '?')
-            continue
-        if old.get(path) != new[path]: changed.append(path)
-    if failed:
-        print('aviso: no se pudo descargar', ', '.join(failed))
-        if len(failed) == len(HOOKS): sys.exit(1)       # sin red o el repo del juego ha cambiado de sitio
+    try:
+        new = module_hooks()
+        for path, pattern in PAGE_HOOKS.items():
+            new[path] = fingerprint(fetch(RAW + path).decode('utf-8', 'replace'), pattern)
+    except Exception as e:
+        print(f'ERROR check_hooks: {e}', file=sys.stderr)
+        sys.exit(1)
+    changed = [k for k in new if old.get(k) != new[k]]
     if not old:
         changed = []                                    # primera vez: solo se guardan
     if changed:
