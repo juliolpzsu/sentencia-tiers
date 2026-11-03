@@ -94,9 +94,9 @@ Los pesos están en `W` dentro de `build/rank.py`; la lógica de la build, en `c
 
 Una GitHub Action corre cada día a las 06:30 UTC (y a mano desde la pestaña *Actions*, con la opción `force`):
 
-1. Descarga los ficheros de datos del juego desde su repositorio público y el índice de SurvivorTiers.
+1. Descarga el bundle del juego desde su repositorio público y el índice de SurvivorTiers, y extrae los datos sin ejecutar el bundle (`build/extract_game.mjs`). Si no puede, la Action falla.
 2. Si alguno cambió, anota el commit del juego en `data/game/VERSION` y recalcula el ranking.
-3. Si el ranking cambia (puestos, puntuaciones o builds), regenera la web, escribe la entrada en `data/CHANGELOG.md` y publica el commit como `sentencia-tiers[bot]`. Si el juego cambió pero el orden es el mismo, no toca nada.
+3. Si el ranking cambia (puestos, puntuaciones o builds), regenera la web, escribe la entrada en `data/CHANGELOG.md` y publica el commit como `sentencia-tiers[bot]`. Si el juego cambió pero el orden es el mismo, no toca nada, salvo que cambie un módulo de reglas: entonces apunta el aviso de revisarlas.
 4. Si cambian los ficheros de **reglas** que el modelo replica a mano (`judgment.js`, `combat.js`, `enemy.js`, `player.js`, `stats.js`), lo marca con **REVISAR REGLAS**: hay que leer el cambio y adaptar `rank.py`.
 
 ## Contribuir
