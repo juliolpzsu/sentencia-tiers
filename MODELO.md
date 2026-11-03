@@ -21,7 +21,7 @@ Todo sale del código fuente del juego ([JPTER78/pokesurvivor](https://github.co
 | `js/data/moves.js` | Catálogo de movimientos, escalera de mejoras (nivel 1→5) y evoluciones; qué movimientos frenan (`slow`) o aturden (`kind: stun`). |
 | `js/data/pokedex.js`, `abilities.js`, `natures.js`, `tms.js`, `sprites-meta.js` | Stats, habilidades (1, 2, oculta), naturalezas, MT que aprende cada Pokémon y tamaño del sprite (radio de colisión del jugador, con tope en 18 px). |
 
-Los datos viven en `data/game/` como copia literal. `build/gamedata.py` los parsea.
+Las rutas son las del código del juego hasta el 30-10-2026; desde entonces solo publica un bundle ofuscado, y `build/extract_game.mjs` saca de él esos mismos datos sin ejecutarlo. Viven en `data/game/` y `build/gamedata.py` los parsea.
 
 ## 3. El pool de legendarios
 

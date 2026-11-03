@@ -1,7 +1,10 @@
 {
- "js/systems/judgment.js": "fd27bf01fe30",
- "js/systems/combat.js": "98e59fb480f3",
- "js/entities/enemy.js": "31ae4b050e33",
- "js/entities/player.js": "fff9f133389d",
- "js/systems/stats.js": "d9c8248f847a"
+ "Judgment": "46c79b95a244",
+ "Combat": "e285732e7eff",
+ "Enemy": "d0ace77b0b32",
+ "Player": "04bacf843cd8",
+ "Stats": "714beca1a9fd",
+ "Hazards": "dd846c95b025",
+ "Items": "e1a8fa58b29f",
+ "Upgrades": "b49a58a65251"
 }

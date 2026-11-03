@@ -1,12 +1,4 @@
-/* ============ natures.js — GENERADO, no editar a mano ============
- * Las 25 naturalezas: +10 % a un stat (up) y −10 % a otro (down); 5 son neutras.
- * Stats: pa Ataque · sa Ataque Especial · df Defensa · sd Defensa Especial · spd Velocidad.
- * Sacado del PR #236 de TheAdro7 (datos de PokeAPI) el 20-10-2026.
- * Nombres: [es, en, fr, it, zh-Hans, zh-Hant] (pt-BR usa el inglés, como los
- * movimientos); van aquí y no en el diccionario porque "Potencia", "Imán" o
- * "Rara" ya significan otra cosa allí. Ver G.Mons.name().
- */
-G.NATURES = [
+/* natures: generado por build/extract_game.mjs a partir de js/app.min.js de PokéSurvivor. No editar a mano. */
   {"id":"hardy","n":["Fuerte","Hardy","Hardi","Ardita","勤奋","勤奮"],"up":"","down":""},
   {"id":"bold","n":["Osada","Bold","Assuré","Sicura","大胆","大膽"],"up":"df","down":"pa"},
   {"id":"modest","n":["Modesta","Modest","Modeste","Modesta","内敛","內斂"],"up":"sa","down":"pa"},
@@ -31,7 +23,4 @@ G.NATURES = [
   {"id":"relaxed","n":["Plácida","Relaxed","Relax","Placida","悠闲","悠閒"],"up":"df","down":"spd"},
   {"id":"quiet","n":["Mansa","Quiet","Discret","Quieta","冷静","冷靜"],"up":"sa","down":"spd"},
   {"id":"sassy","n":["Grosera","Sassy","Malpoli","Vivace","自大","自大"],"up":"sd","down":"spd"},
-  {"id":"serious","n":["Seria","Serious","Sérieux","Seria","认真","認真"],"up":"","down":""}
-];
-G.NATURE_BY = {};
-for (const n of G.NATURES) G.NATURE_BY[n.id] = n;
+  {"id":"serious","n":["Seria","Serious","Sérieux","Seria","认真","認真"],"up":"","down":""},

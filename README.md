@@ -105,7 +105,7 @@ Las correcciones de datos, de textos o del modelo son bienvenidas: lee [CONTRIBU
 
 ## Créditos y licencia
 
-- **PokéSurvivor** es de [JPTER78](https://github.com/JPTER78/pokesurvivor) (código bajo PolyForm Noncommercial 1.0.0). Los datos de `data/game/` son copia de su repositorio.
+- **PokéSurvivor** es de [JPTER78](https://github.com/JPTER78/pokesurvivor) (código bajo PolyForm Noncommercial 1.0.0). Los datos de `data/game/` salen de su repositorio (desde el 30-10-2026, extraídos de `js/app.min.js` por `build/extract_game.mjs`).
 - El ranking en hordas que se muestra en cada ficha es de [SurvivorTiers](https://survivortiers.pages.dev/) (@fildotai).
 - Retratos de [PMD SpriteCollab](https://github.com/PMDCollab/SpriteCollab), CC BY-NC 4.0 (créditos por artista en su repositorio).
 - Pokémon © Nintendo / Creatures / GAME FREAK.

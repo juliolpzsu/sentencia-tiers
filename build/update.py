@@ -1,9 +1,11 @@
 """Comprueba si PokéSurvivor ha cambiado y, si afecta al ranking, lo actualiza.
 
-1. Descarga los ficheros de datos del juego (repo público JPTER78/pokesurvivor) y el índice de SurvivorTiers.
-2. Si alguno difiere de data/game/, los sustituye, apunta el commit del juego en data/game/VERSION y recalcula el ranking.
-3. Compara el ranking nuevo con el anterior: si cambian puestos, builds o puntuaciones, deja el nuevo y escribe
-   data/CHANGELOG.md; si no, restaura el anterior (nada que publicar).
+1. Descarga el bundle del juego (js/app.min.js del repo público JPTER78/pokesurvivor) y el índice de SurvivorTiers.
+2. Extrae los datos del bundle sin ejecutarlo (build/extract_game.mjs). Si algo difiere de data/game/, lo sustituye,
+   apunta el commit del juego en data/game/VERSION y recalcula el ranking.
+3. Compara el ranking nuevo con el anterior: si cambian puestos, builds o puntuaciones, o si cambia alguno de los
+   módulos de reglas que el modelo replica a mano, deja lo nuevo y escribe data/CHANGELOG.md; si no, restaura lo anterior.
+Si no se puede bajar o leer el bundle, termina con error: la Action debe ponerse roja, no quedarse en un «sin cambios».
 Salida: imprime un resumen y, en GitHub Actions, escribe changed=true/false en $GITHUB_OUTPUT.
 Uso: python -I build/update.py [--force]
 """
@@ -13,11 +15,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME = os.path.join(ROOT, 'data', 'game')
 RANK = os.path.join(ROOT, 'data', 'ranking.json')
 RAW = 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/'
-FILES = {f'js_data_{n}.js': f'js/data/{n}.js' for n in ('pokedex', 'moves', 'abilities', 'ability-fx', 'natures', 'tms', 'sprites-meta', 'lang-en', 'types', 'items', 'upgrades')}
-FILES['survivortiers-index.json'] = 'https://survivortiers.pages.dev/data/pokemon-index.json'
-FILES['js_ui_icons.js'] = 'js/ui/icons.js'          # iconos pixel art (build/icons.py)
-# Ficheros del juego cuyas reglas replica rank.py: si cambian, avisar en el changelog para revisar el modelo a mano.
-RULES = ['js/systems/judgment.js', 'js/systems/combat.js', 'js/entities/enemy.js', 'js/entities/player.js', 'js/systems/stats.js']
+BUNDLE = RAW + 'js/app.min.js'
+INDEX = 'https://survivortiers.pages.dev/data/pokemon-index.json'
+# lo que extract_game.mjs escribe y data/game guarda
+FILES = [f'js_data_{n}.js' for n in ('pokedex', 'moves', 'abilities', 'ability-fx', 'natures', 'tms', 'sprites-meta', 'lang-en', 'types')] + ['js_ui_icons.js']
+EXTRACT_RULES = 'RULES.sha'                         # huella de cada módulo de reglas (Judgment, Combat...)
 
 def fetch(url):
     req = urllib.request.Request(url, headers={'User-Agent': 'sentencia-tiers-update/1.0'})
@@ -27,10 +29,25 @@ def sha(b): return hashlib.sha256(norm(b)).hexdigest()[:12]
 
 def game_commit():
     try:
-        d = json.loads(fetch('https://api.github.com/repos/JPTER78/pokesurvivor/commits?path=js/data&per_page=1'))
+        d = json.loads(fetch('https://api.github.com/repos/JPTER78/pokesurvivor/commits?path=js/app.min.js&per_page=1'))
         c = d[0]; return c['sha'][:7], c['commit']['committer']['date'][:10]
     except Exception as e:
         print('aviso: no se pudo leer el commit del juego:', e); return 'desconocido', time.strftime('%Y-%m-%d')
+
+def extract():
+    """Baja el bundle y deja los ficheros extraídos en una carpeta temporal. Cualquier fallo aquí es un error."""
+    node = shutil.which('node')
+    if not node: sys.exit('ERROR: hace falta node para leer el bundle del juego')
+    tmp = tempfile.mkdtemp()
+    bundle = os.path.join(tmp, 'app.min.js')
+    try: open(bundle, 'wb').write(fetch(BUNDLE))
+    except Exception as e: sys.exit(f'ERROR: no se pudo descargar {BUNDLE}: {e}')
+    out_dir = os.path.join(tmp, 'out')
+    r = subprocess.run([node, os.path.join(ROOT, 'build', 'extract_game.mjs'), bundle, out_dir], capture_output=True, text=True, encoding='utf-8')
+    if r.stderr.strip(): print(r.stderr.strip())
+    if r.returncode != 0: sys.exit('ERROR: no se pudieron extraer los datos del bundle (¿ha cambiado el ofuscador o la forma de los datos?)')
+    print(r.stdout.strip())
+    return out_dir
 
 def out(key, val):
     p = os.environ.get('GITHUB_OUTPUT')
@@ -40,27 +57,27 @@ def main():
     force = '--force' in sys.argv
     changed_files = []
     new = {}
-    for local, remote in FILES.items():
-        url = remote if remote.startswith('http') else RAW + remote
-        try: data = fetch(url)
-        except Exception as e: print(f'aviso: no se pudo descargar {url}: {e}'); continue
-        if local.endswith('.json'):
-            try: json.loads(data)
-            except Exception: print('aviso: índice de SurvivorTiers no es JSON válido; se ignora'); continue
+    out_dir = extract()
+    for local in FILES:
+        data = norm(open(os.path.join(out_dir, local), 'rb').read())
         cur = os.path.join(GAME, local)
         old = open(cur, 'rb').read() if os.path.exists(cur) else b''
-        if sha(old) != sha(data): changed_files.append(local); new[local] = norm(data)
-    if not changed_files and not force:
-        print('Sin cambios en los datos del juego.'); out('changed', 'false'); return
-    print('Ficheros cambiados:', changed_files or '(forzado)')
-    # reglas que el modelo replica a mano
+        if sha(old) != sha(data): changed_files.append(local); new[local] = data
+    try:
+        data = fetch(INDEX); json.loads(data)
+        cur = os.path.join(GAME, 'survivortiers-index.json')
+        old = open(cur, 'rb').read() if os.path.exists(cur) else b''
+        if sha(old) != sha(data): changed_files.append('survivortiers-index.json'); new['survivortiers-index.json'] = norm(data)
+    except Exception as e: print(f'aviso: índice de SurvivorTiers no disponible; se ignora: {e}')
+    # reglas que el modelo replica a mano: una huella por módulo del bundle
     rules_sha_path = os.path.join(GAME, 'RULES.sha')
     old_rules = json.load(open(rules_sha_path, encoding='utf-8')) if os.path.exists(rules_sha_path) else {}
-    rules_changed = []; new_rules = {}
-    for f in RULES:
-        try: new_rules[f] = sha(fetch(RAW + f))
-        except Exception: new_rules[f] = old_rules.get(f, '?')
-        if old_rules.get(f) != new_rules[f]: rules_changed.append(f)
+    new_rules = json.load(open(os.path.join(out_dir, EXTRACT_RULES), encoding='utf-8'))
+    rules_changed = [m for m in new_rules if m in old_rules and old_rules[m] != new_rules[m]]
+    rules_new_format = new_rules != old_rules and not rules_changed       # primera huella de un módulo: no es un cambio del juego
+    if not changed_files and not rules_changed and not rules_new_format and not force:
+        print('Sin cambios en los datos del juego.'); out('changed', 'false'); return
+    print('Ficheros cambiados:', changed_files or '(ninguno)', '· reglas cambiadas:', rules_changed or '(ninguna)')
     # sustituir y recalcular
     backup = tempfile.mkdtemp()
     for local in new:
@@ -70,7 +87,7 @@ def main():
     commit, date = game_commit()
     open(os.path.join(GAME, 'VERSION'), 'w', encoding='utf-8', newline='\n').write(f'{commit} ({date})\n')
     old_rank = json.load(open(RANK, encoding='utf-8')) if os.path.exists(RANK) else None
-    r = subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'build', 'rank.py')], capture_output=True, text=True, encoding='utf-8')
+    r = subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'build', 'rank.py')], capture_output=True, text=True, encoding='utf-8', errors='replace')
     if r.returncode != 0:
         print('ERROR al recalcular el ranking (¿ha cambiado el formato de los datos del juego?):\n', r.stderr[-3000:])
         for local in new:
@@ -87,7 +104,7 @@ def main():
             if d in ok and ok[d][0] != nk[d][0]: moved.append((names[d], ok[d][0], nk[d][0]))
         affected = any(ok.get(d) != nk[d] for d in nk) or set(ok) != set(nk)
     else: affected = True
-    if not affected and not force:
+    if not affected and not rules_changed and not rules_new_format and not force:
         print('Los datos cambiaron pero el ranking es idéntico: no se publica nada.')
         for local in new:
             b = os.path.join(backup, local)
@@ -100,7 +117,7 @@ def main():
              f'- Ficheros del juego cambiados: {", ".join(changed_files) or "ninguno (forzado)"}.',
              f'- Pokémon que cambian de puesto: {len(moved)}.']
     for n, a, b in moved[:15]: lines.append(f'  - {n}: {a} → {b}')
-    if rules_changed: lines.append(f'- ATENCIÓN: han cambiado ficheros de reglas que el modelo replica a mano ({", ".join(rules_changed)}): revisar build/rank.py.')
+    if rules_changed: lines.append(f'- ATENCIÓN: han cambiado módulos de reglas que el modelo replica a mano ({", ".join(rules_changed)}): revisar build/rank.py (`node build/extract_game.mjs <app.min.js> --dump <Módulo>` da su texto para comparar).')
     lines.append('')
     cl = os.path.join(ROOT, 'data', 'CHANGELOG.md')
     old_cl = open(cl, encoding='utf-8').read() if os.path.exists(cl) else '# Actualizaciones automáticas del ranking\n\n'

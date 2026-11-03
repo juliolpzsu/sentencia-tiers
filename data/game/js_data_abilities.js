@@ -1,12 +1,4 @@
-/* ============ abilities.js — GENERADO, no editar a mano ============
- * G.ABIL[id]: nombres · G.DEX_ABIL[dex]: [habilidad 1, habilidad 2 o 0, oculta o 0].
- * Lo que hace cada una en el juego: js/data/ability-fx.js.
- * Sacado del PR #236 de TheAdro7 (datos de PokeAPI) el 20-10-2026.
- * Nombres: [es, en, fr, it, zh-Hans, zh-Hant] (pt-BR usa el inglés, como los
- * movimientos); van aquí y no en el diccionario porque "Potencia", "Imán" o
- * "Rara" ya significan otra cosa allí. Ver G.Mons.name().
- */
-G.ABIL = {
+/* abilities: generado por build/extract_game.mjs a partir de js/app.min.js de PokéSurvivor. No editar a mano. */
   "adaptability":["Adaptable","Adaptability","Adaptabilité","Adattabilità","适应力","適應力"],
   "aftermath":["Detonación","Aftermath","Boom Final","Scoppio","引爆","引爆"],
   "air-lock":["Bucle Aire","Air Lock","Air Lock","Riparo","气闸","氣閘"],
@@ -277,9 +269,7 @@ G.ABIL = {
   "wonder-guard":["Superguarda","Wonder Guard","Garde Mystik","Magidifesa","神奇守护","神奇守護"],
   "wonder-skin":["Piel Milagro","Wonder Skin","Peau Miracle","Splendicute","奇迹皮肤","奇跡皮膚"],
   "zen-mode":["Modo Daruma","Zen Mode","Mode Transe","Stato Zen","达摩模式","達摩模式"],
-  "zero-to-hero":["Cambio Heroico","Zero to Hero","Supermutation","Supercambio","全能变身","全能變身"]
-};
-G.DEX_ABIL = {
+  "zero-to-hero":["Cambio Heroico","Zero to Hero","Supermutation","Supercambio","全能变身","全能變身"],
   1:["overgrow",0,"chlorophyll"],
   2:["overgrow",0,"chlorophyll"],
   3:["overgrow",0,"chlorophyll"],
@@ -1245,5 +1235,4 @@ G.DEX_ABIL = {
   1017:["defiant",0,0],
   1018:["stamina","sturdy","stalwart"],
   1019:["supersweet-syrup","regenerator","sticky-hold"],
-  1024:["tera-shift",0,0]
-};
+  1024:["tera-shift",0,0],

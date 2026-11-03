@@ -56,7 +56,7 @@ The **Kecleon Shop** variant picks the ability, nature and TMs with the best mec
 │   ├── fetch_portraits.py Downloads the portraits (PMD SpriteCollab)
 │   └── update.py          Checks whether the game changed and updates if the ranking changes
 ├── data/
-│   ├── game/              Verbatim copy of the game data + VERSION and RULES.sha
+│   ├── game/              Game data extracted from its bundle + VERSION and RULES.sha
 │   ├── ranking.json       The guide: rank, tier, components and builds for every Pokémon
 │   └── CHANGELOG.md       History of automatic updates
 ├── docs/                  The site published with GitHub Pages (generated, do not edit by hand)
@@ -83,7 +83,7 @@ Weights live in `W` inside `build/rank.py`; build logic in `choose_build`; site 
 
 ## Automatic update
 
-A GitHub Action runs daily at 06:30 UTC (and manually from the *Actions* tab, with the `force` option): it downloads the game's data files and the SurvivorTiers index; if anything changed it records the game commit in `data/game/VERSION` and recomputes the ranking; if the ranking changes it regenerates the site, writes `data/CHANGELOG.md` and commits as `sentencia-tiers[bot]`. If any of the **rule** files the model replicates by hand changed, the entry is flagged **REVISAR REGLAS** and `rank.py` must be reviewed manually.
+A GitHub Action runs daily at 06:30 UTC (and manually from the *Actions* tab, with the `force` option): it downloads the game's bundle and the SurvivorTiers index and extracts the game data without running the bundle (`build/extract_game.mjs`); if anything changed it records the game commit in `data/game/VERSION` and recomputes the ranking; if the ranking changes it regenerates the site, writes `data/CHANGELOG.md` and commits as `sentencia-tiers[bot]`. If any of the **rule** files the model replicates by hand changed, the entry is flagged **REVISAR REGLAS** and `rank.py` must be reviewed manually.
 
 ## Contributing
 
@@ -91,7 +91,7 @@ Data, text and model fixes are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). 
 
 ## Credits and licence
 
-- **PokéSurvivor** is by [JPTER78](https://github.com/JPTER78/pokesurvivor) (code under PolyForm Noncommercial 1.0.0). `data/game/` is a copy of its repository.
+- **PokéSurvivor** is by [JPTER78](https://github.com/JPTER78/pokesurvivor) (code under PolyForm Noncommercial 1.0.0). `data/game/` comes from its repo (since 30-10-2026, extracted from `js/app.min.js`)sitory.
 - The horde ranking shown on each page is by [SurvivorTiers](https://survivortiers.pages.dev/) (@fildotai).
 - Portraits from [PMD SpriteCollab](https://github.com/PMDCollab/SpriteCollab), CC BY-NC 4.0 (per-artist credits in their repository).
 - Pokémon © Nintendo / Creatures / GAME FREAK.
